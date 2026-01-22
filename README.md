@@ -239,4 +239,4 @@ networks:
 3. Настройте использование контейнерами одной сети.
 В каждом сервисе присутствует параметр networks: - ershovao-my-netology-hw
 4. Запустите сценарий в detached режиме
-![Задание 6](https://drive.google.com/file/d/1xYcn3J5sTRVZRfWBQybRawwEWntGzHOV/view?usp=sharing)
+![Запуск docker compose up -d](.scrin/dz6.png)
