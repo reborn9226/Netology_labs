@@ -239,4 +239,17 @@ networks:
 3. Настройте использование контейнерами одной сети.
 В каждом сервисе присутствует параметр networks: - ershovao-my-netology-hw
 4. Запустите сценарий в detached режиме
+Скрин запуска docker compose up -d
 ![Запуск docker compose up -d](.scrin/dz6.png)
+
+Скрин запуска docker compose ps
+![](.scrin/docker_compose_ps.png)
+
+Скрин запуска prometheus
+![](.scrin/prometheus_test.png)
+
+Скрин запуска pushgateway
+![](.scrin/pushgateway_test.png)
+
+Скрин запуска grafana
+![](.scrin/grafana_test.png)
