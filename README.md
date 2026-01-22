@@ -240,4 +240,4 @@ networks:
 3. Настройте использование контейнерами одной сети.
 В каждом сервисе присутствует параметр networks: - ershovao-my-netology-hw
 4. Запустите сценарий в detached режиме
-[Задание 6](https://github.com/reborn9226/Netology_labs/blob/main/.scrin/exercise6.png)
+[](https://github.com/reborn9226/Netology_labs/blob/main/.scrin/exercise6.png)
