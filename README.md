@@ -1,4 +1,3 @@
-# Netology_labs
 ### Задание 2
 
 
@@ -240,4 +239,4 @@ networks:
 3. Настройте использование контейнерами одной сети.
 В каждом сервисе присутствует параметр networks: - ershovao-my-netology-hw
 4. Запустите сценарий в detached режиме
-[](https://github.com/reborn9226/Netology_labs/blob/main/.scrin/exercise6.png)
+![Задание 6](https://raw.githubusercontent.com/reborn926/Netology_labs/9022786c998e12774c11487474f0324af3e4bd7c/exercise6.png)
