@@ -1,4 +1,3 @@
-# Домашняя работа Docker часть 2. Ершова А.О.
 ### Задание 2
 
 
@@ -61,12 +60,12 @@ services:
       - prometheus-data:/prometheus
     networks:
       - ershovao-my-netology-hw
-
+    
 
 volumes:
   prometheus-data:
-
-
+  
+  
 networks:
   ershovao-my-netology-hw:
     driver: bridge
@@ -88,7 +87,7 @@ networks:
 
 ---
 Выполнения Задания 4
-Каталог pushgateway находится в корне проекта
+Каталог pushgateway находится в корне проекта 
 ```d
 version: '3.8'
 services:
@@ -139,10 +138,10 @@ services:
       - grafana-data:/var/lib/grafana
     networks:
       - ershovao-my-netology-hw
-
+        
 volumes:
-  grafana-data:
-
+  grafana-data:        
+  
 networks:
   ershovao-my-netology-hw:
     driver: bridge
@@ -152,7 +151,7 @@ networks:
           gateway: 10.5.0.1
 ```
 
-Содержание  custom. ini
+Содержание  custom. ini 
 
 ```custom.ini
 [security]
@@ -241,16 +240,108 @@ networks:
 В каждом сервисе присутствует параметр networks: - ershovao-my-netology-hw
 4. Запустите сценарий в detached режиме
 Скрин запуска docker compose up -d
+
 ![Запуск docker compose up -d](.scrin/dz6.png)
 
-Скрин запуска docker compose ps
-![](.scrin/docker_compose_ps.png)
-
+  
 Скрин запуска prometheus
+
 ![](/docker_2/.scrin/prometheus_test.png)
 
+  
+
 Скрин запуска pushgateway
+
 ![](/docker_2/.scrin/pushgateway_test.png)
 
+  
+
 Скрин запуска grafana
+
 ![](/docker_2/.scrin/grafana_test.png)
+
+--- 
+### Задание 7
+
+**Выполните действия.**
+
+1. Выполните запрос в Pushgateway для помещения метрики <ваши фамилия и инициалы> со значением 5 в Prometheus: `echo "<ваши фамилия и инициалы> 5" | curl --data-binary @- http://localhost:9091/metrics/job/netology`.
+2. Залогиньтесь в Grafana с помощью логина и пароля из предыдущего задания.
+3. Cоздайте Data Source Prometheus (Home -> Connections -> Data sources -> Add data source -> Prometheus -> указать "Prometheus server URL = [http://prometheus:9090](http://prometheus:9090/)" -> Save & Test).
+4. Создайте график на основе добавленной в пункте 5 метрики (Build a dashboard -> Add visualization -> Prometheus -> Select metric -> Metric explorer -> <ваши фамилия и инициалы -> Apply.
+
+В качестве решения приложите:
+
+- docker-compose.yml **целиком**;
+- скриншот команды docker ps после запуске docker-compose.yml;
+- скриншот графика, постоенного на основе вашей метрики.
+
+---
+### Решение 7
+docker-compose. yml целиком
+```docker-compose.yml
+version: '3.8'
+services:
+  prometheus:
+    image: prom/prometheus:v2.47.2
+    container_name: ershovao-netology-prometheus
+    command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    networks:
+      - ershovao-my-netology-hw
+    restart: always
+
+  pushgateway:
+    image: prom/pushgateway:v1.6.2
+    container_name: ershovao-netology-pushgateway
+    ports:
+    - 9091:9091
+    networks:
+      - ershovao-my-netology-hw
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana
+    container_name: ershovao-netology-grafana
+    environment:
+      GF_PATHS_CONFIG: /etc/grafana/custom.ini
+    ports:
+      - 80:3000
+    volumes:
+      - ./grafana:/etc/grafana
+      - grafana-data:/var/lib/grafana
+    networks:
+      - ershovao-my-netology-hw
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  ershovao-my-netology-hw:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1
+
+```
+
+
+Скрин запуска docker compose ps
+
+![](.scrin/docker_compose_ps.png)
+
+скриншот графика, построенного на основе моей метрики
+![](.scrin/grafana_prometheus.png)
+
+---
