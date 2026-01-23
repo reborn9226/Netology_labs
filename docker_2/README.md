@@ -1,3 +1,15 @@
+### Задание 1
+
+**Напишите ответ в свободной форме, не больше одного абзаца текста.**
+
+Установите Docker Compose и опишите, для чего он нужен и как может улучшить лично вашу жизнь.
+
+---
+### Решение задания 1 
+**Docker Compose** — это инструмент для оркестрации многоконтейнерных приложений, позволяющий описать всю архитектуру (сервисы, сети, тома) в одном файле `docker-compose.yml` и запускать её одной командой. В моей жизни он наводит порядок: вместо того чтобы запоминать и вводить десятки громоздких команд `docker run` с кучей флагов, я один раз фиксирую настройки в конфиге. Это превращает развертывание сложной среды из Prometheus, Grafana и баз данных в быстрый и безошибочный процесс, экономя время на отладке окружения и позволяя сосредоточиться на самой разработке или администрировании.
+
+
+---
 ### Задание 2
 
 
@@ -14,8 +26,8 @@
 При выполнении задания используйте подсеть 10.5.0.0/16. Ваша подсеть должна называться: <ваши фамилия и инициалы>-my-netology-hw. Все приложения из последующих заданий должны находиться в этой конфигурации.
 
 ---
-Выполнение Задания 2
-
+### Выполнение Задания 2
+- Конфиг на данном этапе 
 ```d
 version: '3.8'
 
@@ -42,8 +54,8 @@ networks:
 3. Обеспечьте внешний доступ к порту 9090 c докер-сервера.
 
 ---
-Выполнение Задания 3
-
+### Выполнение Задания 3
+- Конфиг на данном этапе 
 Я в корень проекта скопировал папку prometheus
 ```d
 version: '3.8'
@@ -86,7 +98,8 @@ networks:
 2. Обеспечьте внешний доступ к порту 9091 c докер-сервера.
 
 ---
-Выполнения Задания 4
+### Выполнения Задания 4
+- Конфиг на данном этапе 
 Каталог pushgateway находится в корне проекта 
 ```d
 version: '3.8'
@@ -119,8 +132,8 @@ networks:
 4. Обеспечьте внешний доступ к порту 3000 c порта 80 докер-сервера.
 
 ---
-Выполнение Задания 6
-
+### Выполнение Задания 6
+- Конфиг на данном этапе 
 Каталог с grafana в корне проекта
 
 ```d
@@ -171,73 +184,20 @@ admin_password = netology
 4. Запустите сценарий в detached режиме.
 
 ---
-Выполнение Задания 6
-
-Общий docker-compose.yml
-```docker-compose.yml
-version: '3.8'
-services:
-  prometheus:
-    image: prom/prometheus:v2.47.2
-    container_name: ershovao-netology-prometheus
-    command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml
-    ports:
-      - 9090:9090
-    volumes:
-      - ./prometheus:/etc/prometheus
-      - prometheus-data:/prometheus
-    networks:
-      - ershovao-my-netology-hw
-    restart: always
-
-  pushgateway:
-    image: prom/pushgateway:v1.6.2
-    container_name: ershovao-netology-pushgateway
-    ports:
-    - 9091:9091
-    networks:
-      - ershovao-my-netology-hw
-    depends_on:
-      - prometheus
-    restart: unless-stopped
-
-  grafana:
-    image: grafana/grafana
-    container_name: ershovao-netology-grafana
-    environment:
-      GF_PATHS_CONFIG: /etc/grafana/custom.ini
-    ports:
-      - 80:3000
-    volumes:
-      - ./grafana:/etc/grafana
-      - grafana-data:/var/lib/grafana
-    networks:
-      - ershovao-my-netology-hw
-    depends_on:
-      - prometheus
-    restart: unless-stopped
-
-volumes:
-  prometheus-data:
-  grafana-data:
-
-networks:
-  ershovao-my-netology-hw:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 10.5.0.0/16
-          gateway: 10.5.0.1
-
-```
+### Выполнение Задания 6
 
 1. Настройте поочередность запуска контейнеров.
- Я добавил в сервис pushgateway и grafana, параметр depends_on:  - prometheus (будет ожидать в первую очередь запуск prometheus)
+
+-  Я добавил в сервис pushgateway и grafana, параметр depends_on:  - prometheus (будет ожидать в первую очередь запуск prometheus)
+
 2. Настройте режимы перезапуска для контейнеров.
-В сервис prometheus я добавил параметр restart: always (контейнер всегда перезапускается при падении или перезагрузке хоста)
-В сервисы pushgateway и grafana добавил параметр restart: unless-stopped  Перезапускается при падении, но не после ручной остановки)
+
+- В сервис prometheus я добавил параметр restart: always (контейнер всегда перезапускается при падении или перезагрузке хоста)
+- В сервисы pushgateway и grafana добавил параметр restart: unless-stopped  Перезапускается при падении, но не после ручной остановки)
+
 3. Настройте использование контейнерами одной сети.
-В каждом сервисе присутствует параметр networks: - ershovao-my-netology-hw
+- В каждом сервисе присутствует параметр networks: - ershovao-my-netology-hw
+
 4. Запустите сценарий в detached режиме
 Скрин запуска docker compose up -d
 
