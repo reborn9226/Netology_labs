@@ -17,3 +17,12 @@ spec:
         image: nginx:latest
         ports:
         - containerPort: 80
+        # 1. Куда подключаем внутри контейнера
+        volumeMounts:
+        - name: html-volume
+          mountPath: /usr/share/nginx/html
+      # 2. Какую "флешку" берем
+      volumes:
+      - name: html-volume
+        configMap:
+          name: nginx-html-config
