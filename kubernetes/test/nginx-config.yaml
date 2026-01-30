@@ -6,6 +6,7 @@ data:
   index.html: |
     <html>
     <head><title>Hello K3s</title></head>
+    <meta charset="UTF-8">
     <body>
       <h1>Ура! Это моя собственная страница в k3s! 🚀</h1>
       <p>Файл подан через ConfigMap.</p>
