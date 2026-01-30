@@ -15,6 +15,19 @@ spec:
       containers:
       - name: nginx
         image: nginx:latest
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "64Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5  # Подождать 5 секунд после старта
+          periodSeconds: 10       # Проверять каждые 10 секунд
         ports:
         - containerPort: 80
         # 1. Куда подключаем внутри контейнера
