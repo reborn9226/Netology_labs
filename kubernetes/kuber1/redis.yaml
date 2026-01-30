@@ -13,10 +13,10 @@ spec:
         app: redis
     spec:
       containers:
-      - name: master
-        image: bitnami/redis
-        env:
+       - name: master
+          image: bitnami/redis
+         env:
          - name: REDIS_PASSWORD
            value: password123
-        ports:
+         ports:
         - containerPort: 6379
