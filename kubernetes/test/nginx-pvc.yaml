@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce # это значит, что диск может быть подключен только к одному узлу одновременно (для одного сервера это всегда так).
+  resources:
+    requests:
+      storage: 1Gi #  1gb места на диске хоста
