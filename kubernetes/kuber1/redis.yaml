@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: redis
+  name: redis-deployment
 spec:
   selector:
     matchLabels:
@@ -13,10 +13,13 @@ spec:
         app: redis
     spec:
       containers:
-       - name: master
-          image: bitnami/redis
-         env:
-         - name: REDIS_PASSWORD
-           value: password123
-         ports:
+      - name: redis-master
+        image: redis:6.0.13
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password
+        ports:
         - containerPort: 6379
