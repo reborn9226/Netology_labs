@@ -2,6 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: nginx-pvc
+  namespace: web-project # Указываем что у нас есть новый namespase 
 spec:
   accessModes:
     - ReadWriteOnce # это значит, что диск может быть подключен только к одному узлу одновременно (для одного сервера это всегда так).
