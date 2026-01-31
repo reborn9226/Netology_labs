@@ -18,6 +18,11 @@ spec:
         env:
         - name: LANG
           value: "C.UTF-8"        # Добавил поддержку кодировки UTF-8 в контейнерах
+        - name: SECRET_TOKEN      # Имя переменной внутри пода (контейнера)
+          valueFrom:              # Получаем секрет из переменной окружения
+            secretKeyRef:
+              name: my-api-key    # Имя нашего секрета (ранее созданного)
+              key: api-password   # Ключ втури секрета (ранее созданного)
         resources:                # Ограничение ресурсов
           requests:
             memory: "32Mi"
