@@ -1,0 +1,16 @@
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s3:
+      dhcp4: no
+      addresses:
+        - 192.168.88.42/24  # фиксированный IP для ноды
+      routes:
+        - to: default
+          via: 192.168.88.1
+      nameservers:
+        addresses:
+          - 192.168.88.1  # ваш роутер
+          - 8.8.8.8
+          - 8.8.4.4
