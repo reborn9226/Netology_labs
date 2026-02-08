@@ -1,24 +1,25 @@
 ---
 - name: Загрузка и распаковка архива
   hosts: node
-  become: no
+  become: no  # Не требуется повышение привелегий
 
   tasks:
     - name: Создаем директорию для загрузки
-      ansible.builtin.file:
+      ansible.builtin.file:  # Встроеный модуль для работы с файлами и директориями
         path: ~/downloads
         state: directory
         mode: "0755"
 
     - name: Скачать архив
-      ansible.builtin.get_url:
+      ansible.builtin.get_url: # Встроенный модуль для загрузки файлов по URL
         url: https://dlcdn.apache.org/kafka/4.1.1/kafka-4.1.1-src.tgz
         dest: ~/downloads/kafka-4.1.1-src.tgz
         mode: "0644"
 
     - name: Распаковать архив
-      ansible.builtin.unarchive:
+      ansible.builtin.unarchive:  # Встроенный модуль для распаковки архивов
         src: ~/downloads/kafka-4.1.1-src.tgz
         dest: ~/downloads/
         remote_src: yes
-        creates: ~/downloads/kafka-4.1.1-src
+        creates: ~/downloads/kafka-4.1.1-src # Проверка на существование распакованной директории, чтобы избежать повторной распаковки
+        
