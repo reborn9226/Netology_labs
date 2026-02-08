@@ -5,12 +5,12 @@ network:
     enp0s3:
       dhcp4: no
       addresses:
-        - 192.168.88.42/24  # фиксированный IP для ноды
+        - 192.168.88.42/24
       routes:
         - to: default
           via: 192.168.88.1
       nameservers:
         addresses:
-          - 192.168.88.1  # ваш роутер
+          - 192.168.88.1
           - 8.8.8.8
           - 8.8.4.4

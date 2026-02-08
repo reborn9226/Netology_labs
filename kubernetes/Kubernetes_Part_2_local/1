@@ -1,0 +1,5 @@
+sudo tree /etc/hosts << EOF
+192.168.88.41 node1
+192.168.88.42 node2
+192.168.88.43 node3
+EOF
