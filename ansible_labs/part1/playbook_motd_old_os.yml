@@ -1,0 +1,25 @@
+---
+- name: Смена приветствия в MOTD
+  hosts: node
+  become: yes
+  vars_files:
+    -  passwords.yml  # файл с переменной для хранения пароля sudo
+
+  vars:
+    new_motd: "Сервер управляется Ansible."  # Новое приветствие для MOTD обьявленное через переменную
+    ansible_become_pass: "{{ sudo_pass }}" # Используем переменную из файла passwords.yml для пароля sudo
+
+  tasks:
+    - name: Сохранение старого MOTD на всякий случай
+      ansible.builtin.copy:
+        src: /etc/motd
+        dest: /etc/motd.backup
+        remote_src: yes
+
+    - name: Смена приветствия в MOTD
+      ansible.builtin.copy:
+        content: "{{ new_motd }}" # Используем переменную для приветствия
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: '0644'
