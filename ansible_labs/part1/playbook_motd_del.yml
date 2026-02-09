@@ -1,5 +1,5 @@
 ---
-- name: Смена приветствия в MOTD
+- name: Восстановление стандартного приветствия в MOTD
   hosts: node
   become: yes
   vars_files:
