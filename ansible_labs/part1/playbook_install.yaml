@@ -1,0 +1,20 @@
+---
+- name: Установка пакета tuned
+  hosts: node
+  become: yes
+  vars_files:
+    -  passwords.yml  # файл с переменной для хранения пароля sudo
+  vars:
+    ansible_become_pass: "{{ sudo_pass }}" # Используем переменную из файла passwords.yml для пароля sudo
+
+  tasks:
+    - name: Устанавить пакет tuned
+      ansible.builtin.apt:  # Встроенный модуль для управления пакетами apt
+        name: tuned
+        state: latest  # Устанавливаем последнюю версию пакета
+
+    - name: Убедится что tuned запущен и включен в автозагрузку
+      ansible.builtin.service: # Встроенный модуль для управления службами
+        name: tuned
+        state: started
+        enabled: yes
