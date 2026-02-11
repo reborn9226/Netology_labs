@@ -205,8 +205,120 @@
 - предоставьте скриншот браузера, отображающего сконфигурированный index. html в качестве сайта.
 
 ---
+### Решение 3
+Ссылка на архив роли [Роль](part3/apache_role.tar.gz)
+Структура проекта
+```bash
+❯ tree -l 3 ~/git/Netology_labs/ansible_labs/part3
+3  [error opening dir]
+/home/alex/git/Netology_labs/ansible_labs/part3
+├── ansible.cfg
+├── ansible.log
+├── apache_role.tar.gz                     # Архив с ролью 
+├── group_vars
+│   └── node
+│       └── vault.yml                     # зашифрованый пароль для sudo
+├── inventory.ini                         # хосты
+├── playbook_install_apache.yml           # Основной плейбук
+└── roles
+    └── apache                            # Роль
+        ├── defaults
+        │   └── main.yml
+        ├── handlers                      # Обработчик
+        │   └── main.yml
+        ├── meta
+        │   └── main.yml
+        ├── README.md
+        ├── tasks                         # Задачи по установке apache2
+        │   └── main.yml
+        ├── templates
+        │   └── index.html.j2             # Шаблон стартовой страницы apache2
+        ├── tests
+        │   ├── inventory
+        │   └── test.yml
+        └── vars
+            └── main.yml
 
+12 directories, 15 files
+```
+Исполняющий playbook
+```bash
+---
+- name: Установка и настройка Apache2
+  hosts: node
+  become: yes
 
+  roles:
+    - apache
+```
+Конфигурация с задачами 
+```bash
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for apache
+- name: Установить пакет apache2
+  ansible.builtin.apt:
+      name: apache2
+      state: present
+      update_cache: yes
+
+- name: Скопировать файл index.html
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    owner: www-data
+    group: www-data
+    mode: '0644'
+  notify: restart apache2
+
+- name: Аатозапуск apache2
+  ansible.builtin.service:
+      name: apache2
+      state: started
+      enabled: true
+
+- name: Проверка доступности стандартной страницы apache2
+  ansible.builtin.uri:
+      url: "http://{{ ansible_default_ipv4.address }}"
+      status_code: 200
+
+```
+Конфигурация обработчика
+```bash
+#SPDX-License-Identifier: MIT-0
+---
+# handlers file for apache
+- name: restart apache2
+  ansible.builtin.service:
+    name: apache2
+    state: restarted
+```
+Шаблон стартовой страницы apache2
+```bash
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Характеристики хоста {{ ansible_hostname }}</title>
+</head>
+<body>
+    <h1>Системные характеристики сервера</h1>
+    <ul>
+        <li><b>CPU:</b> {{ ansible_processor_vcpus }} vCPU</li>
+        <li><b>RAM:</b> {{ ansible_memtotal_mb }} MB</li>
+        <li><b>Первый HDD (sda):</b> {{ ansible_devices.sda.size }}</li>
+        <li><b>IP-адрес:</b> {{ ansible_default_ipv4.address }}</li>
+    </ul>
+</body>
+</html>
+```
+Открытие порта не требовалось, так как на удаленной виртуальной машине небыл запущей фаервол. 
+
+Выполнение основного плейбука
+![playbook](.scrins/3-1-playbook.png)
+
+Рабочая стартовая страница apache2
+![Браузер](.scrins/3-1-playbook-web.png)
 
 
 
