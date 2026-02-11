@@ -120,8 +120,11 @@
           #!/bin/bash
           echo "{{ new_motd }}" # Используем переменную приветстврия для вывода в MOTD
 ```
+Лог выполенения playbook_motd
+![Лог выполнения playbook ](.scrins/1-3-motd.png)
 
-
+Демонстрация на удаленном сервере
+![Ubuntu](.scrins/1-3-motd-node1.png)
 
 ---
 
