@@ -136,8 +136,52 @@
 
 
 ---
+### Решение 2
+Для решения этого задания я изучил переменные ansible_facts благодаря которым можно брать информацию о характеристиках удаленной машине
+[Посмотреть плейбук из задания 2](part2/playbook_motd2.yml)
+```bash
+---
+- name: Смена приветствия в MOTD
+  hosts: node
+  become: yes
+  vars_files:
+    - passwords.yml  # файл с переменной для хранения пароля sudo
 
+  vars:
+    good_day: ">>> Желаю продуктивного дня и удачи в работе! <<<"  # Новое приветствие для MOTD обьявленное через переменную
+    ansible_become_pass: "{{ sudo_pass }}" # Используем переменную из файла passwords.yml для пароля sudo
 
+  tasks:
+    - name: Отключение скриптов обновления MOTD
+      ansible.builtin.file:
+        path: "/etc/update-motd.d/{{ item }}" # Указываем встроенную динамическую перменную item для интерации по списку скриптов
+        mode: '0644'  # Устанавливаем права на файл, что бы он не был исполняемым
+      loop:  # Используем цикл для итерации по списку скриптов, которые обновляют MOTD
+        - 00-header
+        - 10-help-text
+        - 50-motd-news
+        - 60-unminimize
+        - 91-release-upgrade
+        - 92-unattended-upgrades
+
+    - name: Создаем свое приветствие для MOTD
+      ansible.builtin.copy:
+        dest: /etc/update-motd.d/99-ansible-motd
+        mode: '0755' # Делаем его исполняемым, что бы он мог выводить приветствие при входе в систему
+        content: |
+          #!/bin/bash
+          echo "=================================================="
+          echo "Добро пожаловать на сервер: {{ ansible_hostname }}"
+          echo "IP -адрес этого хоста: {{ ansible_default_ipv4.address }}"
+          echo "--------------------------------------------------"
+          echo "{{ good_day }}"
+          echo "=================================================="
+```
+Лог выполенния playbook
+![playbook](.scrins/2-1-motd_host_ip.png)
+
+Демонстрация на удаленной машине 
+![Ubuntu](.scrins/2-1-motd_host_ip_node1.png)
 
 ---
 ### [](https://raw.githubusercontent.com/netology-code/sdvps-homeworks/refs/heads/main/7-01.part_2.md#%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-3)Задание 3
