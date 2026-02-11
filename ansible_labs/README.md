@@ -206,7 +206,8 @@
 
 ---
 ### Решение 3
-Ссылка на архив роли [Роль](part3/apache_role.tar.gz)
+Ссылка на архив роли https://drive.google.com/file/d/1F9EYMn8-eb-O3PoPTCWChcCN-MKQmaYI/view?usp=sharing
+
 Структура проекта
 ```bash
 ❯ tree -l 3 ~/git/Netology_labs/ansible_labs/part3
