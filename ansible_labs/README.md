@@ -74,10 +74,9 @@
         enabled: yes
 ```
 
-Так как у меня нет пользователя root на сервере, я выполнял установку через повышение прав become. Я создал  [зашифрованный  файл passwords.yml](part 1/passwords. yml) с переменной sudo_pass: "мой пароль"и указал его как переменную в [playbook_install.yaml](part 1/playbook_install.yaml)
-![Создание зашифрованного файла ](. scrins/1-2-create-pass.png)
+Так как у меня нет пользователя root на сервере, я выполнял установку через повышение прав become. Я создал  зашифрованный  файл passwords. yml с переменной sudo_pass: "мой пароль"и указал его как переменную
+![Создание зашифрованного файла ](.scrins/1-2-create-pass.png)
 Лог выполнения [playbook_install.yaml](part 1/playbook_install.yaml)
-
 ![Скрин лог выполнения playbook_install.yaml](.scrins/1-2-install-tuned.png)
 
 Скрин запущенной службы утилиты tuned
