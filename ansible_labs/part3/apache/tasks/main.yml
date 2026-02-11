@@ -1,0 +1,14 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for apache
+- name: Установить пакет apache2
+  ansible.builtin.apt:
+      name: apache2
+      state: present
+      update_cache: yes
+
+- name: Убедится что apache2 запущен
+  ansible.builtin.service:
+      name: apache2
+      state: started
+      enabled: true

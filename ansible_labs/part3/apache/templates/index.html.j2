@@ -1,0 +1,12 @@
+<html>
+<head><title>Welcome</title></head>
+<body>
+    <h1>Добро пожаловать! Это сервер: {{ ansible_hostname }}</h1>
+    <p>Мой IP адрес: {{ ansible_default_ipv4.address }}</p>
+    <p>Параметры текущего сервера:  </p>
+    <p>Процессор: {{ ansible_processor[0] }}</p>
+    <p>Количество ядер: {{ ansible_processor_cores }}</p>
+    <p>Оперативная память: {{ ansible_memory_mb }}</p>
+    <p>Обьем диска: {{ ansible_facts['ansible_devices']['sda']['size'] }}</p>
+</body>
+</html>
