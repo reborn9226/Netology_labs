@@ -13,7 +13,8 @@
 
 ---
 ### Решение 1
-Вот playbook который я написал для загрузки и распаковки kafka [Посмотреть плейбук из задания 1/1](part1/playbook_task1.yaml)
+#### Подзадача 1
+Вот playbook  загрузки и распаковки kafka [Посмотреть плейбук из задания 1/1](part1/playbook_task1.yaml)
 ```shell
 ---
 - name: Загрузка и распаковка архива
@@ -44,6 +45,43 @@
 
 Лог выполнения playbook
 ![Лог выполнения playbook ](.scrins/1-1.png)
+
+Скрин на стороне удаленного сервера
+![Скрин на стороне удаленного сервера](.scrins/1-1-node1.png)
+
+#### Подзадача 2
+Вот playbook  установки пакета tuned [Посмотреть плейбук из задания 1/2](part 1/playbook_install.yaml)
+```bash
+---
+- name: Установка пакета tuned
+  hosts: node
+  become: yes
+  vars_files:
+    -  passwords.yml  # файл с переменной для хранения пароля sudo
+  vars:
+    ansible_become_pass: "{{ sudo_pass }}" # Используем переменную из файла passwords.yml для пароля sudo
+
+  tasks:
+    - name: Устанавить пакет tuned
+      ansible.builtin.apt:  # Встроенный модуль для управления пакетами apt
+        name: tuned
+        state: latest  # Устанавливаем последнюю версию пакета
+
+    - name: Убедится что tuned запущен и включен в автозагрузку
+      ansible.builtin.service: # Встроенный модуль для управления службами
+        name: tuned
+        state: started
+        enabled: yes
+```
+
+Так как у меня нет пользователя root на сервере, я выполнял установку через повышение прав become. Я создал  [зашифрованный  файл passwords.yml](part 1/passwords. yml) с переменной sudo_pass: "мой пароль"и указал его как переменную в [playbook_install.yaml](part 1/playbook_install.yaml)
+![Создание зашифрованного файла ](. scrins/1-2-create-pass.png)
+Лог выполнения [playbook_install.yaml](part 1/playbook_install.yaml)
+![Скрин лог выполнения playbook_install.yaml](.scrins/1-2-install-tuned.png)
+
+Скрин запущенной службы утилиты tuned
+![Служба](.scrins/1-2-install-tuned_node1.png)
+
 ---
 
 ### [](https://raw.githubusercontent.com/netology-code/sdvps-homeworks/refs/heads/main/7-01.part_2.md#%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-2)Задание 2
