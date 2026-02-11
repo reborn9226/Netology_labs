@@ -84,6 +84,45 @@
 Скрин запущенной службы утилиты tuned
 ![Служба](.scrins/1-2-install-tuned_node1.png)
 
+#### Подзадача 3
+Так как у меня удаленный сервер на Ubuntu, то пришлось детально вникать как работает вообще привествие на данной ОС. Оказалось что там приветвие динамическое и выполняется при помощи скриптов. Мне пришлось отключить другие скрипты находящиеся в /etc/update-motd.d. Я просто убрал право на выполнения скрипта. Созадал там свой скрипт 99-ansible-motd и через переменную подставил приветствие.
+[Посмотреть плейбук из задания 1/3](part1/playbook_motd.yml)
+```bash
+---
+- name: Смена приветствия в MOTD
+  hosts: node
+  become: yes
+  vars_files:
+    - passwords.yml  # файл с переменной для хранения пароля sudo
+
+  vars:
+    new_motd: ">>> Сервер управляется Ansible. <<<"  # Новое приветствие для MOTD обьявленное через переменную
+    ansible_become_pass: "{{ sudo_pass }}" # Используем переменную из файла passwords.yml для пароля sudo
+
+  tasks:
+    - name: Отключение скриптов обновления MOTD
+      ansible.builtin.file:
+        path: "/etc/update-motd.d/{{ item }}" # Указываем встроенную динамическую перменную item для интерации по списку скриптов
+        mode: '0644'  # Устанавливаем права на файл, что бы он не был исполняемым
+      loop:  # Используем цикл для итерации по списку скриптов, которые обновляют MOTD
+        - 00-header
+        - 10-help-text
+        - 50-motd-news
+        - 60-unminimize
+        - 91-release-upgrade
+        - 92-unattended-upgrades
+
+    - name: Создаем свое приветствие для MOTD
+      ansible.builtin.copy:
+        dest: /etc/update-motd.d/99-ansible-motd
+        mode: '0755' # Делаем его исполняемым, что бы он мог выводить приветствие при входе в систему
+        content: |
+          #!/bin/bash
+          echo "{{ new_motd }}" # Используем переменную приветстврия для вывода в MOTD
+```
+
+
+
 ---
 
 ### [](https://raw.githubusercontent.com/netology-code/sdvps-homeworks/refs/heads/main/7-01.part_2.md#%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-2)Задание 2
