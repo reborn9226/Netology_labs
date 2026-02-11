@@ -7,6 +7,15 @@
       state: present
       update_cache: yes
 
+
+
+- name: Скопировать файл index.html
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    mode: '0644'
+    notify: Restart apache2
+
 - name: Убедится что apache2 запущен
   ansible.builtin.service:
       name: apache2

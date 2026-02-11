@@ -1,0 +1,7 @@
+---
+- name: Установка и настройка Apache2
+  hosts: node
+  become: yes
+
+  roles:
+    - apache

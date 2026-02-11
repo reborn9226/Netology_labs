@@ -1,0 +1,187 @@
+2026-02-11 22:22:25,209 p=5991 u=alex n=ansible WARNING| [WARNING]: Failed to parse inventory with 'ini' plugin: Failed to parse inventory: Expected key=value host variable assignment, got: 192.168.88.40
+
+Failed to parse inventory with 'ini' plugin.
+
+<<< caused by >>>
+
+Failed to parse inventory: Expected key=value host variable assignment, got: 192.168.88.40
+Origin: /home/alex/git/Netology_labs/ansible_labs/part3/inventnory.ini
+
+
+2026-02-11 22:22:25,210 p=5991 u=alex n=ansible WARNING| [WARNING]: Unable to parse /home/alex/git/Netology_labs/ansible_labs/part3/inventnory.ini as an inventory source
+
+2026-02-11 22:22:25,210 p=5991 u=alex n=ansible WARNING| [WARNING]: No inventory was parsed, only implicit localhost is available
+
+2026-02-11 22:22:25,217 p=5991 u=alex n=ansible WARNING| [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match 'all'
+
+2026-02-11 22:23:00,366 p=6245 u=alex n=ansible WARNING| [WARNING]: Failed to parse inventory with 'ini' plugin: Failed to parse inventory: Expected key=value host variable assignment, got: 192.168.88.40
+
+Failed to parse inventory with 'ini' plugin.
+
+<<< caused by >>>
+
+Failed to parse inventory: Expected key=value host variable assignment, got: 192.168.88.40
+Origin: /home/alex/git/Netology_labs/ansible_labs/part3/inventnory.ini
+
+
+2026-02-11 22:23:00,368 p=6245 u=alex n=ansible WARNING| [WARNING]: Unable to parse /home/alex/git/Netology_labs/ansible_labs/part3/inventnory.ini as an inventory source
+
+2026-02-11 22:23:00,369 p=6245 u=alex n=ansible WARNING| [WARNING]: No inventory was parsed, only implicit localhost is available
+
+2026-02-11 22:23:00,372 p=6245 u=alex n=ansible WARNING| [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match 'all'
+
+2026-02-11 22:23:33,637 p=6363 u=alex n=ansible ERROR| [ERROR]: Task failed: Failed to connect to the host via ssh: Host key verification failed.
+Origin: <adhoc 'ping' task>
+
+{'action': 'ping', 'args': {}, 'timeout': 0, 'async_val': 0, 'poll': 15}
+
+
+2026-02-11 22:23:33,637 p=6363 u=alex n=ansible INFO| nodetest | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Task failed: Failed to connect to the host via ssh: Host key verification failed.",
+    "unreachable": true
+}
+2026-02-11 22:28:36,257 p=8500 u=alex n=ansible WARNING| [WARNING]: Host 'nodetest' is using the discovered Python interpreter at '/usr/bin/python3.10', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-02-11 22:28:36,258 p=8500 u=alex n=ansible INFO| nodetest | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3.10"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+2026-02-11 22:29:01,387 p=8753 u=alex n=ansible ERROR| [ERROR]: role definitions must contain a role name
+Origin: /home/alex/git/Netology_labs/ansible_labs/part3/playbook_install_apache.yml:9:7
+
+7
+8   roles:
+9     - apache:
+        ^ column 7
+
+
+2026-02-11 22:31:47,319 p=9118 u=alex n=ansible ERROR| [ERROR]: A malformed role declaration was encountered: ds (apache) should be a list but was a <class 'ansible.module_utils._internal._datatag._AnsibleTaggedStr'>
+Origin: /home/alex/git/Netology_labs/ansible_labs/part3/playbook_install_apache.yml:2:3
+
+1 ---
+2 - name: Установка и настройка Apache2
+    ^ column 3
+
+
+2026-02-11 22:33:04,977 p=9284 u=alex n=ansible ERROR| [ERROR]: A malformed role declaration was encountered: ds (apache) should be a list but was a <class 'ansible.module_utils._internal._datatag._AnsibleTaggedStr'>
+Origin: /home/alex/git/Netology_labs/ansible_labs/part3/playbook_install_apache.yml:2:3
+
+1 ---
+2 - name: Установка и настройка Apache2
+    ^ column 3
+
+
+2026-02-11 22:34:07,701 p=9520 u=alex n=ansible INFO| PLAY [Установка и настройка Apache2] **************************************************************************************************************************************************************************************
+2026-02-11 22:34:07,708 p=9520 u=alex n=ansible INFO| TASK [Gathering Facts] ****************************************************************************************************************************************************************************************************
+2026-02-11 22:34:07,723 p=9520 u=alex n=ansible ERROR| [ERROR]: Task failed: Error processing keyword 'become_pass': 'sudo_pass' is undefined
+
+Task failed.
+
+<<< caused by >>>
+
+Error processing keyword 'become_pass': 'sudo_pass' is undefined
+Origin: /home/alex/git/Netology_labs/ansible_labs/part3/inventnory.ini:8
+
+6 [node:vars]
+7 ansible_user=alex
+8 ansible_become_pass={{ sudo_pass }}
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+2026-02-11 22:34:07,724 p=9520 u=alex n=ansible INFO| fatal: [nodetest]: FAILED! => {"changed": false, "msg": "Task failed: Error processing keyword 'become_pass': 'sudo_pass' is undefined"}
+2026-02-11 22:34:07,725 p=9520 u=alex n=ansible INFO| PLAY RECAP ****************************************************************************************************************************************************************************************************************
+2026-02-11 22:34:07,725 p=9520 u=alex n=ansible INFO| nodetest                   : ok=0    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2026-02-11 22:34:44,796 p=9680 u=alex n=ansible INFO| PLAY [Установка и настройка Apache2] **************************************************************************************************************************************************************************************
+2026-02-11 22:34:44,802 p=9680 u=alex n=ansible INFO| TASK [Gathering Facts] ****************************************************************************************************************************************************************************************************
+2026-02-11 22:34:45,638 p=9680 u=alex n=ansible WARNING| [WARNING]: Host 'nodetest' is using the discovered Python interpreter at '/usr/bin/python3.10', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-02-11 22:34:45,639 p=9680 u=alex n=ansible ERROR| [ERROR]: Task failed: Missing sudo password
+
+2026-02-11 22:34:45,639 p=9680 u=alex n=ansible INFO| fatal: [nodetest]: FAILED! => {"changed": false, "msg": "Task failed: Missing sudo password"}
+2026-02-11 22:34:45,640 p=9680 u=alex n=ansible INFO| PLAY RECAP ****************************************************************************************************************************************************************************************************************
+2026-02-11 22:34:45,640 p=9680 u=alex n=ansible INFO| nodetest                   : ok=0    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2026-02-11 22:37:55,285 p=10154 u=alex n=ansible INFO| PLAY [Установка и настройка Apache2] **************************************************************************************************************************************************************************************
+2026-02-11 22:37:55,291 p=10154 u=alex n=ansible INFO| TASK [Gathering Facts] ****************************************************************************************************************************************************************************************************
+2026-02-11 22:37:55,310 p=10154 u=alex n=ansible ERROR| [ERROR]: Task failed: Error processing keyword 'become_pass': 'sudo_pass' is undefined
+
+Task failed.
+
+<<< caused by >>>
+
+Error processing keyword 'become_pass': 'sudo_pass' is undefined
+Origin: /home/alex/git/Netology_labs/ansible_labs/part3/inventnory.ini:8
+
+6 [node:vars]
+7 ansible_user=alex
+8 ansible_become_pass={{ sudo_pass }}
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+2026-02-11 22:37:55,310 p=10154 u=alex n=ansible INFO| fatal: [nodetest]: FAILED! => {"changed": false, "msg": "Task failed: Error processing keyword 'become_pass': 'sudo_pass' is undefined"}
+2026-02-11 22:37:55,311 p=10154 u=alex n=ansible INFO| PLAY RECAP ****************************************************************************************************************************************************************************************************************
+2026-02-11 22:37:55,311 p=10154 u=alex n=ansible INFO| nodetest                   : ok=0    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2026-02-11 22:38:07,378 p=10298 u=alex n=ansible INFO| PLAY [Установка и настройка Apache2] **************************************************************************************************************************************************************************************
+2026-02-11 22:38:07,383 p=10298 u=alex n=ansible INFO| TASK [Gathering Facts] ****************************************************************************************************************************************************************************************************
+2026-02-11 22:38:07,399 p=10298 u=alex n=ansible ERROR| [ERROR]: Task failed: Error processing keyword 'become_pass': 'sudo_pass' is undefined
+
+Task failed.
+
+<<< caused by >>>
+
+Error processing keyword 'become_pass': 'sudo_pass' is undefined
+Origin: /home/alex/git/Netology_labs/ansible_labs/part3/inventnory.ini:8
+
+6 [node:vars]
+7 ansible_user=alex
+8 ansible_become_pass={{ sudo_pass }}
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+2026-02-11 22:38:07,399 p=10298 u=alex n=ansible INFO| fatal: [nodetest]: FAILED! => {"changed": false, "msg": "Task failed: Error processing keyword 'become_pass': 'sudo_pass' is undefined"}
+2026-02-11 22:38:07,400 p=10298 u=alex n=ansible INFO| PLAY RECAP ****************************************************************************************************************************************************************************************************************
+2026-02-11 22:38:07,401 p=10298 u=alex n=ansible INFO| nodetest                   : ok=0    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2026-02-11 22:47:12,553 p=10912 u=alex n=ansible INFO| PLAY [Установка и настройка Apache2] **************************************************************************************************************************************************************************************
+2026-02-11 22:47:12,558 p=10912 u=alex n=ansible ERROR| [ERROR]: Attempting to decrypt but no vault secrets found.
+
+2026-02-11 22:48:41,077 p=11403 u=alex n=ansible WARNING| [WARNING]: /home/alex/git/Netology_labs/part3/group_vars/node does not exist, creating...
+
+2026-02-11 22:50:42,705 p=12273 u=alex n=ansible INFO| PLAY [Установка и настройка Apache2] **************************************************************************************************************************************************************************************
+2026-02-11 22:50:42,712 p=12273 u=alex n=ansible INFO| TASK [Gathering Facts] ****************************************************************************************************************************************************************************************************
+2026-02-11 22:50:43,356 p=12273 u=alex n=ansible WARNING| [WARNING]: Host 'nodetest' is using the discovered Python interpreter at '/usr/bin/python3.10', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-02-11 22:50:43,356 p=12273 u=alex n=ansible ERROR| [ERROR]: Task failed: Missing sudo password
+
+2026-02-11 22:50:43,357 p=12273 u=alex n=ansible INFO| fatal: [nodetest]: FAILED! => {"changed": false, "msg": "Task failed: Missing sudo password"}
+2026-02-11 22:50:43,358 p=12273 u=alex n=ansible INFO| PLAY RECAP ****************************************************************************************************************************************************************************************************************
+2026-02-11 22:50:43,358 p=12273 u=alex n=ansible INFO| nodetest                   : ok=0    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2026-02-11 22:51:25,571 p=12526 u=alex n=ansible INFO| PLAY [Установка и настройка Apache2] **************************************************************************************************************************************************************************************
+2026-02-11 22:51:25,576 p=12526 u=alex n=ansible INFO| TASK [Gathering Facts] ****************************************************************************************************************************************************************************************************
+2026-02-11 22:51:25,894 p=12526 u=alex n=ansible WARNING| [WARNING]: Host 'nodetest' is using the discovered Python interpreter at '/usr/bin/python3.10', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-02-11 22:51:25,894 p=12526 u=alex n=ansible ERROR| [ERROR]: Task failed: Missing sudo password
+
+2026-02-11 22:51:25,894 p=12526 u=alex n=ansible INFO| fatal: [nodetest]: FAILED! => {"changed": false, "msg": "Task failed: Missing sudo password"}
+2026-02-11 22:51:25,895 p=12526 u=alex n=ansible INFO| PLAY RECAP ****************************************************************************************************************************************************************************************************************
+2026-02-11 22:51:25,895 p=12526 u=alex n=ansible INFO| nodetest                   : ok=0    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2026-02-11 22:53:03,283 p=12941 u=alex n=ansible ERROR| [ERROR]: Unable to read source file (/home/alex/git/Netology_labs/part3/group_vars/node/password.yml): [Errno 2] Нет такого файла или каталога: '/home/alex/git/Netology_labs/part3/group_vars/node/password.yml'
+
+2026-02-11 22:54:26,951 p=13772 u=alex n=ansible INFO| PLAY [Установка и настройка Apache2] **************************************************************************************************************************************************************************************
+2026-02-11 22:54:26,956 p=13772 u=alex n=ansible INFO| TASK [Gathering Facts] ****************************************************************************************************************************************************************************************************
+2026-02-11 22:54:27,565 p=13772 u=alex n=ansible WARNING| [WARNING]: Host 'nodetest' is using the discovered Python interpreter at '/usr/bin/python3.10', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-02-11 22:54:27,566 p=13772 u=alex n=ansible ERROR| [ERROR]: Task failed: Missing sudo password
+
+2026-02-11 22:54:27,566 p=13772 u=alex n=ansible INFO| fatal: [nodetest]: FAILED! => {"changed": false, "msg": "Task failed: Missing sudo password"}
+2026-02-11 22:54:27,567 p=13772 u=alex n=ansible INFO| PLAY RECAP ****************************************************************************************************************************************************************************************************************
+2026-02-11 22:54:27,567 p=13772 u=alex n=ansible INFO| nodetest                   : ok=0    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2026-02-11 23:00:23,328 p=16641 u=alex n=ansible INFO| PLAY [Установка и настройка Apache2] **************************************************************************************************************************************************************************************
+2026-02-11 23:00:23,339 p=16641 u=alex n=ansible INFO| TASK [Gathering Facts] ****************************************************************************************************************************************************************************************************
+2026-02-11 23:00:24,806 p=16641 u=alex n=ansible WARNING| [WARNING]: Host 'nodetest' is using the discovered Python interpreter at '/usr/bin/python3.10', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-02-11 23:00:24,806 p=16641 u=alex n=ansible INFO| ok: [nodetest]
+2026-02-11 23:00:24,810 p=16641 u=alex n=ansible INFO| PLAY RECAP ****************************************************************************************************************************************************************************************************************
+2026-02-11 23:00:24,810 p=16641 u=alex n=ansible INFO| nodetest                   : ok=1    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
