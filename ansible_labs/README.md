@@ -254,7 +254,6 @@
 ```
 Конфигурация с задачами 
 ```bash
-#SPDX-License-Identifier: MIT-0
 ---
 # tasks file for apache
 - name: Установить пакет apache2
@@ -286,7 +285,6 @@
 ```
 Конфигурация обработчика
 ```bash
-#SPDX-License-Identifier: MIT-0
 ---
 # handlers file for apache
 - name: restart apache2
