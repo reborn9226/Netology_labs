@@ -13,7 +13,7 @@
 
 ---
 ### Решение 1
-Вот playbook который я написал для загрузки и распаковки kafka![](/part 1/playbook_task 1. yaml )
+Вот playbook который я написал для загрузки и распаковки kafka [](/part 1/playbook_task1.yaml)
 ```shell
 ---
 - name: Загрузка и распаковка архива
