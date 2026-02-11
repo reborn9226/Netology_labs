@@ -13,7 +13,7 @@
 
 ---
 ### Решение 1
-Вот playbook который я написал для загрузки и распаковки kafka [Посмотреть плейбук из задания 1](part1/playbook_task1.yaml)
+Вот playbook который я написал для загрузки и распаковки kafka [Посмотреть плейбук из задания 1/1](part1/playbook_task1.yaml)
 ```shell
 ---
 - name: Загрузка и распаковка архива
@@ -42,7 +42,8 @@
         creates: ~/downloads/kafka-4.1.1-src # Проверка на существование распакованной директории, чтобы избежать повторной распаковки
 ```
 
-
+Лог выполнения playbook
+![Лог выполнения playbook ](.scrins/1-1.png)
 ---
 
 ### [](https://raw.githubusercontent.com/netology-code/sdvps-homeworks/refs/heads/main/7-01.part_2.md#%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-2)Задание 2
