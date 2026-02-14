@@ -41,8 +41,8 @@ variable "containers" {
             ports = {
                 internal = 80
                 external = 1080
-
             }
+        }
         wordpress = {
             name = "web-wordpress"
             image = "wordpress:php8.5-fpm-alpine"
@@ -50,7 +50,6 @@ variable "containers" {
                 internal = 80
                 external = 2080
             }
-        }
         }
     }
 }
