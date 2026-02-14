@@ -165,7 +165,7 @@ If you ever set or change modules or backend configuration for Terraform,
 rerun this command to reinitialize your working directory. If you forget, other
 commands will detect it and remind you to do so if necessary.
 ```
-![init](.scrins/terraform_init.png)
+![init](.scrin/terraform_init.png)
 
 Запускаем terraform plan что бы убедится что у нас все идет как нам нужно.
 ```bash
@@ -319,4 +319,4 @@ Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
 ```
 
 Проверяем на месте ли образы и запущены ли наши контейнеры.
-![Dpcker](.scrins/docker.png)
+![Dpcker](.scrin/docker.png)
