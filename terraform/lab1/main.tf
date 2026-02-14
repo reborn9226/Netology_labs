@@ -18,7 +18,7 @@ resource "docker_container" "nginx" {
 
 resource "docker_container" "wordpress" {
   image = docker_image.wordpress.image_id
-  name = "terraform-${var.containers.wordpress.name}
+  name = "terraform-${var.containers.wordpress.name}"
   ports {
     internal = var.containers.wordpress.ports.internal
     external = var.containers.wordpress.ports.external
