@@ -34,5 +34,23 @@ variable "containers" {
         internal = number
       })
     }))
+    default = {
+        nginx ={
+            name = "reverse-proxy-nginx"
+            image = "nginx:stable-alpine3.23-perl"
+            ports = {
+                internal = 80
+                external = 1080
 
+            }
+        wordpress = {
+            name = "web-wordpress"
+            image = "wordpress:php8.5-fpm-alpine"
+            ports = {
+                internal = 80
+                external = 2080
+            }
+        }
+        }
+    }
 }
