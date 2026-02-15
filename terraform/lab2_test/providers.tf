@@ -1,12 +1,14 @@
+# Объявление провайдера
 terraform {
   required_providers {
     yandex = {
       source = "yandex-cloud/yandex"
     }
   }
-  required_version = ">= 0.13"
+  required_version = ">= 1.00"
 }
 
 provider "yandex" {
-  zone = "ru-central1-d"
+  zone                     = "ru-central1-d"
+  folder_id                = "b1g6gstpkkcg7lmje5qv"
 }
