@@ -65,7 +65,7 @@ resource "yandex_iam_service_account_static_access_key" "this" {
 
 # Создание бакета
 resource "yandex_storage_bucket" "this" {
-  bucket     = "test-s3-bucket-fm3oijfiwf3oro23dffoi32"
+  bucket     = "test-s3-bucket-fm3oijfiwf331oro23dffoi32"
   access_key = yandex_iam_service_account_static_access_key.this.access_key
   secret_key = yandex_iam_service_account_static_access_key.this.secret_key
 
