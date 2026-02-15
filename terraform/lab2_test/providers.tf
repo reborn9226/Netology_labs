@@ -11,4 +11,5 @@ terraform {
 provider "yandex" {
   zone                     = "ru-central1-d"
   folder_id                = "b1g6gstpkkcg7lmje5qv"
+  service_account_key_file = "yc-kurs-service-key.json"
 }
