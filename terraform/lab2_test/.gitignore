@@ -1,7 +1,0 @@
-**/.terraform/*
-.terraform*
-!.terraformrc
-*.tfstate
-*.tfstate.*
-terraform.tfvars
-yc-kurs-service-key.json
