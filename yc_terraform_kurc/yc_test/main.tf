@@ -65,9 +65,15 @@ resource "yandex_iam_service_account_static_access_key" "this" {
 
 # Создание бакета
 resource "yandex_storage_bucket" "this" {
-  bucket     = "test-s3-bucket-fm3oijfiwf331oro23dffoi32"
+  bucket     = "bucket-${random_string.bucket_name.result}"
   access_key = yandex_iam_service_account_static_access_key.this.access_key
   secret_key = yandex_iam_service_account_static_access_key.this.secret_key
-
   depends_on = [ yandex_resourcemanager_folder_iam_member.storage_editor ]
+}
+
+# Подключение провайдера ramdom для генерации случайного имени бакета
+resource "random_string" "bucket_name" {
+  length  = 8
+  special = false
+  upper   = false
 }
