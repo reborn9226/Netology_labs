@@ -15,7 +15,7 @@ resource "yandex_compute_disk" "boot_disk" {
   name     = "boot-disk"
   zone     = "ru-central1-d"
   image_id = "fd8ba9d5mfvlncknt2kd" # Ubuntu 22.04 LTS
-  size     = 10
+  size     = 15
 }
 
 resource "yandex_compute_instance" "this" {
@@ -26,8 +26,8 @@ resource "yandex_compute_instance" "this" {
 
   resources {
     core_fraction = "20"
-    cores  = "2"
-    memory = "2"
+    cores  = "4"
+    memory = "8"
   }
 
   boot_disk {
