@@ -29,7 +29,7 @@ resource "yandex_compute_instance" "bastion" {
     serial-port-enable = 1
   }
 
-  scheduling_policy { preemptible = true }
+  scheduling_policy { preemptible = true } # Прерываемая виртуальная машина (preemptible) — это виртуальная машина, которая может быть остановлена в любой момент без предупреждения. Такие машины стоят дешевле, чем обычные, но их нельзя использовать для задач, требующих высокой доступности.
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.develop_a.id #зона ВМ должна совпадать с зоной subnet!!!
@@ -157,5 +157,3 @@ resource "local_file" "inventory" {
   XYZ
   filename = "./hosts.ini"
 }
-
-
