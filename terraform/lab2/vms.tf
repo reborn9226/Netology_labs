@@ -65,7 +65,8 @@ resource "yandex_compute_instance" "web_a" {
     serial-port-enable = 1
   }
 
-  scheduling_policy { preemptible = true }
+  scheduling_policy { preemptible = true } # Прерываемая виртуальная машина (preemptible) — это виртуальная машина, которая может быть остановлена в любой момент без предупреждения. Такие машины стоят дешевле, чем обычные, но их нельзя использовать для задач, требующих высокой доступности.
+
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.develop_a.id
@@ -99,7 +100,8 @@ resource "yandex_compute_instance" "web_b" {
     serial-port-enable = 1
   }
 
-  scheduling_policy { preemptible = true }
+  scheduling_policy { preemptible = true } # Прерываемая виртуальная машина (preemptible) — это виртуальная машина, которая может быть остановлена в любой момент без предупреждения. Такие машины стоят дешевле, чем обычные, но их нельзя использовать для задач, требующих высокой доступности.
+
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.develop_b.id
@@ -108,7 +110,7 @@ resource "yandex_compute_instance" "web_b" {
 
   }
 }
-
+# неправильная вм без hostname, в другой зоне и с другими ресурсами для проверки работы ansible через bastion
 resource "yandex_compute_instance" "wrong_b" {
   name        = "wrong-hostname" #Имя ВМ в облачной консоли
   platform_id = "standard-v3"
@@ -143,7 +145,7 @@ resource "yandex_compute_instance" "wrong_b" {
   }
 }
 
-
+# Динамический инвентарь для  Ansible
 resource "local_file" "inventory" {
   content  = <<-XYZ
   [bastion]
