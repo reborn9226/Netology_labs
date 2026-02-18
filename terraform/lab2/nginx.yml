@@ -1,0 +1,6 @@
+- name: Установка и настройка nginx
+  hosts: webservers
+  become: yes
+
+  roles:
+    - nginx
