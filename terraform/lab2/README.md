@@ -62,6 +62,8 @@
 Скрин работы nginx web b
 ![](.scrin/web-b-nginx.png)
 
+Схема
+![](.scrin/schema.png)
 ---
 ## Дополнительные задания* (со звёздочкой)
 
