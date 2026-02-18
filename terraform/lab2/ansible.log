@@ -1,0 +1,60 @@
+2026-02-18 23:46:16,504 p=18569 u=alex n=ansible ERROR| [ERROR]: Task failed: Failed to connect to the host via ssh: Connection closed by UNKNOWN port 65535
+Origin: <adhoc 'ping' task>
+
+{'action': 'ping', 'args': {}, 'timeout': 0, 'async_val': 0, 'poll': 15}
+
+
+2026-02-18 23:46:16,504 p=18569 u=alex n=ansible INFO| 10.0.1.19 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Task failed: Failed to connect to the host via ssh: Connection closed by UNKNOWN port 65535",
+    "unreachable": true
+}
+2026-02-18 23:46:16,508 p=18569 u=alex n=ansible INFO| 10.0.2.7 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Task failed: Failed to connect to the host via ssh: Connection closed by UNKNOWN port 65535",
+    "unreachable": true
+}
+2026-02-18 23:48:51,699 p=19789 u=alex n=ansible WARNING| [WARNING]: Host '10.0.1.19' is using the discovered Python interpreter at '/usr/bin/python3.10', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-02-18 23:48:51,700 p=19789 u=alex n=ansible INFO| 10.0.1.19 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3.10"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+2026-02-18 23:48:51,752 p=19789 u=alex n=ansible WARNING| [WARNING]: Host '10.0.2.7' is using the discovered Python interpreter at '/usr/bin/python3.10', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-02-18 23:48:51,753 p=19789 u=alex n=ansible INFO| 10.0.2.7 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3.10"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+2026-02-18 23:49:27,749 p=20038 u=alex n=ansible INFO| PLAY [Установка и настройка nginx] ****************************************************************************************************************************************************************************************
+2026-02-18 23:49:27,756 p=20038 u=alex n=ansible INFO| TASK [Gathering Facts] ****************************************************************************************************************************************************************************************************
+2026-02-18 23:49:30,605 p=20038 u=alex n=ansible WARNING| [WARNING]: Host '10.0.1.19' is using the discovered Python interpreter at '/usr/bin/python3.10', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-02-18 23:49:30,605 p=20038 u=alex n=ansible INFO| ok: [10.0.1.19]
+2026-02-18 23:49:30,642 p=20038 u=alex n=ansible WARNING| [WARNING]: Host '10.0.2.7' is using the discovered Python interpreter at '/usr/bin/python3.10', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-02-18 23:49:30,642 p=20038 u=alex n=ansible INFO| ok: [10.0.2.7]
+2026-02-18 23:49:30,644 p=20038 u=alex n=ansible INFO| TASK [nginx : Установить пакет nginx] *************************************************************************************************************************************************************************************
+2026-02-18 23:50:00,252 p=20038 u=alex n=ansible INFO| changed: [10.0.1.19]
+2026-02-18 23:50:00,908 p=20038 u=alex n=ansible INFO| changed: [10.0.2.7]
+2026-02-18 23:50:00,912 p=20038 u=alex n=ansible INFO| TASK [nginx : Скопировать файл index.html] ********************************************************************************************************************************************************************************
+2026-02-18 23:50:04,300 p=20038 u=alex n=ansible INFO| changed: [10.0.1.19]
+2026-02-18 23:50:04,343 p=20038 u=alex n=ansible INFO| changed: [10.0.2.7]
+2026-02-18 23:50:04,346 p=20038 u=alex n=ansible INFO| TASK [nginx : Аатозапуск nginx] *******************************************************************************************************************************************************************************************
+2026-02-18 23:50:06,295 p=20038 u=alex n=ansible INFO| ok: [10.0.1.19]
+2026-02-18 23:50:06,334 p=20038 u=alex n=ansible INFO| ok: [10.0.2.7]
+2026-02-18 23:50:06,337 p=20038 u=alex n=ansible INFO| TASK [nginx : Проверка доступности стандартной страницы nginx] ************************************************************************************************************************************************************
+2026-02-18 23:50:08,017 p=20038 u=alex n=ansible INFO| ok: [10.0.1.19]
+2026-02-18 23:50:08,019 p=20038 u=alex n=ansible INFO| ok: [10.0.2.7]
+2026-02-18 23:50:08,026 p=20038 u=alex n=ansible INFO| RUNNING HANDLER [nginx : restart nginx] ***********************************************************************************************************************************************************************************
+2026-02-18 23:50:09,811 p=20038 u=alex n=ansible INFO| changed: [10.0.1.19]
+2026-02-18 23:50:09,845 p=20038 u=alex n=ansible INFO| changed: [10.0.2.7]
+2026-02-18 23:50:09,846 p=20038 u=alex n=ansible INFO| PLAY RECAP ****************************************************************************************************************************************************************************************************************
+2026-02-18 23:50:09,846 p=20038 u=alex n=ansible INFO| 10.0.1.19                  : ok=6    changed=3    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+2026-02-18 23:50:09,847 p=20038 u=alex n=ansible INFO| 10.0.2.7                   : ok=6    changed=3    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
