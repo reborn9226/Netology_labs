@@ -1,37 +1,22 @@
-variable "string" {
-    type=string
-    default="какая-то строка"
+variable "flow" {
+  type    = string
+  default = "24-01"
 }
-variable "number" {
-    type=number
-    default="1"
+
+variable "cloud_id" {
+  type    = string
+  default = "b1gm7qsimlei7epdroq3"
 }
-variable "list_of_strings" {
-    type=list(string)
-    default=["a","b","c"]
+variable "folder_id" {
+  type    = string
+  default = "b1glh1r8vvvndebolb0r"
 }
-variable "lost_of_numbers" {
-    type=list(number)
-    default=[1,2,3]
+
+variable "test" {
+  type = map(number)
+  default = {
+    cores         = 2
+    memory        = 1
+    core_fraction = 20
+  }
 }
-variable "map" {
-    type=map(string)
-    default={
-        name="Alexandr"
-        surname="Ershov"
-    }
-}
-variable "bool" {
-    type = bool
-    default = true
-}
-#variable "containers" {
-#    type = map(object({
-#      name = string
-#      image = string
-#      port = object ({
-#        external = number
-#        internal = number
-#      })
-#    }))
-#}
