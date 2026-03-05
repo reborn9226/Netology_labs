@@ -43,7 +43,7 @@ sudo cat /etc/gitlab/initial_root_password
      gitlab/gitlab-runner:latest register
 ```
 
-![](. scrin/runner-docker.png)
+![](.scrin/runner-docker.png)
 
 - Редактируем конфигурацию ранера и указываем в нем проброс локального [[docker]]
 ```bash
@@ -63,7 +63,7 @@ sudo cat /etc/gitlab/initial_root_password
 ```
 
 - Запущенный ранер в gitlab
-![](. scrin/runner-done.png)
+![](.scrin/runner-done.png)
 ### Задание 2
 
 [](https://github.com/netology-code/sdvps-homeworks/blob/main/8-03.md#%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-2)
@@ -106,10 +106,10 @@ build:
 
 - Выполнен тест и сборка
 
-![](. scrin/ci1.png)
+![](.scrin/ci1.png)
 
 
-![](. scrin/ci2.png)
+![](.scrin/ci2.png)
 
 ## Дополнительные задания* (со звёздочкой)
 
