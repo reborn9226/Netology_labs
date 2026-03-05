@@ -1,0 +1,22 @@
+stages:
+  - test
+  - build
+
+test:
+  stage: test
+  image: golang:1.17
+  script:
+   - go test .
+   - ls -Fla
+  tags:
+    - ershov_labs
+    
+
+
+build:
+  stage: build
+  image: docker:latest
+  script:
+   - docker build .
+  tags:
+    - ershov_labs
