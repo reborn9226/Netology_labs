@@ -33,7 +33,7 @@ sudo cat /etc/gitlab/initial_root_password
 
  - Использовал для входа с генерированый
 - Зашел в настройки cicd и создал runner
-![](. scrin/create_runner_gitlab.png)
+![](.scrin/create_runner_gitlab.png)
 - Так же в докер зарегистрировал runner. Указал адрес репозитория  и токен
 ```bash
    docker run -ti --rm --name gitlab-ershov-runner \
@@ -50,7 +50,7 @@ sudo cat /etc/gitlab/initial_root_password
  sudo nano /srv/gitlab-runner/config/config.toml
 ```
 
-![](. scrin/runner-docker.png)
+![](.scrin/runner-docker.png)
 
 - Запускаем ранер
 ```bash
@@ -106,7 +106,9 @@ build:
 
 - Выполнен тест и сборка
 
+
 ![](.scrin/ci1.png)
+
 
 
 ![](.scrin/ci2.png)
