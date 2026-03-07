@@ -78,10 +78,10 @@
 ---
 ### Решение 2
 - Настроил оповещения на почту в алерте
-![](. scrin/alert_mail.png)
+![](.scrin/alert_mail.png)
 
 - Настройка оповещения в самом алерте
-![](. scrin/alert_mail2.png)
+![](.scrin/alert_mail2.png)
 
 - Настроен и запущен алерт
-![](. scrin/alert.png)
+![](.scrin/alert.png)
