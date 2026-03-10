@@ -19,4 +19,5 @@ Vagrant.configure("2") do |config|
   # ansible.playbook = "playbook.yaml"
   #  ansible.inventory_path = "inventory.ini"
   #  end
+  end
 end
