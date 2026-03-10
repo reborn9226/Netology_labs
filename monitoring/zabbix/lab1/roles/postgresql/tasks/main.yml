@@ -45,3 +45,9 @@
   apt:
     name: "postgresql-{{ postgresql_version }}" # установка пакета с указания версии которая указана в переменой в папке vars
     state: present
+
+- name: Аатозапуск Postgresql
+  service:
+      name: postgresql
+      state: started
+      enabled: true
