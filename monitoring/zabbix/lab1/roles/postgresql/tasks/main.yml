@@ -5,7 +5,7 @@
       - curl
       - postgresql-common
       - ca-certificates
-  state: present          # гарантирует, что пакеты будут установлены, если их нет.
+    state: present          # гарантирует, что пакеты будут установлены, если их нет.
 
 
 - name: Создаем директорию pgdg
@@ -42,5 +42,5 @@
 
 - name: Установка PostgresSQL
   apt:
-   name: "postgresql-{{ postgresql_version }}" # установка пакета с указания версии которая указана в переменой в папке vars
-   state: present
+    name: "postgresql-{{ postgresql_version }}" # установка пакета с указания версии которая указана в переменой в папке vars
+    state: present
