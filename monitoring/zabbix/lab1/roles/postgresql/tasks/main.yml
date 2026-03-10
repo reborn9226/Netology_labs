@@ -5,6 +5,7 @@
       - curl
       - postgresql-common
       - ca-certificates
+      - gnupg
     state: present          # гарантирует, что пакеты будут установлены, если их нет.
 
 
