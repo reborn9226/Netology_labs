@@ -1,0 +1,7 @@
+---
+- name: Установка PostgreSQL и zabbix-server
+  hosts: zabbix-server
+  become: yes
+
+  roles:
+    - postgresql

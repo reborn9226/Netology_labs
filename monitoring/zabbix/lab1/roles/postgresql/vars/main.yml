@@ -1,0 +1,2 @@
+# тут пишем преременные для установки postgres
+postgresql_version: 18
