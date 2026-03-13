@@ -1,4 +1,8 @@
 
+- name: Зашифрованные переменные логин и пароль от postgresql
+  include_vars:                    #  указывает на конкретный файл в папке vars самой роли
+    file: pgsl_db.yml
+    
 - name: Создаем директорию install
   file:
     path: /home/vagrant/install   # путь к директории, которую нужно создать
