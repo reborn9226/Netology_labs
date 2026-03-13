@@ -1,0 +1,32 @@
+
+- name: Создаем директорию install
+  file:
+    path: /home/vagrant/install   # путь к директории, которую нужно создать
+    state: directory                          # гарантирует, что директория будет создана, если ее нет.
+
+- name: Скачиваем репозиторий с zabbix 7.4
+  get_url:
+    url: https://repo.zabbix.com/zabbix/7.4/release/debian/pool/main/z/zabbix-release/zabbix-release_latest_7.4+debian13_all.deb # Адрес ключа репозитория
+    dest: /home/vagrant/install/ # Путь куда будет пакет
+
+- name: Установка репозитория
+  apt:
+    deb: /home/vagrant/install/zabbix-release_latest_7.4+debian13_all.deb # установка пакета с указанного пути
+    update_cache: yes
+
+- name: Установка пакетов для zabbix-server
+  apt:
+    name:
+      - zabbix-server-pgsql
+      - zabbix-frontend-php
+      - php8.4-pgsql
+      - zabbix-apache-conf
+      - zabbix-sql-scripts
+    state: present          # гарантирует, что пакеты будут установлены, если их нет.
+
+
+- name: Аатозапуск Postgresql
+  service:
+      name: postgresql
+      state: started
+      enabled: true
