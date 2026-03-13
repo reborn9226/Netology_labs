@@ -1,8 +1,8 @@
 
-- name: Зашифрованные переменные логин и пароль от postgresql
+- name: Указываем зашифрованные переменные логин и пароль от postgresql
   include_vars:                    #  указывает на конкретный файл в папке vars самой роли
     file: pgsl_db.yml
-    
+
 - name: Создаем директорию install
   file:
     path: /home/vagrant/install   # путь к директории, которую нужно создать
@@ -26,11 +26,37 @@
       - php8.4-pgsql
       - zabbix-apache-conf
       - zabbix-sql-scripts
+      - acl
+      - python3-psycopg2
     state: present          # гарантирует, что пакеты будут установлены, если их нет.
 
+- name: Создание пользователя в PostgreSQL
+  community.postgresql.postgresql_user:    # Специальный модуль для управления postgres
+    name: "{{ postgres_db_user }}"         # переменная зашифрованная в pgsl_db.yml
+    password: "{{ postgres_db_password }}" # переменная зашифрованная в pgsl_db.yml
+    state: present
+  become: true
+  become_user: postgres                    # от имени какого пользователя идет повышение прав
 
-- name: Аатозапуск Postgresql
-  service:
-      name: postgresql
-      state: started
-      enabled: true
+- name: Создание базы данный в PostgreSQL
+  community.postgresql.postgresql_db:      # Специальный модуль для управления postgres
+    name: zabbix
+    owner: zabbix
+    encoding: UTF-8
+    lc_collate: en_US.UTF-8
+    lc_ctype: en_US.UTF-8
+    template: template0                    # Гарантирует, что база будет создана с чистой кодировкой
+  become: true
+  become_user: postgres
+
+  - name: Замена DBPassword=пароль в zabbix_server.conf
+  ansible.builtin.lineinfile:
+    path: /etc/zabbix/zabbix_server.conf          # Указываем расположение
+    regexp: '^#\s*DBPassword=.*'                  # Ищем закомментированную строку. Строка начинается с #, затем любое количество пробелов, затем DBPassword= и любой остаток
+    line: 'DBPassword={{ postgres_db_password }}' # Заменяем строку
+    backrefs: yes                                 # заменять только если regex найден
+    backup: yes                                   # создать резервную копию с временной меткой перед изменением
+
+
+
+
