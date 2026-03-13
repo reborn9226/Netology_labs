@@ -30,6 +30,18 @@
       - python3-psycopg2
     state: present          # гарантирует, что пакеты будут установлены, если их нет.
 
+- name: Включить и запустить сервисы Zabbix и Apache
+  ansible.builtin.systemd:
+    name: "{{ item }}"                # Специальная переменная цикла loop. Она принимает значение текущего элемента по очереди из списка
+    enabled: yes
+    state: started
+  loop:                               # Цикл loop
+    - zabbix-server
+    - zabbix-agent
+    - apache2
+
+
+
 - name: Создание пользователя в PostgreSQL
   community.postgresql.postgresql_user:    # Специальный модуль для управления postgres
     name: "{{ postgres_db_user }}"         # переменная зашифрованная в pgsl_db.yml
@@ -54,5 +66,6 @@
     path: /etc/zabbix/zabbix_server.conf          # Указываем расположение
     regexp: '^#\s*DBPassword=.*'                  # Ищем закомментированную строку. Строка начинается с #, затем любое количество пробелов, затем DBPassword= и любой остаток
     line: 'DBPassword={{ postgres_db_password }}' # Заменяем строку
-  backrefs: yes                                 # заменять только если regex найден
-  backup: yes                                   # создать резервную копию с временной меткой перед изменением
+    backrefs: yes                                 # заменять только если regex найден
+    backup: yes                                   # создать резервную копию с временной меткой перед изменением
+  notify: Перезагрузка zabbix и apache2   # перезапуск только при изменении
