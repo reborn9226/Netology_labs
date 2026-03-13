@@ -5,3 +5,4 @@
 
   roles:
     - postgresql
+    - zabbix_server
