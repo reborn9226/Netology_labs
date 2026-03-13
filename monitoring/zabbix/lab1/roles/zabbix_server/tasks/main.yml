@@ -19,16 +19,18 @@
     update_cache: yes
 
 - name: Установка пакетов для zabbix-server
-  apt:
+  ansible.builtin.apt:
     name:
       - zabbix-server-pgsql
       - zabbix-frontend-php
       - php8.4-pgsql
       - zabbix-apache-conf
       - zabbix-sql-scripts
+      - zabbix-agent
       - acl
       - python3-psycopg2
-    state: present          # гарантирует, что пакеты будут установлены, если их нет.
+    state: present
+
 
 - name: Включить и запустить сервисы Zabbix и Apache
   ansible.builtin.systemd:
@@ -55,8 +57,6 @@
     name: zabbix
     owner: zabbix
     encoding: UTF-8
-    lc_collate: en_US.UTF-8
-    lc_ctype: en_US.UTF-8
     template: template0                    # Гарантирует, что база будет создана с чистой кодировкой
   become: true
   become_user: postgres
@@ -64,16 +64,12 @@
 - name: Импорт схемы и данных в базу Zabbix
   ansible.builtin.shell:
     cmd: zcat /usr/share/zabbix/sql-scripts/postgresql/server.sql.gz | psql zabbix
-    executable: /bin/bash
   become: true
-  become_user: zabbix
-  become_method: su  # Меняем пользователя через su, а не sudo, так как zabbix не имеет прав sudo
-  args:
-    executable: /bin/bash
+  become_user: postgres
   register: schema_import
   changed_when: "'CREATE' in schema_import.stdout or 'ALTER' in schema_import.stdout"
-  # Игнорируем ошибки, если таблицы уже есть
-  ignore_errors: true
+  ignore_errors: true                          # Игнорируем ошибки, если таблицы уже есть
+  
 
 - name: Замена DBPassword=пароль в zabbix_server.conf
   ansible.builtin.lineinfile:
