@@ -1,23 +1,38 @@
 Vagrant.configure("2") do |config|
+   # Образ виртуальной машины
+  config.vm.box = "my-debian13"
+
+  # если выставлен в false, то vagrant не будет автоматически создавать и использовать собственные SSH ключи
+  config.ssh.insert_key = false
+
+
 
   # Настройка виртальной машина Zabbix Server
-  config.vm.define "zabix-server" do |zabbix|
-  # если выставлен в false, то vagrant не будет автоматически создавать и использовать собственные SSH ключи
-  zabbix.ssh.insert_key = false
-  # Настройка виртуальной машины
-  zabbix.vm.box = "my-debian13"
-  zabbix.vm.hostname = "zabbix-server"
+  config.vm.define "zabbix-server" do |server|
+   server.vm.hostname = "zabbix-server"
   # Настройка сети
-  zabbix.vm.network "public_network", ip: "192.168.88.50", bridge: "Realtek PCIe GbE Family Controller"
+  server.vm.network "public_network", ip: "192.168.88.50", bridge: "Realtek PCIe GbE Family Controller"
   # Настройка провайлдера и параметров ВМ
-  zabbix.vm.provider "virtualbox" do |vb|
+  server.vm.provider "virtualbox" do |vb|
+    vb.name= "zabbix-server"
     vb.memory = "4096"
     vb.cpus = 4
   end
-  # Настройка провижинка для настройки Ansible
-  #  zabbix.vm.provision "ansible" do |ansible|
-  # ansible.playbook = "playbook.yaml"
-  #  ansible.inventory_path = "inventory.ini"
-  #  end
+
   end
+
+  # Настройка виртальной машина Zabbix agent
+  config.vm.define "zabbix_agent" do |agent|
+   agent.vm.hostname = "zabbix-agent"
+  # Настройка сети
+  agent.vm.network "public_network", ip: "192.168.88.51", bridge: "Realtek PCIe GbE Family Controller"
+  # Настройка провайлдера и параметров ВМ
+  agent.vm.provider "virtualbox" do |vb|
+    vb.name= "zabbix-agent"
+    vb.memory = "4096"
+    vb.cpus = 4
+  end
+
+  end
+
 end

@@ -8,7 +8,6 @@
       - gnupg
     state: present          # гарантирует, что пакеты будут установлены, если их нет.
 
-
 - name: Создаем директорию pgdg
   file:
     path: /usr/share/postgresql-common/pgdg   # путь к директории, которую нужно создать
@@ -16,10 +15,6 @@
     owner: root                               # владелец директории
     group: root                               # группа директории
     mode: '0755'
-
-
-
-
 
 - name: Добавление ключа репозитория Postgres
   get_url:
@@ -34,12 +29,11 @@
 - name:  Добавить репозиторий PGDG
   apt_repository:
     #  repo Указывает путь к скачанному ключу и url репозитория, который будет добавлен в систему
-    #  {{ ansible_distribution_release }} - это переменная Ansible, которая автоматически подставляет кодовое имя текущего релиза операционной системы (например, buster для Debian 10 или focal для Ubuntu 20.04).
+    #  {{ ansible_distribution_release }} - это переменная Ansible, которая автоматически подставляет кодовое имя текущего релиза операционной системы (например, buster для Debian 13 или focal для Ubuntu 20.04).
     repo: "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
     state: present
     filename: pgdg.list # имя файла, который будет создан в директории /etc/apt/sources.list.d/  для хранения информации о новом репозитории
     update_cache: yes # обновления кэша после добавления репозиторория
-
 
 - name: Установка PostgresSQL
   apt:
