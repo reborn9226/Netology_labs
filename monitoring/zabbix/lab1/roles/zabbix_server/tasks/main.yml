@@ -61,6 +61,20 @@
   become: true
   become_user: postgres
 
+- name: Импорт схемы и данных в базу Zabbix
+  ansible.builtin.shell:
+    cmd: zcat /usr/share/zabbix/sql-scripts/postgresql/server.sql.gz | psql zabbix
+    executable: /bin/bash
+  become: true
+  become_user: zabbix
+  become_method: su  # Меняем пользователя через su, а не sudo, так как zabbix не имеет прав sudo
+  args:
+    executable: /bin/bash
+  register: schema_import
+  changed_when: "'CREATE' in schema_import.stdout or 'ALTER' in schema_import.stdout"
+  # Игнорируем ошибки, если таблицы уже есть
+  ignore_errors: true
+
 - name: Замена DBPassword=пароль в zabbix_server.conf
   ansible.builtin.lineinfile:
     path: /etc/zabbix/zabbix_server.conf          # Указываем расположение
