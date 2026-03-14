@@ -52,6 +52,14 @@
   become: true
   become_user: postgres                    # от имени какого пользователя идет повышение прав
 
+- name: Создание пользователя в PostgreSQL
+  community.postgresql.postgresql_user:    # Специальный модуль для управления postgres
+    name: "{{ postgres_db_user }}"         # переменная зашифрованная в pgsl_db.yml
+    password: "{{ postgres_db_password }}" # переменная зашифрованная в pgsl_db.yml
+    state: present
+  become: true
+  become_user: postgres                    # от имени какого пользователя идет повышение прав
+
 - name: Создание базы данный в PostgreSQL
   community.postgresql.postgresql_db:      # Специальный модуль для управления postgres
     name: zabbix
@@ -59,17 +67,17 @@
     encoding: UTF-8
     template: template0                    # Гарантирует, что база будет создана с чистой кодировкой
   become: true
-  become_user: postgres
+  become_user: postgres                    # База создается под postgres
 
 - name: Импорт схемы и данных в базу Zabbix
-  ansible.builtin.shell:
+  ansible.builtin.shell:                   # Не нашел подходящий модуль, по этому делают все через shell
     cmd: zcat /usr/share/zabbix/sql-scripts/postgresql/server.sql.gz | psql zabbix
   become: true
-  become_user: postgres
-  register: schema_import
-  changed_when: "'CREATE' in schema_import.stdout or 'ALTER' in schema_import.stdout"
-  ignore_errors: true                          # Игнорируем ошибки, если таблицы уже есть
-  
+  become_user: zabbix                      # А тут уже через пользователя zabbix, что бы создаваемые таблицы и другие объекты принадлежали пользователю zabbix
+  register: schema_import                  # Сохраняем результат в переменную schema_import, что бы понять были ли изменения
+  changed_when: "'CREATE' in schema_import.stdout or 'ALTER' in schema_import.stdout"  # Условие при котором задача будет считаться Изменившее сотояние. Если вывод содедердит слова CREATE или ALTER, то считается что данные были изменены
+  ignore_errors: true
+
 
 - name: Замена DBPassword=пароль в zabbix_server.conf
   ansible.builtin.lineinfile:
