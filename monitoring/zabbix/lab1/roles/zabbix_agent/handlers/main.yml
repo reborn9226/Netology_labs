@@ -1,0 +1,7 @@
+---
+- name: Перезагрузка zabbix-agent
+  ansible.builtin.systemd:
+    name: "{{ item }}"    # Специальная переменная цикла loop. Она принимает значение текущего элемента по очереди из списка
+    state: restarted
+  loop:                   # Цикл loop
+    - zabbix-agent

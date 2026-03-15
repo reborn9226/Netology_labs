@@ -1,0 +1,31 @@
+
+- name: Создаем директорию install
+  file:
+    path: /home/vagrant/install   # путь к директории, которую нужно создать
+    state: directory                          # гарантирует, что директория будет создана, если ее нет.
+
+- name: Скачиваем репозиторий с zabbix 7.4
+  get_url:
+    url: https://repo.zabbix.com/zabbix/7.4/release/debian/pool/main/z/zabbix-release/zabbix-release_latest_7.4+debian13_all.deb # Адрес ключа репозитория
+    dest: /home/vagrant/install/ # Путь куда будет пакет
+
+- name: Установка репозитория
+  apt:
+    deb: /home/vagrant/install/zabbix-release_latest_7.4+debian13_all.deb # установка пакета с указанного пути
+    update_cache: yes
+
+- name: Установка пакетов для zabbix-server
+  ansible.builtin.apt:
+    name:
+      - zabbix-agent
+    state: present
+
+
+- name: Включить и запустить сервисы Zabbix-Agent
+  ansible.builtin.systemd:
+    name: "{{ item }}"                # Специальная переменная цикла loop. Она принимает значение текущего элемента по очереди из списка
+    enabled: yes
+    state: started
+  loop:                               # Цикл loop
+    - zabbix-agent
+  notify: Перезагрузка zabbix-agent  # перезапуск только при изменении

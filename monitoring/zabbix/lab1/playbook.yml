@@ -6,3 +6,10 @@
   roles:
     - postgresql
     - zabbix_server
+
+- name: Установка zabbix-agent
+  hosts: zabbix-agent
+  become: yes
+
+  roles:
+    - zabbix_agent
