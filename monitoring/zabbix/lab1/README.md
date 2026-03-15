@@ -133,6 +133,7 @@ end
 ```
 
 - Скрин развертывания ВМ
+- 
 ![](./scrin/vagrant_up.png)
 
 ![](./scrin/vagrant_status.png)
