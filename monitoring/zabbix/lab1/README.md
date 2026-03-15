@@ -133,10 +133,9 @@ end
 ```
 
 - Скрин развертывания ВМ
-- 
-![](./scrin/vagrant_up.png)
+![](.scrin/vagrant_up.png)
 
-![](./scrin/vagrant_status.png)
+![](.scrin/vagrant_status.png)
 
 - #### Роль установки PostgreSQL
 ```yml
@@ -444,15 +443,15 @@ zabbix-server              : ok=20   changed=14   unreachable=0    failed=0    s
 ```
 
 - Скрины авторизации в Zabbix-Server
-![](./scrin/zbbix_web1.png)
+![](.scrin/zbbix_web1.png)
 
-![](./scrin/zbbix_web2.png)
+![](.scrin/zbbix_web2.png)
 
-![](./scrin/zbbix_web3.png)
+![](.scrin/zbbix_web3.png)
 
-![](./scrin/zbbix_web4.png)
+![](.scrin/zbbix_web4.png)
 
-![](./scrin/zbbix_web5.png)
+![](.scrin/zbbix_web5.png)
 
 ---
 ### Задание 2
