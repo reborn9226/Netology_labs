@@ -16,7 +16,13 @@
 - name: Установка репозитория
   apt:
     deb: /home/vagrant/install/zabbix-release_latest_7.4+debian13_all.deb # установка пакета с указанного пути
+  register: zabbix_repo_install # Запоминаем что репозиторий был установлен.
+
+- name: Обновление кэша пакетов после добавления репозитория
+  ansible.builtin.apt:
     update_cache: yes
+    cache_valid_time: 0  # Принудительно обновить, даже если кэш "свежий"
+  when: zabbix_repo_install is changed  # Обновляем только если репозиторий только что установлен
 
 - name: Установка пакетов для zabbix-server
   ansible.builtin.apt:
@@ -43,15 +49,6 @@
     - apache2
 
 
-
-- name: Создание пользователя в PostgreSQL
-  community.postgresql.postgresql_user:    # Специальный модуль для управления postgres
-    name: "{{ postgres_db_user }}"         # переменная зашифрованная в pgsl_db.yml
-    password: "{{ postgres_db_password }}" # переменная зашифрованная в pgsl_db.yml
-    state: present
-  become: true
-  become_user: postgres                    # от имени какого пользователя идет повышение прав
-
 - name: Создание пользователя в PostgreSQL
   community.postgresql.postgresql_user:    # Специальный модуль для управления postgres
     name: "{{ postgres_db_user }}"         # переменная зашифрованная в pgsl_db.yml
@@ -69,14 +66,32 @@
   become: true
   become_user: postgres                    # База создается под postgres
 
+- name: Проверка, импортирована ли схема Zabbix
+  community.postgresql.postgresql_query:
+    db: zabbix
+    login_user: postgres
+
+    query: |                                           # Использует SQL запрос для провеки наличия таблицы hosts в базе zabbix.
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables
+        WHERE table_schema = 'public'
+        AND table_name = 'hosts'
+      );
+  register: zabbix_schema_check                         # Сохраняет результат проверки в переменную zabbix_schema_check  для дальнейшего использоватя в условии when
+  become: true
+  become_user: postgres
+
+
 - name: Импорт схемы и данных в базу Zabbix
-  ansible.builtin.shell:                   # Не нашел подходящий модуль, по этому делают все через shell
+  ansible.builtin.shell:                                # Не нашел подходящий модуль, по этому делают все через shell
     cmd: zcat /usr/share/zabbix/sql-scripts/postgresql/server.sql.gz | psql zabbix
   become: true
-  become_user: zabbix                      # А тут уже через пользователя zabbix, что бы создаваемые таблицы и другие объекты принадлежали пользователю zabbix
-  register: schema_import                  # Сохраняем результат в переменную schema_import, что бы понять были ли изменения
-  changed_when: "'CREATE' in schema_import.stdout or 'ALTER' in schema_import.stdout"  # Условие при котором задача будет считаться Изменившее сотояние. Если вывод содедердит слова CREATE или ALTER, то считается что данные были изменены
-  ignore_errors: true
+  become_user: zabbix                                   # А тут уже через пользователя zabbix, что бы создаваемые таблицы и другие объекты принадлежали пользователю zabbix
+  register: schema_import                               # Сохраняем результат в переменную schema_import, что бы понять были ли изменения
+  changed_when: "'CREATE' in schema_import.stdout or 'ALTER' in schema_import.stdout" #  # Условие при котором задача будет считаться Изменившее сотояние. Если вывод содедердит слова CREATE или ALTER, то считается что данные были изменены
+  when: not zabbix_schema_check.query_result[0].exists  # Условие при котором будет выполняться задача. Если в результате проверки схемы не существует таблицы hosts, то выполняетмся ипорт схемы и данных.
+  notify: Перезагрузка zabbix и apache2
+
 
 
 - name: Замена DBPassword=пароль в zabbix_server.conf
