@@ -20,12 +20,20 @@
       - zabbix-agent
     state: present
 
+- name: Настроить Server и ServerActive в zabbix_agentd.conf
+  ansible.builtin.lineinfile:                    # позволяет точечно изменить одну строку, не затрагивая остальное содержимое.
+    path: /etc/zabbix/zabbix_agentd.conf
+    regexp: '^#?\s*{{ item.param }}=.*'          # ищем закомментированную или активную строку
+    line: '{{ item.param }}={{ ip_zabbix_server }}'   # новая строка с нужным значением
+    backrefs: no                                  # заменяем только если найдено совпадение
+    backup: yes                                    # создаём резервную копию
+  loop:
+    - { param: 'Server' }
+    - { param: 'ServerActive' }
+  notify: Перезагрузка zabbix-agent                      # перезапускаем агент после изменений
 
 - name: Включить и запустить сервисы Zabbix-Agent
   ansible.builtin.systemd:
-    name: "{{ item }}"                # Специальная переменная цикла loop. Она принимает значение текущего элемента по очереди из списка
-    enabled: yes
+    name: zabbix-agent
     state: started
-  loop:                               # Цикл loop
-    - zabbix-agent
-  notify: Перезагрузка zabbix-agent  # перезапуск только при изменении
+    enabled: yes
