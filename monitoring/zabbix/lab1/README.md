@@ -1,6 +1,6 @@
 # Домашнее задание к занятию «Система мониторинга Zabbix»
 [smon-homeworks/hw-02.md at main · netology-code/smon-homeworks · GitHub](https://github.com/netology-code/smon-homeworks/blob/main/hw-02.md)
-#zabbix 
+#zabbix
 [](https://github.com/netology-code/smon-homeworks/blob/main/hw-02.md#%D0%B4%D0%BE%D0%BC%D0%B0%D1%88%D0%BD%D0%B5%D0%B5-%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BA-%D0%B7%D0%B0%D0%BD%D1%8F%D1%82%D0%B8%D1%8E-%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0-%D0%BC%D0%BE%D0%BD%D0%B8%D1%82%D0%BE%D1%80%D0%B8%D0%BD%D0%B3%D0%B0-zabbix)
 
 В практике есть 2 основных и 1 дополнительное (со звездочкой) задания. Первые два нужно выполнять обязательно, третье - по желанию и его решение никак не повлияет на получение вами зачета по этому домашнему заданию, при этом вы сможете глубже и/или шире разобраться в материале.
@@ -65,12 +65,12 @@
 Я решил выполнять домашнее задание при помощи комбинации vagrant(windows) + ansible(wsl).
 - Структура проета
 ```bash
-tree -L 4 ~/git/Netology_labs/monitoring/zabbix/lab1 
+tree -L 4 ~/git/Netology_labs/monitoring/zabbix/lab1
 /home/alex/git/Netology_labs/monitoring/zabbix/lab1
 ├── Vagrantfile            # Конфигруация ВМ на virtualbox (Windows)
 ├── ansible.cfg            # Конфигурация Ansible
 ├── ansible.log
-├── inventory.ini          # Список ВМ Хостов 
+├── inventory.ini          # Список ВМ Хостов
 ├── playbook.yml           # Основной Playbook
 └── roles                  # Папка с ролями
     ├── postgresql         # Установка PostgreSQL
@@ -99,7 +99,7 @@ tree -L 4 ~/git/Netology_labs/monitoring/zabbix/lab1
 Vagrant.configure("2") do |config|
 
    # Образ виртуальной машины
-  config.vm.box = "my-debian13" 
+  config.vm.box = "my-debian13"
   # если выставлен в false, то vagrant не будет автоматически создавать и использовать собственные SSH ключи
   config.ssh.insert_key = false
 
@@ -179,7 +179,7 @@ end
   apt:
     name: "postgresql-{{ postgresql_version }}" # установка пакета с указания версии которая указана в переменой в папке vars
     state: present
-  
+
 - name: Аатозапуск Postgresql
   service:
       name: postgresql
@@ -191,12 +191,12 @@ end
 
 - Tasks
 ```yml
-   
+
 - name: Указываем зашифрованные переменные логин и пароль от postgresql
   include_vars:                    #  указывает на конкретный файл в папке vars самой роли
     file: pgsl_db.yml
-  
-  
+
+
 - name: Создаем директорию install
   file:
     path: /home/vagrant/install   # путь к директории, которую нужно создать
@@ -279,8 +279,8 @@ end
   register: zabbix_schema_check                         # Сохраняет результат проверки в переменную zabbix_schema_check  для дальнейшего использоватя в условии when
   become: true
   become_user: postgres
-  
-  
+ 
+ 
 - name: Импорт схемы и данных в базу Zabbix
   ansible.builtin.shell:                                # Не нашел подходящий модуль, по этому делают все через shell
     cmd: zcat /usr/share/zabbix/sql-scripts/postgresql/server.sql.gz | psql zabbix
@@ -331,7 +331,7 @@ zabbix-agent ansible_host=192.168.88.51 ansible_user=vagrant
   roles:
     - postgresql
     - zabbix_server
-      
+   
 - name: Установка zabbix-agent
   hosts: zabbix-agent
   become: yes
@@ -342,7 +342,7 @@ zabbix-agent ansible_host=192.168.88.51 ansible_user=vagrant
 Результат выполнения установки основного playbook
 ```python
 ❯ ansible-playbook playbook.yml --ask-vault-pass
-Vault password: 
+Vault password:
 
 PLAY [Установка PostgreSQL и zabbix-server] *******************************************************************************************************************************************************************************
 
@@ -438,8 +438,8 @@ TASK [zabbix_agent : Включить и запустить сервисы Zabbi
 ok: [zabbix-agent] => (item=zabbix-agent)
 
 PLAY RECAP ****************************************************************************************************************************************************************************************************************
-zabbix-agent               : ok=6    changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
-zabbix-server              : ok=20   changed=14   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+zabbix-agent               : ok=6    changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+zabbix-server              : ok=20   changed=14   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
 ```
 
 - Скрины авторизации в Zabbix-Server
@@ -480,6 +480,63 @@ zabbix-server              : ok=20   changed=14   unreachable=0    failed=0    s
 4. Приложите в файл README.md текст использованных команд в GitHub
 
 ---
+### Решение задания 2
+1. Приложите в файл README.md скриншот раздела Configuration > Hosts, где видно, что агенты подключены к серверу
+![](.scrin/zabbix_hosts.png)
+
+2. Приложите в файл README.md скриншот лога zabbix agent, где видно, что он работает с сервером
+![](.scrin/zabbix_agent_log.png)
+
+3. Приложите в файл README.md скриншот раздела Monitoring > Latest data для обоих хостов, где видны поступающие от агентов данные.
+- agent
+![](.scrin/zabbix_agent_monitoring.png)
+
+- server
+![](.scrin/zabbix_server_monitoring.png)
+
+4. Приложите в файл README.md текст использованных команд в GitHub
+
+```yml
+- name: Создаем директорию install
+  file:
+    path: /home/vagrant/install   # путь к директории, которую нужно создать
+    state: directory                          # гарантирует, что директория будет создана, если ее нет.
+
+- name: Скачиваем репозиторий с zabbix 7.4
+  get_url:
+    url: https://repo.zabbix.com/zabbix/7.4/release/debian/pool/main/z/zabbix-release/zabbix-release_latest_7.4+debian13_all.deb # Адрес ключа репозитория
+    dest: /home/vagrant/install/ # Путь куда будет пакет
+
+- name: Установка репозитория
+  apt:
+    deb: /home/vagrant/install/zabbix-release_latest_7.4+debian13_all.deb # установка пакета с указанного пути
+    update_cache: yes
+
+- name: Установка пакетов для zabbix-server
+  ansible.builtin.apt:
+    name:
+      - zabbix-agent
+    state: present
+
+- name: Настроить Server и ServerActive в zabbix_agentd.conf
+  ansible.builtin.lineinfile:                    # позволяет точечно изменить одну строку, не затрагивая остальное содержимое.
+    path: /etc/zabbix/zabbix_agentd.conf
+    regexp: '^#?\s*{{ item.param }}=.*'          # ищем закомментированную или активную строку
+    line: '{{ item.param }}={{ ip_zabbix_server }}'   # новая строка с нужным значением
+    backrefs: no                                  # заменяем только если найдено совпадение
+    backup: yes                                    # создаём резервную копию
+  loop:
+    - { param: 'Server' }
+    - { param: 'ServerActive' }
+  notify: Перезагрузка zabbix-agent                      # перезапускаем агент после изменений
+
+- name: Включить и запустить сервисы Zabbix-Agent
+  ansible.builtin.systemd:
+    name: zabbix-agent
+    state: started
+    enabled: yes
+```
+
 
 ## Задание 3 со звёздочкой*
 
