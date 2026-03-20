@@ -1,49 +1,29 @@
-Vagrant.configure("2") do |config|
-   # Образ виртуальной машины
+ VAGRANTFILE_API_VERSION = "2"
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+    # General Vagrant VM configuration.
   config.vm.box = "my-debian13"
-
-  # если выставлен в false, то vagrant не будет автоматически создавать и использовать собственные SSH ключи
   config.ssh.insert_key = false
-
-
-
-  # Настройка виртальной машина Zabbix Server
-  config.vm.define "test1" do |t1|
-   t1.vm.hostname = "test1"
-  # Настройка сети
-  t1.vm.network "public_network", ip: "192.168.88.55", bridge: "Realtek PCIe GbE Family Controller"
-  # Настройка провайлдера и параметров ВМ
-  t1.vm.provider "virtualbox" do |vb|
-    vb.name= "test1"
-    vb.memory = "2048"
-    vb.cpus = 2
-  end
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.vm.provider :virtualbox do |v|
+    v.memory = 256
+    v.linked_clone = true
   end
 
-  # Настройка виртальной машина Zabbix agent
-  config.vm.define "test2" do |t2|
-   t2.vm.hostname = "test2"
-  # Настройка сети
-  t2.vm.network "public_network", ip: "192.168.88.56", bridge: "Realtek PCIe GbE Family Controller"
-  # Настройка провайлдера и параметров ВМ
-  t2.vm.provider "virtualbox" do |vb|
-    vb.name= "test2"
-    vb.memory = "2048"
-    vb.cpus = 2
-  end
-  end
+   # Application server 1.
+   config.vm.define "app1" do |app|
+     app.vm.hostname = "orc-app1.test"
+     app.vm.network :private_network, ip: "192.168.60.4"
+   end
 
-  # Настройка виртальной машина Zabbix agent
-  config.vm.define "test3" do |t3|
-   t3.vm.hostname = "test3"
-  # Настройка сети
-  t3.vm.network "public_network", ip: "192.168.88.57", bridge: "Realtek PCIe GbE Family Controller"
-  # Настройка провайлдера и параметров ВМ
-  t3.vm.provider "virtualbox" do |vb|
-    vb.name= "test3"
-    vb.memory = "2048"
-    vb.cpus = 2
-  end
-  end
+   # Application server 2.
+   config.vm.define "app2" do |app|
+     app.vm.hostname = "orc-app2.test"
+     app.vm.network :private_network, ip: "192.168.60.5"
+   end
 
-end
+   # Database server.
+   config.vm.define "db" do |db|
+     db.vm.hostname = "orc-db.test"
+     db.vm.network :private_network, ip: "192.168.60.6"
+   end
+ end
