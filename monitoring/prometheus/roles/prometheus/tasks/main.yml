@@ -5,17 +5,73 @@
     state: directory
 
 - name: Скачиваем репозиторий
-  url: https://github.com/prometheus/prometheus/releases/download/v3.10.0/prometheus-3.10.0.linux-amd64.tar.gz
-  dest: /home/vagrant/install/
+  get_url:
+    url: https://github.com/prometheus/prometheus/releases/download/v3.10.0/prometheus-3.10.0.linux-amd64.tar.gz
+    dest: /home/vagrant/install/
 
 - name: Распаковка Prometheus
   unarchive:
     src: /home/vagrant/install/prometheus-3.10.0.linux-amd64.tar.gz
-    desk: /home/vagrant/install/prometheus/
+    dest: /home/vagrant/install/
     remote_src: yes
     list_files: yes
   register: archive_result
 
 - name: Показать распакованные файлы
   debug:
-  var: archive_result.archived_file_list
+    var: archive_result
+
+- name: Создаем группу prometheus
+  group:
+    name: prometheus
+    state: present
+    system: yes
+
+- name: Создаем пользователя prometheus
+  user:
+    name: prometheus
+    group: prometheus
+    system: yes
+    shell: /usr/sbin/nologin
+    create_home: no
+    state: presen
+
+
+- name: Копируем бинарные файлы prometheus и promtool
+  copy:
+    src: "/home/vagrant/install/prometheus-3.10.0.linux-amd64/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+    remote_src: yes
+  loop:
+    - prometheus
+    - promtool
+
+- name: Создаем папку /etc/prometheus
+  file:
+    path: /etc/prometheus
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+
+
+- name: Создаем папку sudo mkdir /var/lib/prometheus
+  file:
+    path: /var/lib/prometheus
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+
+
+- name: Копируем yml файлы prometheus.yml
+  copy:
+    src: prometheus-3.10.0.linux-amd64/prometheus.yml
+    dest: /etc/prometheus/
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+    remote_src: yes
