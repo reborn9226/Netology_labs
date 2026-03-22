@@ -1,0 +1,7 @@
+---
+- name: Установка Prometheus
+  hosts: prometheus
+  become: yes
+
+  roles:
+    - prometheus

@@ -1,0 +1,21 @@
+---
+- name: Создаем папку для загрузки Prometheus
+  file:
+    path: /home/vagrant/install
+    state: directory
+
+- name: Скачиваем репозиторий
+  url: https://github.com/prometheus/prometheus/releases/download/v3.10.0/prometheus-3.10.0.linux-amd64.tar.gz
+  dest: /home/vagrant/install/
+
+- name: Распаковка Prometheus
+  unarchive:
+    src: /home/vagrant/install/prometheus-3.10.0.linux-amd64.tar.gz
+    desk: /home/vagrant/install/prometheus/
+    remote_src: yes
+    list_files: yes
+  register: archive_result
+
+- name: Показать распакованные файлы
+  debug:
+  var: archive_result.archived_file_list
