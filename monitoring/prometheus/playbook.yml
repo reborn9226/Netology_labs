@@ -13,3 +13,10 @@
 
   roles:
     - node_exporter
+
+- name: Установка Grafana
+  hosts: prometheus
+  become: yes
+
+  roles:
+    - grafana

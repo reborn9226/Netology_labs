@@ -1,0 +1,30 @@
+---
+- name: Установка пакетов
+  apt:
+    name:
+    - adduser
+    - libfontconfig1
+    - musl
+    state: present
+    update_cache: yes
+
+- name: Создаем директорию install
+  file:
+    path: /tmp/install/
+    state: directory
+
+- name: Скачиваем репозиторий с zabbix 7.4
+  get_url:
+    url: https://dl.grafana.com/grafana/release/12.4.1/grafana_12.4.1_22846628243_linux_amd64.deb
+    dest: /tmp/install/
+
+
+- name: Установка репозитория
+  apt:
+    deb: /tmp/install/grafana_12.4.1_22846628243_linux_amd64.deb
+
+- name: Запуск службы Grafana
+  systemd:
+    name: grafana-server.service
+    enabled: yes
+    state: started
