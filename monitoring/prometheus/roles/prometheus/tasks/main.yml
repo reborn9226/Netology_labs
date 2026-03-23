@@ -1,26 +1,4 @@
 ---
-- name: Создаем папку для загрузки Prometheus
-  file:
-    path: /home/vagrant/install
-    state: directory
-
-- name: Скачиваем репозиторий
-  get_url:
-    url: https://github.com/prometheus/prometheus/releases/download/v3.10.0/prometheus-3.10.0.linux-amd64.tar.gz
-    dest: /home/vagrant/install/
-
-- name: Распаковка Prometheus
-  unarchive:
-    src: /home/vagrant/install/prometheus-3.10.0.linux-amd64.tar.gz
-    dest: /home/vagrant/install/
-    remote_src: yes
-    list_files: yes
-  register: archive_result
-
-- name: Показать распакованные файлы
-  debug:
-    var: archive_result
-
 - name: Создаем группу prometheus
   group:
     name: prometheus
@@ -34,12 +12,34 @@
     system: yes
     shell: /usr/sbin/nologin
     create_home: no
-    state: presen
+    state: present
 
+
+- name: Создаем папку для загрузки Prometheus
+  file:
+    path: /tmp/install/
+    state: directory
+
+- name: Скачиваем репозиторий
+  get_url:
+    url: https://github.com/prometheus/prometheus/releases/download/v2.53.5/prometheus-2.53.5.linux-amd64.tar.gz
+    dest: /tmp/install/
+
+- name: Распаковка Prometheus
+  unarchive:
+    src: /tmp/install/prometheus-2.53.5.linux-amd64.tar.gz
+    dest: /tmp/install/
+    remote_src: yes
+    list_files: yes
+  register: archive_result
+
+- name: Показать распакованные файлы
+  debug:
+    var: archive_result
 
 - name: Копируем бинарные файлы prometheus и promtool
   copy:
-    src: "/home/vagrant/install/prometheus-3.10.0.linux-amd64/{{ item }}"
+    src: "/tmp/install/prometheus-2.53.5.linux-amd64/{{ item }}"
     dest: "/usr/local/bin/{{ item }}"
     owner: prometheus
     group: prometheus
@@ -58,7 +58,7 @@
     mode: '0755'
 
 
-- name: Создаем папку sudo mkdir /var/lib/prometheus
+- name: Создаем папку /var/lib/prometheus
   file:
     path: /var/lib/prometheus
     state: directory
@@ -67,11 +67,41 @@
     mode: '0755'
 
 
-- name: Копируем yml файлы prometheus.yml
+- name: Копируем бинарные папки consoles и  console_libraries и файл prometheus.yml
   copy:
-    src: prometheus-3.10.0.linux-amd64/prometheus.yml
+    src: "/tmp/install/prometheus-2.53.5.linux-amd64/{{ item }}"
     dest: /etc/prometheus/
     owner: prometheus
     group: prometheus
-    mode: '0755'
     remote_src: yes
+  loop:
+    - consoles
+    - console_libraries
+    - prometheus.yml
+  register: etc_prometheus
+
+- name: Посмотреть содержимое каталога с правами через ls
+  shell: ls -Fla /etc/prometheus
+  register: ls_output
+
+- name: Вывести результат
+  debug:
+    var: ls_output
+
+- name: Создаем сервис prometheus.service
+  template:
+    src: templates/prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+    mode: '0644'
+    owner: root
+    group: root
+  notify: reload systemd
+
+- name: Включить и запусить службу prometheus.service
+  systemd:
+    name : prometheus.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+
+  
