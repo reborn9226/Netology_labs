@@ -5,3 +5,11 @@
 
   roles:
     - prometheus
+
+
+- name: Установка Node Exporter
+  hosts: prometheus
+  become: yes
+
+  roles:
+    - node_exporter

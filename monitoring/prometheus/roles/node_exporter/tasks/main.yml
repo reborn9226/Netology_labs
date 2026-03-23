@@ -1,0 +1,61 @@
+---
+- name: Создаем папку для загрузки Node Exporter
+  file:
+    path: /tmp/install/
+    state: directory
+
+- name: Скачиваем репозиторий
+  get_url:
+    url: https://github.com/prometheus/node_exporter/releases/download/v1.10.2/node_exporter-1.10.2.linux-amd64.tar.gz
+    dest: /tmp/install/
+
+- name: Распаковка Prometheus
+  unarchive:
+    src: /tmp/install/node_exporter-1.10.2.linux-amd64.tar.gz
+    dest: /tmp/install/
+    remote_src: yes
+    list_files: yes
+  register: archive_result
+
+- name: Показать распакованные файлы
+  debug:
+    var: archive_result
+
+- name: Создаем папку для Node Exporter
+  file:
+    path: /etc/prometheus/node-exporter/
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+
+- name: Копируем бинарный файл node-exporter
+  copy:
+    src: /tmp/install/node_exporter-1.10.2.linux-amd64/node_exporter
+    dest: /etc/prometheus/node-exporter/
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+    remote_src: yes
+  register: etc_prometheus
+
+- name: Посмотреть содержимое каталога с правами через ls
+  shell: ls -Fla /etc/prometheus/node-exporter/
+  register: ls_output
+
+
+- name: Создаем сервис node-exporter.service
+  template:
+    src: templates/node-exporter.service.j2
+    dest: /etc/systemd/system/node-exporter.service
+    mode: '0644'
+    owner: root
+    group: root
+  notify: reload systemd
+
+- name: Включить и запусить службу node-exporter.service
+  systemd:
+    name : node-exporter.service
+    enabled: yes
+    state: started
+    daemon_reload: yes

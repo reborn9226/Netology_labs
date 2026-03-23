@@ -1,0 +1,12 @@
+[Unit]
+Description=Node Explorer Lesson 9.4 - Ершов А.О.
+After=network.target
+
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+ExecStart=/etc/prometheus/node-exporter/node_exporter
+
+[Install]
+WantedBy=multi-user.target
