@@ -58,3 +58,13 @@
     enabled: yes
     state: started
     daemon_reload: yes
+
+
+- name: Создаем алерт netology-test.yml.j2
+  template:
+    src: templates/netology-test.yml.j2
+    dest: /etc/prometheus/netology-test.yml
+    mode: '0755'
+    owner: prometheus
+    group: prometheus
+  notify: reload systemd
