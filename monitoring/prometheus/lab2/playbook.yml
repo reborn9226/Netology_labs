@@ -1,0 +1,22 @@
+---
+- name: Установка Prometheus
+  hosts: prometheus
+  become: yes
+
+  roles:
+    - prometheus
+
+
+- name: Установка Node Exporter
+  hosts: prometheus
+  become: yes
+
+  roles:
+    - node_exporter
+
+- name: Установка Grafana
+  hosts: prometheus
+  become: yes
+
+  roles:
+    - grafana
