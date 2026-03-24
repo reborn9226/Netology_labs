@@ -20,3 +20,10 @@
 
   roles:
     - grafana
+
+- name: Установка alertmanager
+  hosts: prometheus
+  become: yes
+
+  roles:
+    - alertmanager

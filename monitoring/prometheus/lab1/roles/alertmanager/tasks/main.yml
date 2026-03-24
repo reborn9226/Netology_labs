@@ -1,0 +1,60 @@
+---
+- name: Создаем папку для загрузки alertmanager
+  file:
+    path: /tmp/install/
+    state: directory
+
+- name: Скачиваем репозиторий
+  get_url:
+    url: https://github.com/prometheus/alertmanager/releases/download/v0.31.1/alertmanager-0.31.1.linux-amd64.tar.gz
+    dest: /tmp/install/
+    force: no
+
+- name: Распаковка alertmanager
+  unarchive:
+    src: /tmp/install/alertmanager-0.31.1.linux-amd64.tar.gz
+    dest: /tmp/install/
+    remote_src: yes
+    list_files: yes
+  register: archive_result
+
+- name: Показать распакованные файлы
+  debug:
+    var: archive_result
+
+- name: Копируем бинарные файлы alertmanager и amtool
+  copy:
+    src: "/tmp/install/alertmanager-0.31.1.linux-amd64/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+    remote_src: yes
+  loop:
+    - alertmanager
+    - amtool
+
+- name: Копируем конфиг alertmanager.yml
+  copy:
+    src: /tmp/install/alertmanager-0.31.1.linux-amd64/alertmanager.yml
+    dest: /etc/prometheus/
+    owner: prometheus
+    group: prometheus
+    remote_src: yes
+
+
+- name: Создаем сервис prometheus-alertmanager.service
+  template:
+    src: templates/prometheus-alertmanager.service.j2
+    dest: /etc/systemd/system/prometheus-alertmanager.service
+    mode: '0644'
+    owner: root
+    group: root
+  notify: reload systemd
+
+- name: Включить и запусить службу prometheus-alertmanager.service
+  systemd:
+    name : prometheus-alertmanager.service
+    enabled: yes
+    state: started
+    daemon_reload: yes

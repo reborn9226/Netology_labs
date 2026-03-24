@@ -13,7 +13,7 @@
     path: /tmp/install/
     state: directory
 
-- name: Скачиваем репозиторий с zabbix 7.4
+- name: Скачиваем пакет grafana
   get_url:
     url: https://dl.grafana.com/grafana/release/12.4.1/grafana_12.4.1_22846628243_linux_amd64.deb
     dest: /tmp/install/
