@@ -60,9 +60,9 @@
     daemon_reload: yes
 
 
-- name: Создаем алерт netology-test.yml.j2
-  template:
-    src: templates/netology-test.yml.j2
+- name: Создаем алерт netology-test.yml
+  copy:
+    src: templates/netology-test.yml
     dest: /etc/prometheus/netology-test.yml
     mode: '0755'
     owner: prometheus

@@ -5,7 +5,7 @@ groups: # Список групп
     expr: up == 0 # Логинческое выражение
     for: 1m # Сколько ждать отбоя сработки перед отправкой оповещения
     labels:
-      sererity: critical # критические события
+      severity: critical # критические события
     annotations: # Описание
       description: '{{ $labels.instance }} of job {{ $labels.job }} has been down  for more than 1 minute.' # полное Описание алерта
       summary: Instance {{ $labels.instance }} down # краткое описание алерта
