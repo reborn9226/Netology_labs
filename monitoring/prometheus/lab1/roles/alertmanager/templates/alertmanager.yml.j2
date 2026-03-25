@@ -1,0 +1,17 @@
+global:
+route:
+  group_by: ['alertname'] # Праметр групперовки оповещений - по имени
+  group_wait: 30s # Время ожидания перед тем как отправить первое оповещение
+  group_interrval: 10m # Вреся ожидания перед тем как дослать оповещение о новых сработках по текущему алерту
+  repeat_interval: 60m # Время ожидания перед тем как отправить повтороное оповещение о текущем алерте
+  receiver: 'email' # Способ доставки оповещения
+receivers:
+  - name: 'email'
+    email_configs:
+      - to: 'reborn9226@gmail.com'
+        from: 'reborn9226@gmail.com'
+        smarthost: 'smtp.gmail.com:587'
+        auth_username: 'reborn9226'
+        auth_identity: 'reborn9226'
+        auth_password: 'mawr3Tec'
+        
