@@ -1,0 +1,7 @@
+---
+- name: Установка nginx
+  hosts: host
+  become: yes
+
+  roles:
+    - nginx
