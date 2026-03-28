@@ -28,3 +28,9 @@
   ansible.builtin.uri:
       url: "http://{{ ansible_default_ipv4.address }}"
       status_code: 200
+  register: nginx_check
+
+- name: Вывод результата проверки
+  debug:
+      msg: "Nginx работает корректно, статус код: {{ nginx_check.status }}"
+      
