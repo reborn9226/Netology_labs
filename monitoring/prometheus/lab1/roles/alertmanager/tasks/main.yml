@@ -68,3 +68,12 @@
     owner: prometheus
     group: prometheus
   notify: reload systemd
+
+- name: Создаем конфиг alertmanager
+  template:
+    src: templates/alertmanager.yml.j2
+    dest: /etc/prometheus/alertmanager.yml
+    mode: '0755'
+    owner: prometheus
+    group: prometheus
+  notify: reload systemd
