@@ -1,0 +1,21 @@
+---
+- name: Установка сервиса Keepalived
+  apt:
+    name: keepalived
+    state: present
+    update_cache: yes
+
+- name: Cкопировать конфигурационный файл keepalived
+  template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Перезапустить keepalived
+
+- name: Автозапуск keepalived
+  ansible.builtin.service:
+      name: keepalived
+      state: started
+      enabled: true

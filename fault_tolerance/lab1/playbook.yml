@@ -1,7 +1,15 @@
 ---
 - name: Установка nginx
-  hosts: host
+  hosts: host_keepalived
   become: yes
 
   roles:
     - nginx
+
+
+- name: Установка keepalived
+  hosts: host_keepalived
+  become: yes
+  
+  roles:
+    - keepalived
