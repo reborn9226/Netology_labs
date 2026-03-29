@@ -1,3 +1,8 @@
+vrrp_track_process check_nginx {
+      process "nginx"
+
+}
+
 vrrp_instance VI_1 {
         state {{ keepalived_state }}
         interface enp0s8
@@ -7,5 +12,8 @@ vrrp_instance VI_1 {
 
         virtual_ipaddress {
               192.168.88.60/24
+        }
+        track_process {
+            check_nginx
         }
 }
