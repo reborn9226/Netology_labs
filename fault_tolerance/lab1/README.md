@@ -68,7 +68,9 @@
 - Скрин Роутера 2
  ![](.scrin/router2track1.png)
  - Схема
- ![](.scrin/shema.png)![[.scrin/hsrp_advanced_ershov 1.pkt]]
+ ![](.scrin/shema.png)
+
+ ![[.scrin/hsrp_advanced_ershov 1.pkt]]
 
 ### Задание 2
 
@@ -295,8 +297,12 @@ host1 | CHANGED | rc=0 >>
 ```
 - Спустя 3 секунды браузер выдал ошибку "Не удалось получить доступ к сайту"
 ![](.scrin/err.png)
+
+
 - И спустя долю секунды переключается на host2
 ![](.scrin/2.png)
+
+
 - Если запустить повторно Nginx  то host1 возвращается
 ![](/.scrin/1.png)
 
@@ -308,6 +314,8 @@ host1 | CHANGED | rc=0 >>
 
 - После выполнения команды мгновенно сайт выдал ошибку 403
 ![](.scrin/err2.png)
+
+
 - Прошло 3 секунд и произошло переключение на host2
 ![](.scrin/2.png)
 ---
