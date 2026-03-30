@@ -89,16 +89,18 @@
 ```bash
 ❯ tree -L 4 ~/git/Netology_labs/fault_tolerance/lab1
 /home/alex/git/Netology_labs/fault_tolerance/lab1
+├── README.md
 ├── Vagrantfile
 ├── ansible.cfg
 ├── ansible.log
 ├── host_vars
 │   ├── host1.yml # Переменные для использования в шаблоне keepalived.conf.j2
 │   └── host2.yml # Переменные для использования в шаблоне keepalived.conf.j2
+├── hsrp_advanced_ershov.pkt # Файл проекта-схемы  Cisco Packet Tracer
 ├── inventory.ini
 ├── playbook.yml
 └── roles
-    ├── keepalived
+    ├── keepalived # Роль keepalived
     │   ├── files
     │   │   └── check.sh # Скрипт
     │   ├── handlers
@@ -106,7 +108,7 @@
     │   ├── tasks
     │   │   └── main.yml
     │   └── templates
-    │       └── keepalived.conf.j2
+    │       └── keepalived.conf.j2 # Шаблон конфигурации keepalived.conf с переменными 
     └── nginx
         ├── README.md
         ├── handlers
@@ -118,7 +120,7 @@
         └── vars
             └── main.yml
 
-12 directories, 16 files
+12 directories, 18 files
 ```
 
 - Vagrantfile
