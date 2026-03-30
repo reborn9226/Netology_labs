@@ -1,19 +1,28 @@
-vrrp_track_process check_nginx {
-      process "nginx"
+global_defs {
+    # Позволяет запускать скрипты от имени того пользователя, который владеет файлом
+    enable_script_security
+    script_user root
+}
 
+vrrp_script check_sh {
+    script "/usr/local/bin/check.sh"
+    interval 3
+    # Если скрипт вернул 1, приоритет упадет на 100 единиц
+    weight -100
 }
 
 vrrp_instance VI_1 {
-        state {{ keepalived_state }}
-        interface enp0s8
-        virtual_router_id 60
-        priority {{ keepalived_priority }}
-        advert_int 1
+    state {{ keepalived_state }}
+    interface enp0s8
+    virtual_router_id 60
+    priority {{ keepalived_priority }}
+    advert_int 1
 
-        virtual_ipaddress {
-              192.168.88.60/24
-        }
-        track_process {
-            check_nginx
-        }
+    virtual_ipaddress {
+        192.168.88.60/24
+    }
+
+    track_script {
+        check_sh
+    }
 }

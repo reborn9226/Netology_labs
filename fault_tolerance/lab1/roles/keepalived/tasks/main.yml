@@ -19,3 +19,11 @@
       name: keepalived
       state: started
       enabled: true
+
+- name: Копируем скрипт check.sh
+  copy:
+    src: check.sh
+    dest: /usr/local/bin/check.sh
+    mode: '0755'
+    owner: root
+    group: root
