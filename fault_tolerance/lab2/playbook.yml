@@ -1,0 +1,9 @@
+---
+- name: Установка nginx
+  hosts: host_keepalived
+  become: yes
+
+  roles:
+    - nginx
+
+

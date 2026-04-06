@@ -1,0 +1,36 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for nginx
+- name: Установить пакет nginx
+  ansible.builtin.apt:
+      name: nginx
+      state: present
+      update_cache: yes
+
+
+
+- name: Скопировать файл index.html
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart nginx
+
+- name: Аатозапуск nginx
+  ansible.builtin.service:
+      name: nginx
+      state: started
+      enabled: true
+
+- name: Проверка доступности стандартной страницы nginx
+  ansible.builtin.uri:
+      url: "http://{{ ansible_default_ipv4.address }}"
+      status_code: 200
+  register: nginx_check
+
+- name: Вывод результата проверки
+  debug:
+      msg: "Nginx работает корректно, статус код: {{ nginx_check.status }}"
+      
