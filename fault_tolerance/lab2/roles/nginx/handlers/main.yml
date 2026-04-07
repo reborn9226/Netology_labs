@@ -5,3 +5,9 @@
   ansible.builtin.service:
     name: nginx
     state: restarted
+
+- name: reload nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded
+    

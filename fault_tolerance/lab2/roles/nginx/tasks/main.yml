@@ -33,4 +33,21 @@
 - name: Вывод результата проверки
   debug:
       msg: "Nginx работает корректно, статус код: {{ nginx_check.status }}"
-      
+
+
+- name: Создаем папку include
+  file:
+    path: /etc/nginx/include
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: копируем файл upstream.inc из шаблона
+  template:
+    src: upstream.inc.j2
+    dest: /etc/nginx/include/upstream.inc
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload nginx
