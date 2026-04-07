@@ -1,9 +1,16 @@
 ---
 - name: Установка nginx
-  hosts: host_keepalived
+  hosts: host_proxy
   become: yes
 
   roles:
     - nginx
 
 
+- name: Установка python3 сервер
+  hosts: host_proxy
+  become: yes
+
+  roles:
+    - server_python
+    
