@@ -34,6 +34,12 @@
   debug:
       msg: "Nginx работает корректно, статус код: {{ nginx_check.status }}"
 
+- name: Удалить дефолтный сайт
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: reload nginx
+
 
 - name: Создаем папку include
   file:
