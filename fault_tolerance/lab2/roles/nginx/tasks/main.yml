@@ -41,6 +41,15 @@
   notify: reload nginx
 
 
+- name: созадем файл конфигурации для нашего сайта
+  template:
+    src: example-http.conf.j2
+    dest: /etc/nginx/conf.d/example-http.conf
+    owner: root
+    group: root
+    mode: '0664'
+
+
 - name: Создаем папку include
   file:
     path: /etc/nginx/include
