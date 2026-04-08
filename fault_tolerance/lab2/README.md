@@ -173,7 +173,7 @@ end
 
 ![check_haproxy1.png](.scrin/check_haproxy1.png)
 
-![Статистика HAProxy](check_haproxy2.png)
+![Статистика HAProxy](.scrin/check_haproxy2.png)
 
 ### Задание 2
 
