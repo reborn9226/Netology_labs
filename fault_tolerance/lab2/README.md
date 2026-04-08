@@ -175,6 +175,7 @@ end
 
 ![Статистика HAProxy](.scrin/check_haproxy2.png)
 
+---
 ### Задание 2
 
 [](https://github.com/netology-code/sflt-homeworks/blob/main/2.md#%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-2)
@@ -185,7 +186,147 @@ end
 - На проверку направьте конфигурационный файл haproxy, скриншоты, где видно перенаправление запросов на разные серверы при обращении к HAProxy c использованием домена example.local и без него.
 
 ---
+### Решение 2
+- Изменил код в ролях server_python и haproxy
+- tasks роли server_python
+```yml
+---
+- name: Создаем директорию http1 и http2 и http3
+  file:
+    path: "/home/vagrant/{{ item }}"
+    state: directory
+  loop:
+    - http1
+    - http2
+    - http3
 
+- name: Создаем файл index.html в директории http1
+  copy:
+    content: "Server 1 :8888"
+    dest: /home/vagrant/http1/index.html
+
+- name: Создаем файл index.html в директории http2
+  copy:
+    content: "Server 2 :9999"
+    dest: /home/vagrant/http2/index.html
+
+- name: Создаем файл index.html в директории http3
+  copy:
+    content: "Server 3 :7777"
+    dest: /home/vagrant/http3/index.html
+
+- name: Запускаем сервер на порту 8888
+  shell: |
+    nohup python3 -m http.server 8888 --directory /home/vagrant/http1/ --bind 0.0.0.0 > /tmp/server8888.log 2>&1 &
+  args:
+    executable: /bin/bash
+
+- name: Запускаем сервер на порту 9999
+  shell: |
+    nohup python3 -m http.server 9999 --directory /home/vagrant/http2/ --bind 0.0.0.0 > /tmp/server9999.log 2>&1 &
+  args:
+    executable: /bin/bash
+
+- name: Запускаем сервер на порту 7777
+  shell: |
+    nohup python3 -m http.server 7777 --directory /home/vagrant/http3/ --bind 0.0.0.0 > /tmp/server7777.log 2>&1 &
+  args:
+    executable: /bin/bash
+
+- name: Даем время на запуск серверов
+  pause:
+    seconds: 5
+
+- name: Проверка работы серверов
+  uri:
+    url: "http://127.0.0.1:{{ item }}"
+    status_code: 200
+    return_content: yes
+  loop:
+    - 8888
+    - 9999
+    - 7777
+
+  register: server_check
+
+- name: Выводим результат проверки серверов
+  debug:
+    msg: "Сервер на порту {{ item.item }} вернул: {{ item.content }}"
+  loop: "{{ server_check.results }}"
+```
+
+- Результат выполнения роли server_python
+![](.scrin/check_server_pyhon3.png)
+
+
+- tasks роли haproxy
+```yml
+---
+- name: Установка HAProxy
+  apt:
+    name: haproxy
+    state: present
+    update_cache: yes
+
+- name: Автозапуск HAProxy
+  service:
+    name: haproxy
+    state: started
+    enabled: true
+
+- name: Добавление в конфигурационный файл haproxy.cfg нашу конфигурацию в конец файла
+  blockinfile:
+    path: /etc/haproxy/haproxy.cfg
+    insertbefore: EOF                   # Добавляет данные в конец файла
+    block: |
+      listen stats # веб-страница со статистикой
+              bind :888
+              mode http
+              stats enable
+              stats uri /stats
+              stats refresh 5s
+              stats realm Haproxy\ Statistics
+
+      frontend example # секция фронтенд
+              mode http
+              bind :8088
+              #default_backend web_servers
+              acl ACL_example.local hdr(host) -i example.local
+              use_backend web_servers if ACL_example.local
+             
+      backend web_servers # секция бэкенд
+              mode http
+              balance roundrobin
+              option httpchk
+              http-check send meth GET uri /index.html
+              server s1 127.0.0.1:8888 weight 2 check
+              server s2 127.0.0.1:9999 weight 3 check
+              server s3 127.0.0.1:7777 weight 4 check
+
+      # 4 уровень балансировщик
+      # listen web_tcp
+      #         bind :1325
+      #         server s1 127.0.0.1:8888 check inter 3s
+      #         server s2 127.0.0.1:9999 check inter 3s
+    marker: "# {mark} ANSIBLE MANAGED BLOCK MY Config"
+    backup: yes
+
+- name: Перезагрузка HAProxy
+  service:
+    name: haproxy
+    state: reloaded
+
+```
+
+
+- Результат выполнения роли haproxy по адресу example.local
+![](.scrin/check_haproxy3.png)
+
+- Результат выполнения без example.local
+![](.scrin/check_haproxy4.png)
+- Статистика
+![](.scrin/check_stat.png)
+---
 ## Задания со звёздочкой*
 
 [](https://github.com/netology-code/sflt-homeworks/blob/main/2.md#%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F-%D1%81%D0%BE-%D0%B7%D0%B2%D1%91%D0%B7%D0%B4%D0%BE%D1%87%D0%BA%D0%BE%D0%B9)
