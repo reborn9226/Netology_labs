@@ -1,10 +1,10 @@
 ---
-- name: Установка nginx
-  hosts: host_proxy
-  become: yes
+# - name: Установка nginx
+#   hosts: host_proxy
+#   become: yes
 
-  roles:
-    - nginx
+#   roles:
+#     - nginx
 
 
 - name: Установка python3 сервер
@@ -13,4 +13,9 @@
 
   roles:
     - server_python
-    
+
+- name: Установка HAProxy
+  hosts: host_proxy
+  become: yes
+  roles:
+    - haproxy

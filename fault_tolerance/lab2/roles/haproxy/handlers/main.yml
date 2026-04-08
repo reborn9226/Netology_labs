@@ -1,5 +1,0 @@
----
-- name: Перезагрузка HAProxy
-  service:
-    name: haproxy
-    state: reloaded
