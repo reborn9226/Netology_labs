@@ -31,6 +31,37 @@
 ---
 ### Решение 1
 - Выполнял задание при помощи ansible(wsl) и vagrant(windows)
+- Структура проекта
+```bash
+❯ tree -L 4 ~/git/Netology_labs/fault_tolerance/lab2
+/home/alex/git/Netology_labs/fault_tolerance/lab2
+├── README.md
+├── Vagrantfile
+├── ansible.cfg
+├── ansible.log
+├── inventory.ini
+├── playbook.yml
+└── roles
+    ├── haproxy
+    │   └── tasks
+    │       └── main.yml
+    ├── nginx
+    │   ├── README.md
+    │   ├── handlers
+    │   │   └── main.yml
+    │   ├── tasks
+    │   │   └── main.yml
+    │   └── templates
+    │       ├── example-http.conf.j2
+    │       ├── index.html.j2
+    │       └── upstream.inc.j2
+    └── server_python
+        └── tasks
+            └── main.yml
+
+9 directories, 14 files
+```
+
 - Vagrantfile
 ```yml
 Vagrant.configure("2") do |config|
