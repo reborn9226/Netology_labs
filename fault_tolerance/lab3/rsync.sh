@@ -1,8 +1,8 @@
 #!/bin/bash
 # Переменные для источника, назначения, даты и лог-файла
 SOURCE="/home/alex"
-BACKUP="/tmp/Backup"
-DATE=$(date +dd-%m-%Y)
+BACKUP="/tmp/backup"
+DATE=$(date +%d-%m-%Y)
 LOG="/home/alex/backup.log"
 
 # Проверяем, существует ли каталог, если нет, то создаем его
@@ -11,7 +11,7 @@ if [ ! -d "$BACKUP" ]; then
 fi
 
 # Выполняем резервное копирование и сохраняем лог
-rsync -ac --delete --log-file="$LOG" "$SOURCE/" "$BACKUP/backup-user-$DATE"
+rsync -ac --delete --log-file="$LOG" "$SOURCE/" "$BACKUP/backup-$USER-$DATE"
 
 # Проверяем, результат выполнения команды rsync
 if [ $? -eq 0 ]; then
@@ -19,4 +19,3 @@ if [ $? -eq 0 ]; then
     else
     echo "Произошла ошибка при выполнении резервного копрированияя. Проверь лог для подробностей $LOG"
 fi
-
