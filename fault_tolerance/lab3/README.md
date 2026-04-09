@@ -31,6 +31,19 @@
 
 ---
 ### Решение 1
+- Структура проекта
+```bash
+❯ tree -l /home/alex/git/Netology_labs/fault_tolerance/lab3                                                                                                                                                1 ⚙
+/home/alex/git/Netology_labs/fault_tolerance/lab3
+├── README.md
+├── Vagrantfile
+├── crontab
+└── rsync.sh
+
+0 directories, 4 files
+```
+
+
 
 *Команда для выполнения зеркальной копии домашней директории*
 ```bash
