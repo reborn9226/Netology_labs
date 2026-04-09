@@ -3,19 +3,17 @@
 SOURCE="/home/alex"
 BACKUP="/tmp/backup"
 DATE=$(date +%d-%m-%Y)
-LOG="/home/alex/backup.log"
+LOG="/home/alex/backup.log" # Полный лог выполнения команды rsync
 
 # Проверяем, существует ли каталог, если нет, то создаем его
-if [ ! -d "$BACKUP" ]; then
-    mkdir -p "$BACKUP"
-fi
+mkdir -p "$BACKUP"
 
 # Выполняем резервное копирование и сохраняем лог
 rsync -ac --delete --log-file="$LOG" "$SOURCE/" "$BACKUP/backup-$USER-$DATE"
 
 # Проверяем, результат выполнения команды rsync
 if [ $? -eq 0 ]; then
-    echo "Резервное копирование заверешено успешно. Лог сохранен в $LOG"
+    logger -p user.info "Резервное копирование $SOURCE в $BACKUP/backup-$USER-$DATE успешно завершено. Детали в $LOG"
     else
-    echo "Произошла ошибка при выполнении резервного копрированияя. Проверь лог для подробностей $LOG"
+    logger -p user.err "ОШИБКА при резервном копировании $SOURCE. Проверьте $LOG"
 fi
