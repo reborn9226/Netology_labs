@@ -40,6 +40,7 @@ rsync -ac --exclude=".*/" --progress --mkpath /home/alex /tmp/backup/data-$(date
 Опции которые используются:
 `-a`  - Архивный режим
 `-c`  -  checksum (контрольная сумма)
+`--exclude=".*/"` - Исключить только скрытые папки
 `--progress` - Показывает прогресс выполнения
 `--mkpath` - Создает отсутствующие родительские каталоги  для конечного пути назначения
 `/home/alex` - Источник, домашняя директория
@@ -367,6 +368,8 @@ rsync -ac --exclude=".*/" --progress --mkpath /home/alex /tmp/backup/data-$(date
 
 
 ```
+
+---
 ### Задание 2
 
 [](https://github.com/netology-code/sflt-homeworks/blob/main/3.md#%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-2)
@@ -378,7 +381,70 @@ rsync -ac --exclude=".*/" --progress --mkpath /home/alex /tmp/backup/data-$(date
 - На проверку направить файл crontab и скриншот с результатом работы утилиты.
 
 ---
+### Решения 2
+Код скрипта
+```bash
+#!/bin/bash
+# Переменные для источника, назначения, даты и лог-файла
+SOURCE="/home/alex"
+BACKUP="/tmp/backup"
+DATE=$(date +%d-%m-%Y)
+LOG="/home/alex/backup.log" # Полный лог выполнения команды rsync
 
+# Проверяем, существует ли каталог, если нет, то создаем его
+mkdir -p "$BACKUP"
+
+# Выполняем резервное копирование и сохраняем лог
+rsync -ac --delete --log-file="$LOG" "$SOURCE/" "$BACKUP/backup-$USER-$DATE"
+
+# Проверяем, результат выполнения команды rsync
+if [ $? -eq 0 ]; then
+    logger -p user.info "Резервное копирование $SOURCE в $BACKUP/backup-$USER-$DATE успешно завершено. Детали в $LOG"
+    else
+    logger -p user.err "ОШИБКА при резервном копировании $SOURCE. Проверьте $LOG"
+fi
+```
+
+- Содержание файла /etc/crontab
+```bash
+ alex  win11PC  ~/git/Netology_labs/fault_tolerance/lab3
+❯ sudo cat /etc/crontab
+# /etc/crontab: system-wide crontab
+# Unlike any other crontab you don't have to run the `crontab'
+# command to install the new version when you edit this file
+# and files in /etc/cron.d. These files also have username fields,
+# that none of the other crontabs do.
+
+SHELL=/bin/sh
+# You can also override PATH, but by default, newer versions inherit it from the environment
+#PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# *  *  *  *  * user-name command to be executed
+17 *    * * *   root    cd / && run-parts --report /etc/cron.hourly
+25 6    * * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+47 6    * * 7   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )
+52 6    1 * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
+#
+# Синхронизация каждый день в 22:48
+18 22 * * * alex /home/alex/git/Netology_labs/fault_tolerance/lab3/rsync.sh
+
+```
+
+Результат выполнения скрипта
+![](.scrin/rsync3.png)
+
+Результат выполнения crontab
+
+![](.scrin/cron1)
+
+---
 ## Задания со звёздочкой*
 
 [](https://github.com/netology-code/sflt-homeworks/blob/main/3.md#%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F-%D1%81%D0%BE-%D0%B7%D0%B2%D1%91%D0%B7%D0%B4%D0%BE%D1%87%D0%BA%D0%BE%D0%B9)
