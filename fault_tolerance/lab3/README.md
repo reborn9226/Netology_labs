@@ -36,8 +36,8 @@
 ❯ tree -l /home/alex/git/Netology_labs/fault_tolerance/lab3                                                                                                                                                1 ⚙
 /home/alex/git/Netology_labs/fault_tolerance/lab3
 ├── README.md
-├── crontab
-└── rsync.sh
+├── crontab       # Конфигурация планировщика
+└── rsync.sh      # Скрипт
 0 directories, 3 files
 ```
 
