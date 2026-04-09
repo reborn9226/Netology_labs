@@ -442,7 +442,7 @@ SHELL=/bin/sh
 
 Результат выполнения crontab
 
-![](.scrin/cron1)
+![](.scrin/cron1.png)
 
 ---
 ## Задания со звёздочкой*
