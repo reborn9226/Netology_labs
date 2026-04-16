@@ -89,7 +89,7 @@ resource "local_file" "inventory" {
   content = <<-EOT
 [webservers]
 %{ for vm in yandex_compute_instance.vm ~}
-${vm.network_interface[0].nat_ip_address}
+${vm.name} ansible_host=${vm.network_interface[0].nat_ip_address}
 %{ endfor ~}
 [webservers:vars]
 ansible_user=user
