@@ -39,6 +39,8 @@ resource "yandex_compute_instance" "vm" {
   }
 }
 
+
+
 resource "yandex_lb_target_group" "group1" {
   name        = "group1"
   description = "Группа для балансировщика нагрузки"
