@@ -8,7 +8,7 @@ resource "yandex_vpc_subnet" "develop" {
   name           = "develop-fops-ru-central1-b"
   zone           = "ru-central1-b"
   network_id     = yandex_vpc_network.develop.id
-  v4_cidr_blocks = ["10.0.2.0/24"]  # Исправлено: добавлена точка в CIDR
+  v4_cidr_blocks = ["10.0.2.0/24"]  # добавлена точка в CIDR
   route_table_id = yandex_vpc_route_table.rt.id
 
   # Явная зависимость от сети
@@ -25,7 +25,7 @@ resource "yandex_vpc_gateway" "nat_gateway" {
 resource "yandex_vpc_route_table" "rt" {
   name       = "fops-route-table"
   network_id = yandex_vpc_network.develop.id
-
+# Добавляем статический маршрут для всего трафика, направляемого на NAT-шлюз
   static_route {
     destination_prefix = "0.0.0.0/0"
     gateway_id        = yandex_vpc_gateway.nat_gateway.id

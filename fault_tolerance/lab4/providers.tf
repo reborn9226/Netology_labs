@@ -9,6 +9,7 @@ terraform {
   required_version = ">=1.8.4"
 }
 
+# Конфигурация провайдера для Yandex Cloud, использующая переменные для идентификаторов облака и папки, а также файл с ключом доступа
 provider "yandex" {
   # token                    = "do not use!!!"
   cloud_id                 = var.cloud_id

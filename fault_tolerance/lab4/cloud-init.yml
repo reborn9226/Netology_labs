@@ -1,4 +1,5 @@
 #cloud-config
+#Конфигурация cloud-init для настройки виртуальных машин в Yandex Cloud, включая создание пользователя с правами sudo и добавление SSH-ключа для доступа
 users:
   - name: user
     groups: sudo
