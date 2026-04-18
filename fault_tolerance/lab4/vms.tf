@@ -47,7 +47,7 @@ resource "yandex_lb_target_group" "group1" {
   name        = "group1"
   description = "Группа для балансировщика нагрузки"
 
-  depends_on = [yandex_compute_instance.vm]
+  depends_on = [yandex_compute_instance.vm]  # Указываем зависимость от создания ВМ, чтобы гарантировать, что ВМ будут созданы до добавления в группу
 # Динамически добавляем все ВМ в группу балансировщика нагрузки
   dynamic "target" {
     for_each = [for vm in yandex_compute_instance.vm : vm.id]
@@ -88,7 +88,6 @@ resource "yandex_lb_network_load_balancer" "balancer1" {
 }
 
 # Динамический инвентарь для Ansible
-
 resource "local_file" "inventory" {
   content = <<-EOT
 [webservers]
