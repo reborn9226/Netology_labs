@@ -1,0 +1,45 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "my-debian13"
+  # Отключаем автозамену ключей Vagrant
+  config.ssh.insert_key = false
+
+  # Указываем Vagrant, какой приватный ключ использовать для SSH-подключения к ВМ
+  # Сначала пробуем ваш ключ, затем стандартный insecure-ключ (на случай первого запуска)
+  config.ssh.private_key_path = [File.expand_path("ssh/id_ed25519_win"), File.expand_path("~/.vagrant.d/insecure_private_key")]
+
+  config.vm.define "ds" do |h1|
+    h1.vm.hostname = "ds"
+    ip_address = "192.168.88.61"
+
+    h1.vm.network "public_network", ip: ip_address, bridge: "Realtek PCIe GbE Family Controller"
+
+    h1.vm.provider "virtualbox" do |vb|
+      vb.name = "ds"
+      vb.memory = "4048"
+      vb.cpus = 4
+    end
+
+    # 1. Проброс публичного SSH-ключа пользователю vagrant
+    h1.vm.provision "shell", inline: <<-SHELL
+      mkdir -p /home/vagrant/.ssh
+      chmod 700 /home/vagrant/.ssh
+
+      # Идемпотентное добавление ключа (не дублируем, если уже есть)
+      if ! grep -q "$(cat /vagrant/ssh/id_ed25519_win.pub)" /home/vagrant/.ssh/authorized_keys 2>/dev/null; then
+        cat /vagrant/ssh/id_ed25519_win.pub >> /home/vagrant/.ssh/authorized_keys
+      fi
+
+      chmod 600 /home/vagrant/.ssh/authorized_keys
+      chown -R vagrant:vagrant /home/vagrant/.ssh
+    SHELL
+
+    # 2. Создание файла инвентаря host.ini в корне проекта
+    # Используется папка /vagrant, которая автоматически синхронизирована с папкой проекта на Windows
+    h1.vm.provision "shell", inline: <<-SHELL
+      cat > /vagrant/host.ini <<EOF
+[all]
+docker ansible_host=#{ip_address} ansible_user=vagrant ansible_ssh_private_key_file=./ssh/id_ed25519_wsl
+EOF
+    SHELL
+  end
+end
