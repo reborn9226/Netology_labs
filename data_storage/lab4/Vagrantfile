@@ -1,0 +1,49 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "my-debian13"
+  config.ssh.insert_key = false
+
+  win_key_path = "C:/Users/ersho/.ssh/id_ed25519.pub"
+  wsl_key_path = "//wsl.localhost/Ubuntu-22.04/home/alex/.ssh/id_ed25519.pub"
+
+  config.vm.define "RabbitMQ-host1" do |h1|
+    vm_hostname = "RabbitMQ-host1"
+    vm_ip = "192.168.88.10"
+
+    h1.vm.hostname = vm_hostname
+    h1.vm.network "public_network", ip: vm_ip, bridge: "Realtek PCIe GbE Family Controller"
+
+    h1.vm.provider "virtualbox" do |vb|
+      vb.name   = "RabbitMQ-host1"
+      vb.memory = "2048"
+      vb.cpus   = 2
+    end
+
+    # 1. Проброс SSH ключей
+    [win_key_path, wsl_key_path].each do |path|
+      if File.exist?(path)
+        key = File.read(path).strip
+        h1.vm.provision "shell", inline: <<-SHELL
+          mkdir -p /home/vagrant/.ssh
+          if ! grep -q "#{key}" /home/vagrant/.ssh/authorized_keys; then
+            echo "#{key}" >> /home/vagrant/.ssh/authorized_keys
+            echo "SSH key from #{path} added."
+          fi
+          chown -R vagrant:vagrant /home/vagrant/.ssh
+          chmod 700 /home/vagrant/.ssh
+          chmod 600 /home/vagrant/.ssh/authorized_keys
+        SHELL
+      else
+        puts "--- WARNING: Key file not found at #{path} ---"
+      end
+    end
+
+    # 2. Создание inventory.ini
+    h1.trigger.after [:up, :reload] do |trigger|
+      trigger.info = "Writing inventory.ini..."
+      trigger.ruby do |env, machine|
+        inventory_content = "[all]\n#{vm_hostname} ansible_host=#{vm_ip} ansible_user=vagrant\n"
+        File.write("inventory.ini", inventory_content)
+      end
+    end
+  end
+end
