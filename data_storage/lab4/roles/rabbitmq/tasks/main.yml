@@ -1,0 +1,79 @@
+- name: Устанока зависимостей для RabbitMQ
+  update_cache: yes
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - curl
+    - gnupg
+    - apt-transport-https
+
+- name: Подготовка RabbitMQ GPG key
+  block:
+    - name: Скачиваем временный ASCII ключ
+      ansible.builtin.get_url:
+        url: "https://keys.openpgp.org/vks/v1/by-fingerprint/0A9AF2115F4687BD29803A206B73A36E6026DFCA"
+        dest: /tmp/rabbitmq-key.asc
+        mode: '0644'
+
+    - name: Деарморинг ключа (превращаем в .gpg формат)
+      ansible.builtin.shell:
+        cmd: gpg --dearmor < /tmp/rabbitmq-key.asc > /usr/share/keyrings/com.rabbitmq.team.gpg
+        creates: /usr/share/keyrings/com.rabbitmq.team.gpg
+      become: true
+
+    - name: Удаляем временный файл
+      ansible.builtin.file:
+        path: /tmp/rabbitmq-key.asc
+        state: absent
+
+- name: Добавляем шаблон репозитория RabbitMQ
+  copy:
+    dest: /etc/apt/sources.list.d/rabbitmq.list
+    content: |
+      deb [arch=amd64 signed-by=/usr/share/keyrings/com.rabbitmq.team.gpg] https://deb1.rabbitmq.com/rabbitmq-server/debian/trixie trixie main
+      deb [arch=amd64 signed-by=/usr/share/keyrings/com.rabbitmq.team.gpg] https://deb2.rabbitmq.com/rabbitmq-server/debian/trixie trixie main
+  owner: root
+  group: root
+  mode: '0644'
+
+- name: Установка зависимостей из репозитория +  RabbitMQ
+  update_cache: yes
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - erlang-base
+    - erlang-asn1
+    - erlang-crypto
+    - erlang-eldap
+    - erlang-ftp
+    - erlang-inets
+    - erlang-mnesia
+    - erlang-os-mon
+    - erlang-parsetools
+    - erlang-public-key
+    - erlang-runtime-tools
+    - erlang-snmp
+    - erlang-ssl
+    - erlang-syntax-tools
+    - erlang-tftp
+    - erlang-tools
+    - erlang-xmerl
+    - rabbitmq-server
+
+
+- name: Включаем и запускаем сервис RabbitMQ
+  systemd:
+    name: rabbitmq-server
+    enabled: yes
+    state: started
+
+- name: Соберем данные о службах
+  service_facts:
+
+- name: Выводим статус службы RabbitMQ
+  debug:
+    msg: "Статус службы RabbitMQ: {{ services['rabbitmq-server'].state }}"
+
+

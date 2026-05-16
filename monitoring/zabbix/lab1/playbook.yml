@@ -1,7 +1,7 @@
 ---
 - name: Установка PostgreSQL и zabbix-server
   hosts: zabbix-server
-  become: yes
+  become: true
 
   roles:
     - postgresql
@@ -9,7 +9,7 @@
 
 - name: Установка zabbix-agent
   hosts: zabbix-agent
-  become: yes
+  become: true
 
   roles:
     - zabbix_agent
