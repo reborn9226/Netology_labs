@@ -27,7 +27,7 @@
         path: /tmp/rabbitmq-key.asc
         state: absent
 
-- name: Добавляем шаблон репозитория RabbitMQ
+- name: Добавляем репозиторий RabbitMQ
   copy:
     dest: /etc/apt/sources.list.d/rabbitmq.list
     content: |
@@ -75,5 +75,3 @@
 - name: Выводим статус службы RabbitMQ
   debug:
     msg: "Статус службы RabbitMQ: {{ services['rabbitmq-server'].state }}"
-
-
