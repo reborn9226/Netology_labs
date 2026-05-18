@@ -81,18 +81,18 @@
 
 
 - name: Активируем плагин rabbitmq_management (Web UI)
-  community.rabbitmq.rabbitmq_plugin:
+  community.rabbitmq.rabbitmq_plugin:                          # Специальный модуль для управления плагинами RabbitMQ
     names: rabbitmq_management
     state: enabled
   notify: Restart RabbitMQ
 
 - name: Создаем пользователя-администратора для удаленного входа
-  community.rabbitmq.rabbitmq_user:
-    user: "{{ user }}"
-    password: "{{ password }}"
-    tags: administrator
-    vhost: /
-    configure_priv: .*
-    read_priv: .*
+  community.rabbitmq.rabbitmq_user:                           # Специальный модуль для управления пользователями RabbitMQ
+    user: "{{ user }}"                                        # Имя пользователя, переданное через переменную
+    password: "{{ password }}"                                # Пароль для пользователя, переданный через переменную
+    tags: administrator                                       # Назначение роли пользователя (администратор) чере тег
+    vhost: /                                                  # Виртуальный хост, к которому будет привязан пользователь
+    configure_priv: .*                                        # Разрешаем пользователю настраивать все ресурсы
+    read_priv: .*                                             
     write_priv: .*
     state: present
