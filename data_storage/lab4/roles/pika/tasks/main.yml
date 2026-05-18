@@ -1,0 +1,47 @@
+---
+- name: Установка системного pip3
+  apt:
+    name: python3-pip
+    state: present
+    update_cache: yes
+
+
+- name: Установка pika через pip
+  pip:
+    name: pika
+    state: present
+    executable: pip3
+    extra_args: --break-system-packages  # Необходимо для современных версий Debian для обхода защиты Debian (PEP 668). Намучался пока не нашел информацию на форуме.
+
+- name: Создаем директорию для скриптов
+  file:
+    path: /home/vagrant/scripts
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
+
+
+- name: Копируем скрипт producer_single.py На сервер
+  copy:
+    src: ./scripts/producer_single.py
+    dest: /home/vagrant/scripts/producer_single.py
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
+
+- name: Копируем скрипт consumer.py На сервер
+  copy:
+    src: ./scripts/consumer.py
+    dest: /home/vagrant/scripts/consumer.py
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
+
+- name: Копируем скрипт settings.py На сервер
+  copy:
+    src: ./scripts/settings.py
+    dest: /home/vagrant/scripts/settings.py
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
