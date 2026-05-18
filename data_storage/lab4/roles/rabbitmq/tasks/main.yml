@@ -80,9 +80,19 @@
     msg: "Статус службы RabbitMQ: {{ services['rabbitmq-server'].state }}"
 
 
-- name: Включение плагина rabbitmq_management через модуль
-  community.rabbitmq.rabbitmq_plugin:                    # Специапльный модуль для управления плагинами RabbitMQ
+- name: Активируем плагин rabbitmq_management (Web UI)
+  community.rabbitmq.rabbitmq_plugin:
     names: rabbitmq_management
     state: enabled
   notify: Restart RabbitMQ
-  
+
+- name: Создаем пользователя-администратора для удаленного входа
+  community.rabbitmq.rabbitmq_user:
+    user: "{{ user }}"
+    password: "{{ password }}"
+    tags: administrator
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    state: present
