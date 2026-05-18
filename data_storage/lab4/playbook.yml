@@ -1,0 +1,9 @@
+---
+- name: Установка RabbitMQ
+  hosts: all
+  become: true
+  roles:
+    - rabbitmq
+
+
+    

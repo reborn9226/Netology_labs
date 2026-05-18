@@ -1,12 +1,15 @@
+---
 - name: Устанока зависимостей для RabbitMQ
-  update_cache: yes
+
   apt:
     name: "{{ item }}"
     state: present
+    update_cache: yes
   loop:
     - curl
     - gnupg
     - apt-transport-https
+
 
 - name: Подготовка RabbitMQ GPG key
   block:
@@ -33,15 +36,15 @@
     content: |
       deb [arch=amd64 signed-by=/usr/share/keyrings/com.rabbitmq.team.gpg] https://deb1.rabbitmq.com/rabbitmq-server/debian/trixie trixie main
       deb [arch=amd64 signed-by=/usr/share/keyrings/com.rabbitmq.team.gpg] https://deb2.rabbitmq.com/rabbitmq-server/debian/trixie trixie main
-  owner: root
-  group: root
-  mode: '0644'
+    owner: root
+    group: root
+    mode: '0644'
 
 - name: Установка зависимостей из репозитория +  RabbitMQ
-  update_cache: yes
   apt:
     name: "{{ item }}"
     state: present
+    update_cache: yes
   loop:
     - erlang-base
     - erlang-asn1
@@ -75,3 +78,11 @@
 - name: Выводим статус службы RabbitMQ
   debug:
     msg: "Статус службы RabbitMQ: {{ services['rabbitmq-server'].state }}"
+
+
+- name: Включение плагина rabbitmq_management через модуль
+  community.rabbitmq.rabbitmq_plugin:                    # Специапльный модуль для управления плагинами RabbitMQ
+    names: rabbitmq_management
+    state: enabled
+  notify: Restart RabbitMQ
+  
