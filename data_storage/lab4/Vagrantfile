@@ -5,45 +5,65 @@ Vagrant.configure("2") do |config|
   win_key_path = "C:/Users/ersho/.ssh/id_ed25519.pub"
   wsl_key_path = "//wsl.localhost/Ubuntu-22.04/home/alex/.ssh/id_ed25519.pub"
 
-  config.vm.define "RabbitMQ-host1" do |h1|
-    vm_hostname = "RabbitMQ-host1"
-    vm_ip = "192.168.88.10"
+  # Описываем конфигурацию хостов в виде массива, чтобы использовать её и для создания машин, и для настройки /etc/hosts
+  hosts = [
+    { name: "RabbitMQ-host1", ip: "192.168.88.10" },
+    { name: "RabbitMQ-host2", ip: "192.168.88.20" }
+  ]
 
-    h1.vm.hostname = vm_hostname
-    h1.vm.network "public_network", ip: vm_ip, bridge: "Realtek PCIe GbE Family Controller"
+  # Основной цикл создания и настройки машин
+  hosts.each do |host|
+    config.vm.define host[:name] do |node|
+      node.vm.hostname = host[:name]
+      node.vm.network "public_network", ip: host[:ip], bridge: "Realtek PCIe GbE Family Controller"
 
-    h1.vm.provider "virtualbox" do |vb|
-      vb.name   = "RabbitMQ-host1"
-      vb.memory = "2048"
-      vb.cpus   = 2
-    end
+      node.vm.provider "virtualbox" do |vb|
+        vb.name   = host[:name]
+        vb.memory = "2048"
+        vb.cpus   = 2
+      end
 
-    # 1. Проброс SSH ключей
-    [win_key_path, wsl_key_path].each do |path|
-      if File.exist?(path)
-        key = File.read(path).strip
-        h1.vm.provision "shell", inline: <<-SHELL
-          mkdir -p /home/vagrant/.ssh
-          if ! grep -q "#{key}" /home/vagrant/.ssh/authorized_keys; then
-            echo "#{key}" >> /home/vagrant/.ssh/authorized_keys
-            echo "SSH key from #{path} added."
+      # 1. Проброс SSH ключей
+      [win_key_path, wsl_key_path].each do |path|
+        if File.exist?(path)
+          key = File.read(path).strip
+          node.vm.provision "shell", inline: <<-SHELL
+            mkdir -p /home/vagrant/.ssh
+            if ! grep -q "#{key}" /home/vagrant/.ssh/authorized_keys; then
+              echo "#{key}" >> /home/vagrant/.ssh/authorized_keys
+              echo "SSH key from #{path} added to #{host[:name]}."
+            fi
+            chown -R vagrant:vagrant /home/vagrant/.ssh
+            chmod 700 /home/vagrant/.ssh
+            chmod 600 /home/vagrant/.ssh/authorized_keys
+          SHELL
+        else
+          puts "--- WARNING: Key file not found at #{path} ---"
+        end
+      end
+
+      # 2. Настройка /etc/hosts на каждой машине для всех остальных хостов
+      hosts.each do |target_host|
+        node.vm.provision "shell", inline: <<-SHELL
+          if ! grep -q "#{target_host[:name]}" /etc/hosts; then
+            echo "#{target_host[:ip]} #{target_host[:name]}" | sudo tee -a /etc/hosts
+            echo "Added #{target_host[:name]} to /etc/hosts on #{host[:name]}"
           fi
-          chown -R vagrant:vagrant /home/vagrant/.ssh
-          chmod 700 /home/vagrant/.ssh
-          chmod 600 /home/vagrant/.ssh/authorized_keys
         SHELL
-      else
-        puts "--- WARNING: Key file not found at #{path} ---"
       end
-    end
 
-    # 2. Создание inventory.ini
-    h1.trigger.after [:up, :reload] do |trigger|
-      trigger.info = "Writing inventory.ini..."
-      trigger.ruby do |env, machine|
-        inventory_content = "[all]\n#{vm_hostname} ansible_host=#{vm_ip} ansible_user=vagrant\n"
-        File.write("inventory.ini", inventory_content)
+    end
+  end
+
+  # 3. Создание общего inventory.ini для Ansible
+  config.trigger.after [:up, :reload] do |trigger|
+    trigger.info = "Writing combined inventory.ini..."
+    trigger.ruby do |env, machine|
+      inventory_content = "[all]\n"
+      hosts.each do |host|
+        inventory_content += "#{host[:name]} ansible_host=#{host[:ip]} ansible_user=vagrant\n"
       end
+      File.write("inventory.ini", inventory_content)
     end
   end
 end
