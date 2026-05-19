@@ -7,6 +7,7 @@ params = pika.URLParameters(URI)
 conn = pika.BlockingConnection(params)
 channel = conn.channel()
 
+channel.queue_declare(queue="test_ershov", durable=True)
 
 def callback(ch, method, properties, body) -> None:
     # print(ch, method, properties, body)
@@ -15,7 +16,7 @@ def callback(ch, method, properties, body) -> None:
 
 
 channel.basic_consume(
-    queue="test_q",
+    queue="test_ershov",
     on_message_callback=callback,
     auto_ack=True,
     consumer_tag="netology_consumer",

@@ -1,4 +1,4 @@
-# ---
+---
 # - name: Установка RabbitMQ
 #   hosts: all
 #   become: true
