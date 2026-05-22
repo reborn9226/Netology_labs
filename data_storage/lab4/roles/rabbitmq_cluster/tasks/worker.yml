@@ -1,0 +1,46 @@
+---
+- name: Проверим, что cookie с мастера успешно получен с мастера
+  assert:
+    that: "Cookie мастера ['localhost']['master_cookie;'] были получены"
+    fail_msg: "Cookie мастера не были получены. Проверь инвентарь, верно ли указаны группы и хосты, и что мастер нода доступна для Ansible."
+
+- name: Остановка службы RabbitMQ на worker ноде перед изменением cookie
+  systemd:
+    name: rabbitmq-server
+    state: stopped
+
+
+- name: Копирование cookie с мастера на worker Ноду с правами 400
+  copy:
+    content: "{{ ['localhost']['master_cookie;'] }}"
+    dest: /var/lib/rabbitmq/.erlang.cookie
+    owner: rabbitmg
+    group: rabbitmq
+    mode: '0400'
+
+
+- name: Запуск службы RabbitMQ на worker после изменения cookie
+  systemd:
+    name: rabbitmq-server
+    state: started
+
+- name: Остановка приложений внутри RabbitMQ на worker для коректного присоединения к кластеру
+  community.rabbitmq.rabbitmq_node:
+    node: "rabbit@{{ ansible_hostname }}"
+    state: stoped
+
+- name: Сброс состояния ноды для корректного присоединения к кластеру
+  community.rabbitmq.rabbitmq_node:
+    node: "rabbit@{{ ansible_hostname }}"
+    state: reset
+
+- name: Присоединение worker к кластеру
+  community.rabbitmq.rabbitmq_peer:
+    node: "rabbit@{{ ansible_hostname }}"
+    cluster_node: "rabbit@{{ groups['master'][0] }}"
+    state: present
+
+- name: Запуск приложений внутри RabbitMQ на worker после присоединения к кластеру
+  community.rabbitmq.rabbitmq_node:
+    node: "rabbit@{{ ansible_hostname }}"
+    state: started

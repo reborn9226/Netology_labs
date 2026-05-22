@@ -1,0 +1,8 @@
+---
+- name: Сбор cookie с мастера
+  include_tasks: master_cookie.yml
+  when: inventory_hostname in groups['master']
+
+- name: Настройка worker нод и обьединение в кластер
+  include_tasks: worker.yml
+  when: inventory_hostname in groups['worker']
