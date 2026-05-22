@@ -2,13 +2,11 @@
 - name: Чтение .erlang.cookie с мастера
   slurp:
     src: /var/lib/rabbitmq/.erlang.cookie
-  register: master_cookie                 # Сохраняем результат в переменную
+  register: master_cookie_res                 # Сохраняем результат в переменную
 
 
 - name: Расшариваем cookie на все worker ноды в рамках текущей сессии
   set_fact:
-    master_cookie: "{{ master_cookie['content] | b64decode }}" # Декодируем содержимое cookie из base64
+    rabbitmq_master_cookie: "{{ master_cookie_res['content'] | b64decode }}" # Декодируем содержимое cookie из base64
   delegate_to: localhost                                       # Выполняем на локальной машине, так как cookie нужно передать на worker ноды
   delegate_facts: true                                         # Разрешаем сохранять факты, чтобы они были доступны на всех нодах
-
-  
