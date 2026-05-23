@@ -1,16 +1,16 @@
 ---
-# - name: Установка RabbitMQ
-#   hosts: all
-#   become: true
-#   roles:
-#     - rabbitmq
+- name: Установка RabbitMQ
+  hosts: all
+  become: true
+  roles:
+    - rabbitmq
 
 
-# - name: Установка pika и копирования скриптов на сервер
-#   hosts: all
-#   become: true
-#   roles:
-#     - pika
+- name: Установка pika и копирования скриптов на сервер
+  hosts: all
+  become: true
+  roles:
+    - pika
 
 
 - name: Сборка и присоединение кластера RabbitMQ

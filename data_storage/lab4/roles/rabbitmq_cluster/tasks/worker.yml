@@ -34,8 +34,8 @@
 - name: Запуск приложения внутри RabbitMQ на worker после присоединения к кластеру
   command: rabbitmqctl start_app
 
-
-- name: Подключение HA policy для синхронизации очередей между нодами
-  command: rabbitmqctl set_policy ha-all ".*" '{"ha-mode":"all","ha-sync-mode":"automatic"}'
-  run_once: true                               # Выполнить только 1 раз
-  changed_when: false                          # Что бы не читал изменения 
+# Не работает в новых версиях RabbitMQ, так как был удален механизм зеркалирования классических очередей - обьявлен устаревшим, теперь нужно использовать quorum очереди, которые синхронизируются между нodами по умолчанию, без необходимости настройки политики HA
+# - name: Подключение HA policy для синхронизации очередей между нodами
+#   command: rabbitmqctl set_policy ha-all ".*" '{"ha-mode":"all","ha-sync-mode":"automatic"}'
+#   run_once: true                               # Выполнить только 1 раз
+#   changed_when: false                          # Что бы не читал изменения

@@ -63,7 +63,7 @@
     - erlang-tftp
     - erlang-tools
     - erlang-xmerl
-    - rabbitmq-server
+    - rabbitmq-server    # Установит самую свежую вермсию RabbitMQ из добавленного репозитория
 
 
 - name: Включаем и запускаем сервис RabbitMQ
@@ -93,6 +93,6 @@
     tags: administrator                                       # Назначение роли пользователя (администратор) чере тег
     vhost: /                                                  # Виртуальный хост, к которому будет привязан пользователь
     configure_priv: .*                                        # Разрешаем пользователю настраивать все ресурсы
-    read_priv: .*                                             
+    read_priv: .*
     write_priv: .*
     state: present

@@ -21,6 +21,13 @@
     group: vagrant
     mode: '0755'
 
+- name: Копируем скрипт producer_cluster.py На сервер
+  copy:
+    src: ./scripts/producer_cluster.py
+    dest: /home/vagrant/scripts/producer_cluster.py
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
 
 - name: Копируем скрипт producer_single.py На сервер
   copy:
