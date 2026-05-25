@@ -9,13 +9,13 @@ channel = conn.channel()
 
 
 def callback(ch, method, properties, body) -> None:
-    # print(ch, method, properties, body)
+    print(ch, method, properties, body)
     time.sleep(1)
     print(body)
 
 
 channel.basic_consume(
-    queue="test_q",
+    queue="test_ershov",
     on_message_callback=callback,
     auto_ack=True,
     consumer_tag="netology_consumer",
