@@ -7,3 +7,6 @@ https://github.com/reborn9226/Netology_labs/tree/main/data_storage/lab4/Ansible
 
 ### Ссылка на решение домашней работы черех Docker
 https://github.com/reborn9226/Netology_labs/tree/main/data_storage/lab4/Docker
+
+
+### Ссылка на репозиторий лектора https://github.com/ortariot/RabbitMQ-lession/blob/master/README.md
