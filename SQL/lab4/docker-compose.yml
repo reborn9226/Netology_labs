@@ -1,0 +1,36 @@
+services:
+  # mysql master-slave
+  mysql-master:
+    build: ./mysql-master
+    container_name: mysql-master
+    restart: unless-stopped
+    volumes:
+     - mysql-master-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - db-net
+
+  mysql-slave:
+    build: ./mysql-slave
+    container_name: mysql-slave
+    restart: unless-stopped
+    volumes:
+     - mysql-slave-data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - db-net
+    depends_on:
+      - mysql-master
+
+
+
+
+networks:
+  db-net:
+    driver: bridge
+
+volumes:
+  mysql-master-data:
+  mysql-slave-data:
