@@ -80,7 +80,9 @@ SELECT
     COUNT(rental_id) AS "Количество арендных плат"
 FROM payment
 GROUP BY DATE_FORMAT(payment_date, '%Y-%m')
+-- сортируем от большего к меньшему
 ORDER BY "Количество арендных плат" DESC
+-- нам не нужны все записи, а только первая, остальные отсекаем
 LIMIT 1;
 ```
 
