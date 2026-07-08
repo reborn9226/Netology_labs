@@ -161,11 +161,11 @@ MAC Address: 00:0C:29:FA:DD:2A (VMware)
 
 Отрытые порты
 
-![](.scrin/syc_open.png)
+![](.scrin/syn_open.png)
 
 Закрытые порты
 
-![](.scrin/syc_close.png)
+![](.scrin/syn_close.png)
 
 
 - TCP FIN сканирование
