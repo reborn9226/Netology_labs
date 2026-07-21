@@ -1,0 +1,8 @@
+---
+- name: Установка nginx на webservers
+  hosts: webservers
+  become: true
+
+  roles:
+    - nginx
+    

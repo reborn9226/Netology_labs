@@ -1,0 +1,28 @@
+# tasks file for nginx
+- name: Установить пакет nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Скопировать файл index.html
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    owner: root
+    group: root
+    mode: '0644'
+  vars:
+    external_ip: "{{ ansible_host }}"
+  notify: restart nginx
+
+- name: Автозапуск nginx
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: Проверка доступности стандартной страницы nginx
+  ansible.builtin.uri:
+    url: "http://{{ ansible_default_ipv4.address }}"
+    status_code: 200
