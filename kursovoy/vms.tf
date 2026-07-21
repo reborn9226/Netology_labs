@@ -3,11 +3,10 @@ data "yandex_compute_image" "ubuntu_2204_lts" {
   family = "ubuntu-2204-lts"
 }
 
-# Создание виртуальных машин для веб сервера
+# Веб сервер web1 зона А, приватная сеть
 resource "yandex_compute_instance" "vm" {
-  count        = 2 # количество ВМ
-  name        = "vm-web-1" # Добавляет номер к имени ВМ
-  hostname    = "vm-web-1"  # Добавляет номер к имени хоста
+  name        = "web-a" # Добавляет номер к имени ВМ
+  hostname    = "web-a"  # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-a"
 
@@ -26,12 +25,27 @@ resource "yandex_compute_instance" "vm" {
       size     = 10
     }
   }
+# Указываем данные авторизации и настройки
+  metadata = {
+    user-data          = file("./cloud-init.yml")
+    serial-port-enable = 1
+  }
+
+  scheduling_policy {
+    preemptible = true
+  }
+
+  network_interface {
+    subnet_id = yandex_vpc_subnet.private-develop-a.id
+    nat       = false
+  }
 }
 
+
+# Веб сервер web2 зона B, приватная сеть
 resource "yandex_compute_instance" "vm" {
-  count        = 2 # количество ВМ
-  name        = "vm-web-2" # Добавляет номер к имени ВМ
-  hostname    = "vm-web-2"  # Добавляет номер к имени хоста
+  name        = "web-b" # Добавляет номер к имени ВМ
+  hostname    = "web-b"  # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-b"
 
@@ -50,12 +64,66 @@ resource "yandex_compute_instance" "vm" {
       size     = 10
     }
   }
+# Указываем данные авторизации и настройки
+  metadata = {
+    user-data          = file("./cloud-init.yml")
+    serial-port-enable = 1
+  }
+
+  scheduling_policy {
+    preemptible = true
+  }
+
+  network_interface {
+    subnet_id = yandex_vpc_subnet.private-develop-b.id
+    nat       = false
+  }
 }
-# ВМ для Prometheus
+
+
+# Prometheus зона B, приватная сеть
 resource "yandex_compute_instance" "vm" {
-  count        = 2 # количество ВМ
-  name        = "Prometheus" # Добавляет номер к имени ВМ
-  hostname    = "Prometheus"  # Добавляет номер к имени хоста
+  name        = "prometheus-b" # Добавляет номер к имени ВМ
+  hostname    = "prometheus-b"  # Добавляет номер к имени хоста
+  platform_id = "standard-v3"
+  zone        = "ru-central1-b"
+
+
+
+  resources {
+    cores         = 2
+    memory        = 1
+    core_fraction = 20
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = data.yandex_compute_image.ubuntu_2204_lts.image_id
+      type     = "network-hdd"
+      size     = 10
+    }
+  }
+# Указываем данные авторизации и настройки
+  metadata = {
+    user-data          = file("./cloud-init.yml")
+    serial-port-enable = 1
+  }
+
+  scheduling_policy {
+    preemptible = true
+  }
+
+  network_interface {
+    subnet_id = yandex_vpc_subnet.private-develop-b.id
+    nat       = false
+  }
+}
+
+
+# Elasticsearch  зона A, приватная сеть
+resource "yandex_compute_instance" "vm" {
+  name        = "elasticsearch-a" # Добавляет номер к имени ВМ
+  hostname    = "elasticsearch-a"  # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-a"
 
@@ -85,66 +153,56 @@ resource "yandex_compute_instance" "vm" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.develop.id
+    subnet_id = yandex_vpc_subnet.private-develop-a.id
+    nat       = false
+  }
+}
+
+
+
+# Grafana  зона A, публичная сеть
+resource "yandex_compute_instance" "vm" {
+  name        = "grafana-a" # Добавляет номер к имени ВМ
+  hostname    = "grafana-a"  # Добавляет номер к имени хоста
+  platform_id = "standard-v3"
+  zone        = "ru-central1-a"
+
+
+
+  resources {
+    cores         = 2
+    memory        = 1
+    core_fraction = 20
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = data.yandex_compute_image.ubuntu_2204_lts.image_id
+      type     = "network-hdd"
+      size     = 10
+    }
+  }
+# Указываем данные авторизации и настройки
+  metadata = {
+    user-data          = file("./cloud-init.yml")
+    serial-port-enable = 1
+  }
+
+  scheduling_policy {
+    preemptible = true
+  }
+
+  network_interface {
+    subnet_id = yandex_vpc_subnet.public-develop.id
     nat       = true
   }
 }
 
-# ВМ для Grafana
+
+# Kibana  зона A, публичная сеть
 resource "yandex_compute_instance" "vm" {
-  count        = 2 # количество ВМ
-  name        = "Grafana" # Добавляет номер к имени ВМ
-  hostname    = "Grafana"  # Добавляет номер к имени хоста
-  platform_id = "standard-v3"
-  zone        = "ru-central1-a"
-
-
-
-  resources {
-    cores         = 2
-    memory        = 1
-    core_fraction = 20
-  }
-
-  boot_disk {
-    initialize_params {
-      image_id = data.yandex_compute_image.ubuntu_2204_lts.image_id
-      type     = "network-hdd"
-      size     = 10
-    }
-  }
-}
-
-
-# ВМ для Elasticsearch
-resource "yandex_compute_instance" "vm" {
-  count        = 2 # количество ВМ
-  name        = "Elasticsearch" # Добавляет номер к имени ВМ
-  hostname    = "Elasticsearch"  # Добавляет номер к имени хоста
-  platform_id = "standard-v3"
-  zone        = "ru-central1-a"
-
-
-
-  resources {
-    cores         = 2
-    memory        = 1
-    core_fraction = 20
-  }
-
-  boot_disk {
-    initialize_params {
-      image_id = data.yandex_compute_image.ubuntu_2204_lts.image_id
-      type     = "network-hdd"
-      size     = 10
-    }
-  }
-}
-# ВМ для Kibana
-resource "yandex_compute_instance" "vm" {
-  count        = 2 # количество ВМ
-  name        = "Kibana" # Добавляет номер к имени ВМ
-  hostname    = "Kibana"  # Добавляет номер к имени хоста
+  name        = "kibana-a" # Добавляет номер к имени ВМ
+  hostname    = "kibana-a"  # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-a"
 
@@ -174,7 +232,7 @@ resource "yandex_compute_instance" "vm" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.develop.id
+    subnet_id = yandex_vpc_subnet.public-develop.id
     nat       = true
   }
 }
