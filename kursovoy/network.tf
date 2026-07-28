@@ -10,8 +10,7 @@ resource "yandex_vpc_subnet" "private-develop-a" {
   v4_cidr_blocks = ["10.0.1.0/24"]  # добавлена точка в CIDR
   route_table_id = yandex_vpc_route_table.private_rt.id  # Прватная подсеть
 
-  # Явная зависимость от сети
-  depends_on = [yandex_vpc_network.develop]
+
 }
 
 
@@ -23,8 +22,6 @@ resource "yandex_vpc_subnet" "private-develop-b" {
   v4_cidr_blocks = ["10.0.2.0/24"]  # добавлена точка в CIDR
   route_table_id = yandex_vpc_route_table.private_rt.id # Приватная под сеть
 
-  # Явная зависимость от сети
-  depends_on = [yandex_vpc_network.develop]
 }
 
 # Создаем публичную подсеть в зоне А (без таблицы маршрутизации и NAT)
@@ -35,8 +32,6 @@ resource "yandex_vpc_subnet" "public-develop" {
   v4_cidr_blocks = ["10.0.3.0/24"]  # добавлена точка в CIDR
 
 
-  # Явная зависимость от сети
-  depends_on = [yandex_vpc_network.develop]
 }
 
 # Создаём NAT для выхода приватных сетей  в интернет
@@ -55,9 +50,6 @@ resource "yandex_vpc_route_table" "private_rt" {
     gateway_id        = yandex_vpc_gateway.nat_gateway.id
   }
 
-
-  # Явные зависимости от сети и шлюза
-  depends_on = [yandex_vpc_network.develop, yandex_vpc_gateway.nat_gateway]
 }
 
 
@@ -82,6 +74,7 @@ resource "yandex_vpc_security_group" "bastion" {
 
 }
 
+# Закрытая сеть
 resource "yandex_vpc_security_group" "LAN" {
   name       = "LAN-sg"
   network_id = yandex_vpc_network.develop.id
@@ -102,6 +95,7 @@ resource "yandex_vpc_security_group" "LAN" {
 
 }
 
+# Доступ из вне к веб серверам
 resource "yandex_vpc_security_group" "web_sg" {
   name       = "web-sg"
   network_id = yandex_vpc_network.develop.id
