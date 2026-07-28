@@ -8,7 +8,7 @@ resource "yandex_vpc_subnet" "private-develop-a" {
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.develop.id
   v4_cidr_blocks = ["10.0.1.0/24"]  # добавлена точка в CIDR
-  route_table_id = yandex_vpc_route_table.privat_rt.id  # Прватная подсеть
+  route_table_id = yandex_vpc_route_table.private_rt.id  # Прватная подсеть
 
   # Явная зависимость от сети
   depends_on = [yandex_vpc_network.develop]
@@ -21,7 +21,7 @@ resource "yandex_vpc_subnet" "private-develop-b" {
   zone           = "ru-central1-b"
   network_id     = yandex_vpc_network.develop.id
   v4_cidr_blocks = ["10.0.2.0/24"]  # добавлена точка в CIDR
-  route_table_id = yandex_vpc_route_table.privat_rt.id # Приватная под сеть
+  route_table_id = yandex_vpc_route_table.private_rt.id # Приватная под сеть
 
   # Явная зависимость от сети
   depends_on = [yandex_vpc_network.develop]
@@ -58,4 +58,67 @@ resource "yandex_vpc_route_table" "private_rt" {
 
   # Явные зависимости от сети и шлюза
   depends_on = [yandex_vpc_network.develop, yandex_vpc_gateway.nat_gateway]
+}
+
+
+#создаем группы безопасности(firewall)
+
+resource "yandex_vpc_security_group" "bastion" {
+  name       = "bastion-sg"
+  network_id = yandex_vpc_network.develop.id
+  ingress {
+    description    = "Allow 0.0.0.0/0"
+    protocol       = "TCP"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    port           = 22
+  }
+  egress {
+    description    = "Permit ANY"
+    protocol       = "ANY"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    from_port      = 0
+    to_port        = 65535
+  }
+
+}
+
+resource "yandex_vpc_security_group" "LAN" {
+  name       = "LAN-sg"
+  network_id = yandex_vpc_network.develop.id
+  ingress {
+    description    = "Allow 10.0.0.0/8"
+    protocol       = "ANY"
+    v4_cidr_blocks = ["10.0.0.0/8"]
+    from_port      = 0
+    to_port        = 65535
+  }
+  egress {
+    description    = "Permit ANY"
+    protocol       = "ANY"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    from_port      = 0
+    to_port        = 65535
+  }
+
+}
+
+resource "yandex_vpc_security_group" "web_sg" {
+  name       = "web-sg"
+  network_id = yandex_vpc_network.develop.id
+
+
+  ingress {
+    description    = "Allow HTTPS"
+    protocol       = "TCP"
+    port           = 443
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description    = "Allow HTTP"
+    protocol       = "TCP"
+    port           = 80
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+
+
 }

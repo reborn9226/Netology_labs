@@ -3,8 +3,49 @@ data "yandex_compute_image" "ubuntu_2204_lts" {
   family = "ubuntu-2204-lts"
 }
 
+
+# Бастион зона А
+resource "yandex_compute_instance" "bastion" {
+  name        = "bastion" #Имя ВМ в облачной консоли
+  hostname    = "bastion" #формирует FDQN имя хоста, без hostname будет сгенрировано случаное имя.
+  platform_id = "standard-v3"
+  zone        = "ru-central1-a" #зона ВМ должна совпадать с зоной subnet!!!
+
+  resources {
+    cores         = 2
+    memory        = 1
+    core_fraction = 20
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = data.yandex_compute_image.ubuntu_2204_lts.image_id
+      type     = "network-hdd"
+      size     = 10
+    }
+  }
+
+  metadata = {
+    user-data          = file("./cloud-init.yml")
+    serial-port-enable = 1
+  }
+
+  scheduling_policy { preemptible = true } # Прерываемая виртуальная машина (preemptible) — это виртуальная машина, которая может быть остановлена в любой момент без предупреждения. Такие машины стоят дешевле, чем обычные, но их нельзя использовать для задач, требующих высокой доступности.
+
+  network_interface {
+    subnet_id          = yandex_vpc_subnet.develop_a.id #зона ВМ должна совпадать с зоной subnet!!!
+    nat                = true
+    security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.bastion.id]
+  }
+}
+
+
+
+
+
+
 # Веб сервер web1 зона А, приватная сеть
-resource "yandex_compute_instance" "vm" {
+resource "yandex_compute_instance" "vm-web" {
   name        = "web-a" # Добавляет номер к имени ВМ
   hostname    = "web-a"  # Добавляет номер к имени хоста
   platform_id = "standard-v3"
@@ -30,7 +71,7 @@ resource "yandex_compute_instance" "vm" {
     user-data          = file("./cloud-init.yml")
     serial-port-enable = 1
   }
-
+ # Прерываемая виртуальная машина (preemptible) — это виртуальная машина, которая может быть остановлена в любой момент без предупреждения. Такие машины стоят дешевле, чем обычные, но их нельзя использовать для задач, требующих высокой доступности.
   scheduling_policy {
     preemptible = true
   }
@@ -43,7 +84,7 @@ resource "yandex_compute_instance" "vm" {
 
 
 # Веб сервер web2 зона B, приватная сеть
-resource "yandex_compute_instance" "vm" {
+resource "yandex_compute_instance" "vm-web" {
   name        = "web-b" # Добавляет номер к имени ВМ
   hostname    = "web-b"  # Добавляет номер к имени хоста
   platform_id = "standard-v3"
@@ -82,7 +123,7 @@ resource "yandex_compute_instance" "vm" {
 
 
 # Prometheus зона B, приватная сеть
-resource "yandex_compute_instance" "vm" {
+resource "yandex_compute_instance" "vm-monitor" {
   name        = "prometheus-b" # Добавляет номер к имени ВМ
   hostname    = "prometheus-b"  # Добавляет номер к имени хоста
   platform_id = "standard-v3"
@@ -121,7 +162,7 @@ resource "yandex_compute_instance" "vm" {
 
 
 # Elasticsearch  зона A, приватная сеть
-resource "yandex_compute_instance" "vm" {
+resource "yandex_compute_instance" "vm-searche" {
   name        = "elasticsearch-a" # Добавляет номер к имени ВМ
   hostname    = "elasticsearch-a"  # Добавляет номер к имени хоста
   platform_id = "standard-v3"
@@ -161,7 +202,7 @@ resource "yandex_compute_instance" "vm" {
 
 
 # Grafana  зона A, публичная сеть
-resource "yandex_compute_instance" "vm" {
+resource "yandex_compute_instance" "vm-monitor" {
   name        = "grafana-a" # Добавляет номер к имени ВМ
   hostname    = "grafana-a"  # Добавляет номер к имени хоста
   platform_id = "standard-v3"
@@ -200,7 +241,7 @@ resource "yandex_compute_instance" "vm" {
 
 
 # Kibana  зона A, публичная сеть
-resource "yandex_compute_instance" "vm" {
+resource "yandex_compute_instance" "vm-search" {
   name        = "kibana-a" # Добавляет номер к имени ВМ
   hostname    = "kibana-a"  # Добавляет номер к имени хоста
   platform_id = "standard-v3"
@@ -244,13 +285,13 @@ resource "yandex_lb_target_group" "group1" {
   name        = "group1"
   description = "Группа для балансировщика нагрузки"
 
-  depends_on = [yandex_compute_instance.vm]  # Указываем зависимость от создания ВМ, чтобы гарантировать, что ВМ будут созданы до добавления в группу
+  depends_on = [yandex_compute_instance.vm-web]  # Указываем зависимость от создания ВМ, чтобы гарантировать, что ВМ будут созданы до добавления в группу
 # Динамически добавляем все ВМ в группу балансировщика нагрузки
   dynamic "target" {
-    for_each = [for vm in yandex_compute_instance.vm : vm.id]
+    for_each = [for vm in yandex_compute_instance.vm-web : vm-web.id]
     content {
       subnet_id = yandex_vpc_subnet.develop.id
-      address = yandex_compute_instance.vm[target.key].network_interface[0].ip_address
+      address = yandex_compute_instance.vm-web[target.key].network_interface[0].ip_address
 
     }
   }
@@ -288,7 +329,7 @@ resource "yandex_lb_network_load_balancer" "balancer1" {
 resource "local_file" "inventory" {
   content = <<-EOT
 [webservers]
-%{ for vm in yandex_compute_instance.vm ~} # Динамически добавляем все ВМ в группу webservers
+%{ for vm in yandex_compute_instance.vm-web ~} # Динамически добавляем все ВМ в группу webservers
 ${vm.name} ansible_host=${vm.network_interface[0].nat_ip_address} # Указываем имя ВМ и ее публичный ip-адрес для Ansible
 %{ endfor ~}
 [webservers:vars]
