@@ -20,6 +20,10 @@ ${yandex_compute_instance.vm-kibana.name} ansible_host=${yandex_compute_instance
 webservers
 search
 
+# Переменные только для ВМ в приватных подсетях
+# Первый ключ - автоматический прием новых ключей без запроса. Второй ключ - не сохранять эти временный ключи в файл ~/.ssh/known_hosts. Третий ключ - прыжок через бастион
+[private_nodes:vars]
+ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyJump=user@${yandex_compute_instance.bastion.network_interface[0].nat_ip_address}'
 
 [all:vars]
 ansible_user=user
