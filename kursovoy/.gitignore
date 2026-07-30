@@ -5,3 +5,4 @@
 *.tfstate.*
 terraform.tfvars
 .authorized_key_kursovoy.json
+hosts.ini
