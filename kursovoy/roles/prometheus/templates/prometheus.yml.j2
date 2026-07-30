@@ -24,8 +24,8 @@ scrape_configs:
       - targets: ["localhost:9090"]
 
   # Node Exporter
-  # Запускаем цикл для перебора служебных переменных группы webservers
-  - job_name: 'node_exporter'
+  # Запускаем цикл для перебора служебных переменных группы webservers из inventory.ini
+  - job_name: 'node_exporter webservers'
     static_configs:
       - targets:
         {% for host in groups['webservers'] %}
