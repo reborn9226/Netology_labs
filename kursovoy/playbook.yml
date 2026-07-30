@@ -1,8 +1,19 @@
 ---
-- name: Установка nginx на webservers
+- name: Установка nginx и node_exporter на webservers
   hosts: webservers
   become: true
-
   roles:
     - nginx
-    
+    - node_exporter
+
+- name: Установка Prometheus
+  hosts: prometheus
+  become: true
+  roles:
+    - prometheus
+
+- name: Установка Grafana
+  hosts: grafana
+  become: true
+  roles:
+    - grafana

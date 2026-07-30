@@ -7,18 +7,32 @@ ${yandex_compute_instance.bastion.name} ansible_host=${yandex_compute_instance.b
 ${yandex_compute_instance.vm-web-a.name} ansible_host=${yandex_compute_instance.vm-web-a.network_interface[0].ip_address}
 ${yandex_compute_instance.vm-web-b.name} ansible_host=${yandex_compute_instance.vm-web-b.network_interface[0].ip_address}
 
-[monitoring]
+[prometheus]
 ${yandex_compute_instance.vm-prometheus.name} ansible_host=${yandex_compute_instance.vm-prometheus.network_interface[0].ip_address}
+
+[grafana]
 ${yandex_compute_instance.vm-grafana.name} ansible_host=${yandex_compute_instance.vm-grafana.network_interface[0].nat_ip_address}
 
-[search]
+[elasticsearch]
 ${yandex_compute_instance.vm-elasticsearch.name} ansible_host=${yandex_compute_instance.vm-elasticsearch.network_interface[0].ip_address}
+
+[kibana]
 ${yandex_compute_instance.vm-kibana.name} ansible_host=${yandex_compute_instance.vm-kibana.network_interface[0].nat_ip_address}
 
-# Группа, обьединяющая все приватные хосты
+# Группы-объединения для плейбука
+[monitoring:children]
+prometheus
+grafana
+
+[search:children]
+elasticsearch
+kibana
+
+# Группа только для приватных хостов, которым нужен ProxyJump через Бастион
 [private_nodes:children]
 webservers
-search
+prometheus
+elasticsearch
 
 # Переменные только для ВМ в приватных подсетях
 # Первый ключ - автоматический прием новых ключей без запроса. Второй ключ - не сохранять эти временный ключи в файл ~/.ssh/known_hosts. Третий ключ - прыжок через бастион
