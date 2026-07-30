@@ -11,13 +11,13 @@ ${yandex_compute_instance.vm-web-b.name} ansible_host=${yandex_compute_instance.
 ${yandex_compute_instance.vm-prometheus.name} ansible_host=${yandex_compute_instance.vm-prometheus.network_interface[0].ip_address}
 
 [grafana]
-${yandex_compute_instance.vm-grafana.name} ansible_host=${yandex_compute_instance.vm-grafana.network_interface[0].nat_ip_address}
+${yandex_compute_instance.vm-grafana.name} ansible_host=${yandex_compute_instance.vm-grafana.network_interface[0].ip_address}
 
 [elasticsearch]
 ${yandex_compute_instance.vm-elasticsearch.name} ansible_host=${yandex_compute_instance.vm-elasticsearch.network_interface[0].ip_address}
 
 [kibana]
-${yandex_compute_instance.vm-kibana.name} ansible_host=${yandex_compute_instance.vm-kibana.network_interface[0].nat_ip_address}
+${yandex_compute_instance.vm-kibana.name} ansible_host=${yandex_compute_instance.vm-kibana.network_interface[0].ip_address}
 
 # Группы-объединения для плейбука
 [monitoring:children]
@@ -33,6 +33,9 @@ kibana
 webservers
 prometheus
 elasticsearch
+kibana
+elasticsearch
+grafana
 
 # Переменные только для ВМ в приватных подсетях
 # Первый ключ - автоматический прием новых ключей без запроса. Второй ключ - не сохранять эти временный ключи в файл ~/.ssh/known_hosts. Третий ключ - прыжок через бастион

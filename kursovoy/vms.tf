@@ -39,19 +39,12 @@ resource "yandex_compute_instance" "bastion" {
   }
 }
 
-
-
-
-
-
 # Веб сервер web1 зона А, приватная сеть
 resource "yandex_compute_instance" "vm-web-a" {
   name        = "web-a" # Добавляет номер к имени ВМ
   hostname    = "web-a"  # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-a"
-
-
 
   resources {
     cores         = 2
@@ -91,8 +84,6 @@ resource "yandex_compute_instance" "vm-web-b" {
   platform_id = "standard-v3"
   zone        = "ru-central1-b"
 
-
-
   resources {
     cores         = 2
     memory        = 1
@@ -131,8 +122,6 @@ resource "yandex_compute_instance" "vm-prometheus" {
   platform_id = "standard-v3"
   zone        = "ru-central1-b"
 
-
-
   resources {
     cores         = 2
     memory        = 1
@@ -170,8 +159,6 @@ resource "yandex_compute_instance" "vm-elasticsearch" {
   hostname    = "elasticsearch-a"  # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-a"
-
-
 
   resources {
     cores         = 2
@@ -212,8 +199,6 @@ resource "yandex_compute_instance" "vm-grafana" {
   platform_id = "standard-v3"
   zone        = "ru-central1-a"
 
-
-
   resources {
     cores         = 2
     memory        = 1
@@ -252,8 +237,6 @@ resource "yandex_compute_instance" "vm-kibana" {
   platform_id = "standard-v3"
   zone        = "ru-central1-a"
 
-
-
   resources {
     cores         = 2
     memory        = 1
@@ -283,7 +266,3 @@ resource "yandex_compute_instance" "vm-kibana" {
     security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.web_sg.id]
   }
 }
-
-
-
-
