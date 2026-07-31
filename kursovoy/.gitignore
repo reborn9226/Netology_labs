@@ -6,3 +6,4 @@
 terraform.tfvars
 .authorized_key_kursovoy.json
 hosts.ini
+*Zone.Identifier
