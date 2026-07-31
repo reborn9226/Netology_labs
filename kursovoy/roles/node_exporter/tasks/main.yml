@@ -1,4 +1,19 @@
 ---
+- name: Создаем группу prometheus
+  group:
+    name: prometheus
+    state: present
+    system: yes
+
+- name: Создаем пользователя prometheus
+  user:
+    name: prometheus
+    group: prometheus
+    system: yes
+    shell: /usr/sbin/nologin
+    create_home: no
+    state: present
+    
 - name: Создаем папку для загрузки Node Exporter
   file:
     path: /tmp/install/
@@ -9,7 +24,7 @@
     url: https://github.com/prometheus/node_exporter/releases/download/v1.10.2/node_exporter-1.10.2.linux-amd64.tar.gz
     dest: /tmp/install/
     force: no
-    
+
 - name: Распаковка Prometheus
   unarchive:
     src: /tmp/install/node_exporter-1.10.2.linux-amd64.tar.gz
