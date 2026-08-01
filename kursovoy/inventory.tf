@@ -1,6 +1,6 @@
 resource "local_file" "inventory" {
   content  = <<-EOT
-[bastion]
+[bastion_nodes]
 ${yandex_compute_instance.bastion.name} ansible_host=${yandex_compute_instance.bastion.network_interface[0].nat_ip_address}
 
 [webservers]
@@ -34,7 +34,6 @@ webservers
 prometheus
 elasticsearch
 kibana
-elasticsearch
 grafana
 
 # Переменные только для ВМ в приватных подсетях
