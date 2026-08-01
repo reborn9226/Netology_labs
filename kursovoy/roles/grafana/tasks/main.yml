@@ -1,45 +1,86 @@
 ---
-- name: Установка пакетов для Grafana
-  apt:
-    name:
-      - apt-transport-https
-      - wget
-      - gnupg
-    state: present          # гарантирует, что пакеты будут установлены, если их нет.
-
-- name: Создаем директорию keyrings
-  file:
-    path: /etc/apt/keyrings  # путь к директории, которую нужно создать
-    state: directory                          # гарантирует, что директория будет создана, если ее нет.
-    owner: root                               # владелец директории
-    group: root                               # группа директории
-    mode: '0755'
-
-- name: Добавление GPG-ключа репозитория Grafana
-  get_url:
-    url: https://apt.grafana.com/gpg-full.key # Адрес ключа репозитория
-    dest: /etc/apt/keyrings/grafana.asc # Путь куда будет сохранен ключ
-    mode: '0644' # права доступа к файлу ключа
-    owner: root
-    group: root
-    validate_certs: yes # проверка ssl сертификата при запуске ключа
 
 
-- name:  Добавить репозиторий
-  apt_repository:
-    #  repo Указывает путь к скачанному ключу и url репозитория, который будет добавлен в систему
-    repo: "deb [signed-by=/etc/apt/keyrings/grafana.asc] https://apt.grafana.com stable main"
-    state: present
-    filename: grafana.list # имя файла, который будет создан в директории /etc/apt/sources.list.d/  для хранения информации о новом репозитории
-    update_cache: yes # обновления кэша после добавления репозиторория
 
-- name: Установка Grafana
-  apt:
-    name: grafana
-    state: present
+#Ниже не работает из за санкций
 
-- name: Запуск службы Grafana
-  systemd:
-    name: grafana-server
-    enabled: yes
-    state: started
+#  Через репозиторий
+# - name: Установка пакетов для Grafana
+#   apt:
+#     name:
+#       - apt-transport-https
+#       - wget
+#       - gnupg
+#     state: present          # гарантирует, что пакеты будут установлены, если их нет.
+
+# - name: Создаем директорию keyrings
+#   file:
+#     path: /etc/apt/keyrings  # путь к директории, которую нужно создать
+#     state: directory                          # гарантирует, что директория будет создана, если ее нет.
+#     owner: root                               # владелец директории
+#     group: root                               # группа директории
+#     mode: '0755'
+
+# - name: Добавление GPG-ключа репозитория Grafana
+#   get_url:
+#     url: https://apt.grafana.com/gpg-full.key # Адрес ключа репозитория
+#     dest: /etc/apt/keyrings/grafana.asc # Путь куда будет сохранен ключ
+#     mode: '0644' # права доступа к файлу ключа
+#     owner: root
+#     group: root
+#     validate_certs: yes # проверка ssl сертификата при запуске ключа
+
+
+# - name:  Добавить репозиторий
+#   apt_repository:
+#     #  repo Указывает путь к скачанному ключу и url репозитория, который будет добавлен в систему
+#     repo: "deb [signed-by=/etc/apt/keyrings/grafana.asc] https://apt.grafana.com stable main"
+#     state: present
+#     filename: grafana.list # имя файла, который будет создан в директории /etc/apt/sources.list.d/  для хранения информации о новом репозитории
+#     update_cache: yes # обновления кэша после добавления репозиторория
+
+# - name: Установка Grafana
+#   apt:
+#     name: grafana
+#     state: present
+
+# - name: Запуск службы Grafana
+#   systemd:
+#     name: grafana-server
+#     enabled: yes
+#     state: started
+
+
+
+#---
+# Через ссылку на дистрибутив
+
+# - name: Установка пакетов
+#   apt:
+#     name:
+#     - adduser
+#     - libfontconfig1
+#     - musl
+#     state: present
+#     update_cache: yes
+
+# - name: Создаем директорию install
+#   file:
+#     path: /tmp/install/
+#     state: directory
+
+# - name: Скачиваем пакет grafana
+#   get_url:
+#     url: https://dl.grafana.com/grafana/release/12.4.1/grafana_12.4.1_22846628243_linux_amd64.deb
+#     dest: /tmp/install/
+#     force: no
+
+# - name: Установка репозитория
+#   apt:
+#     deb: /tmp/install/grafana_12.4.1_22846628243_linux_amd64.deb
+
+# - name: Запуск службы Grafana
+#   systemd:
+#     name: grafana-server.service
+#     enabled: yes
+#     state: started
