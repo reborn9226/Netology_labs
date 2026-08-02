@@ -116,3 +116,19 @@ resource "yandex_vpc_security_group" "web_sg" {
 
 
 }
+
+
+# Доступ из вне к grafana
+resource "yandex_vpc_security_group" "grafana" {
+  name       = "grafana"
+  network_id = yandex_vpc_network.develop.id
+
+  ingress {
+    description    = "Allow HTTP"
+    protocol       = "TCP"
+    port           = 3000
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+
+
+}
