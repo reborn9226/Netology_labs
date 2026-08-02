@@ -225,7 +225,7 @@ resource "yandex_compute_instance" "vm-grafana" {
   network_interface {
     subnet_id = yandex_vpc_subnet.public-develop.id
     nat       = true
-    security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.web_sg.id]
+    security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.grafana.id]
   }
 }
 
