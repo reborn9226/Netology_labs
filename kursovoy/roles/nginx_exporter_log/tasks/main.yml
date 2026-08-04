@@ -1,0 +1,34 @@
+---
+- name: Скачать и установить prometheus-nginxlog-exporter
+  ansible.builtin.apt:
+    deb: https://github.com/martin-helmich/prometheus-nginxlog-exporter/releases/download/v1.9.2/prometheus-nginxlog-exporter_1.9.2_linux_amd64.deb
+    state: present
+
+- name: Добавить пользователя экспортера в группы adm и www-data (для доступа к логам)
+  ansible.builtin.user:
+    name: prometheus-nginxlog-exporter
+    groups: adm,www-data
+    append: yes
+
+- name: Выставить права на файл access.log для чтения
+  ansible.builtin.file:
+    path: /var/log/nginx/access.log
+    state: touch
+    owner: www-data
+    group: adm
+    mode: '0644'
+
+- name: Загрузить конфигурационный файл nginxlog-exporter
+  ansible.builtin.template:
+    src: prometheus-nginxlog-exporter.yml.j2
+    dest: /etc/prometheus-nginxlog-exporter.yml
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart nginxlog-exporter
+
+- name: Запуск и включение службы prometheus-nginxlog-exporter
+  ansible.builtin.systemd:
+    name: prometheus-nginxlog-exporter
+    enabled: true
+    state: started

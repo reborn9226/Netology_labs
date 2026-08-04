@@ -16,7 +16,7 @@ resource "yandex_alb_target_group" "web_target_group" {
 
 # Создание Группы Бэкендов (Backend Groups)
 resource "yandex_alb_backend_group" "web_backend_group" {
-  name = "web_backend_group"
+  name = "web-backend-group"
 
   http_backend {
     name              = "web-backend"
@@ -83,7 +83,7 @@ resource "yandex_alb_load_balancer" "web_balancer" {
   }
 
   listener {
-    name = "http_listenner"
+    name = "http-listenner"
     endpoint {
       address {
         external_ipv4_address {} # Запросить публичный ip
