@@ -30,8 +30,13 @@ resource "yandex_vpc_subnet" "public-develop" {
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.develop.id
   v4_cidr_blocks = ["10.0.3.0/24"]  # добавлена точка в CIDR
-
-
+}
+# Создаем публичную сеть в зоне B (без таблицы маршрутизации и NAT)
+resource "yandex_vpc_subnet" "public-develop-b" {
+  name           = "public-develop-fops-ru-central1-b"
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.develop.id
+  v4_cidr_blocks = ["10.0.4.0/24"]
 }
 
 # Создаём NAT для выхода приватных сетей  в интернет
@@ -51,6 +56,3 @@ resource "yandex_vpc_route_table" "private_rt" {
   }
 
 }
-
-
-

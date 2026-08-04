@@ -13,10 +13,7 @@ output "vms_info" {
 }
 
 #  Вывод публичного IP балансировщика
-output "load_balancer_ip" {
-  description = "Публичный IP-адрес балансировщика нагрузки"
-  value = {
-    for listener in yandex_lb_network_load_balancer.balancer.listener :
-    listener.name => tolist(listener.external_address_spec)[0].address
-  }
+output "alb_public_ip" {
+  description = "Публичный IP-адрес балансировщика ALB"
+  value = yandex_alb_load_balancer.web_alb.listener[0].endpoint[0].address[0].external_ipv4_address[0].address
 }
