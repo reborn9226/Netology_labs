@@ -5,15 +5,16 @@
   roles:
     - nginx
     - node_exporter
+    - nginx_exporter_log
 
-- name: Установка Prometheus
-  hosts: prometheus
-  become: true
-  roles:
-    - prometheus
+# - name: Установка Prometheus
+#   hosts: prometheus
+#   become: true
+#   roles:
+#     - prometheus
 
-- name: Установка Grafana
-  hosts: grafana
-  become: true
-  roles:
-    - grafana
+# - name: Установка Grafana
+#   hosts: grafana
+#   become: true
+#   roles:
+#     - grafana

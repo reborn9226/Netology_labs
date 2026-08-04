@@ -7,3 +7,4 @@ terraform.tfvars
 .authorized_key_kursovoy.json
 hosts.ini
 *Zone.Identifier
+roles/grafana/install/grafana_*.deb
