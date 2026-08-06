@@ -1,0 +1,386 @@
+{
+    "uid": "use-node-nginx",
+    "title": "USE Metrics - Node & Nginx",
+    "tags": [
+        "ansible",
+        "use",
+        "nginx"
+    ],
+    "timezone": "browser",
+    "schemaVersion": 39,
+    "version": 1,
+    "editable": true,
+    "time": {
+        "from": "now-1h",
+        "to": "now"
+    },
+    "refresh": "30s",
+    "panels": [
+        {
+            "id": 1,
+            "type": "timeseries",
+            "title": "CPU Utilization (%)",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 0
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "min": 0,
+                    "max": 100,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "red",
+                                "value": 90
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+                    "legendFormat": "{{instance}}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "type": "timeseries",
+            "title": "CPU Saturation (Load1 / Core)",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 0
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "short",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 5
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "expr": "avg by (instance) (node_load1 / count without(cpu, mode) (node_cpu_seconds_total{mode=\"idle\"}))",
+                    "legendFormat": "{{instance}}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "type": "timeseries",
+            "title": "RAM Utilization (%)",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 8
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "min": 0,
+                    "max": 100,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "red",
+                                "value": 90
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+                    "legendFormat": "{{instance}}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "type": "timeseries",
+            "title": "Disk Utilization (%) - Root",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 8
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "min": 0,
+                    "max": 100,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "red",
+                                "value": 90
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "expr": "100 - ((node_filesystem_avail_bytes{mountpoint=\"/\",fstype!~\"tmpfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/\",fstype!~\"tmpfs\"})",
+                    "legendFormat": "{{instance}}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "type": "timeseries",
+            "title": "Disk Saturation (I/O Time %)",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 16
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "min": 0,
+                    "max": 100,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "red",
+                                "value": 90
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "expr": "rate(node_disk_io_time_seconds_total[5m]) * 100",
+                    "legendFormat": "{{instance}} {{device}}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "type": "timeseries",
+            "title": "Network Errors & Drops",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 16
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "short",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 1
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "expr": "rate(node_network_receive_errs_total{device!~\"lo\"}[5m]) + rate(node_network_transmit_errs_total{device!~\"lo\"}[5m]) + rate(node_network_receive_drop_total{device!~\"lo\"}[5m]) + rate(node_network_transmit_drop_total{device!~\"lo\"}[5m])",
+                    "legendFormat": "{{instance}}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "type": "timeseries",
+            "title": "Nginx Requests (RPS)",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 24
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "reqps"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sum(rate(nginxlog_http_response_count_total[5m]))",
+                    "legendFormat": "Total RPS",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "type": "timeseries",
+            "title": "Nginx Errors (4xx & 5xx)",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 24
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "reqps",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 10
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sum(rate(nginxlog_http_response_count_total{status=~\"4..|5..\"}[5m]))",
+                    "legendFormat": "Error Rate",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "type": "timeseries",
+            "title": "Nginx Response Size (Bytes/sec)",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 32
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "Bps"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sum(rate(nginxlog_http_response_size_bytes[5m]))",
+                    "legendFormat": "Bandwidth",
+                    "refId": "A"
+                }
+            ]
+        }
+    ]
+}

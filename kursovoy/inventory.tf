@@ -36,6 +36,11 @@ elasticsearch
 kibana
 grafana
 
+# Переменная для конфигурации Grafana
+[grafana:vars]
+grafana_prometheus_url="http://${yandex_compute_instance.vm-prometheus.network_interface[0].ip_address}:9090"
+
+
 # Переменные только для ВМ в приватных подсетях
 # Первый ключ - автоматический прием новых ключей без запроса. Второй ключ - не сохранять эти временный ключи в файл ~/.ssh/known_hosts. Третий ключ - прыжок через бастион
 [private_nodes:vars]

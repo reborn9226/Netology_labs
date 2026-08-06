@@ -1,0 +1,107 @@
+---
+- name: Проверка наличия переменной grafana_prometheus_url
+  ansible.builtin.assert:
+    that:
+      - grafana_prometheus_url is defined
+      - grafana_prometheus_url | length > 0
+    fail_msg: >
+      Переменная grafana_prometheus_url не определена в inventory.
+      Проверь, что в Terraform создан блок [grafana:vars] с grafana_prometheus_url.
+
+- name: Проверка, что Prometheus доступен с Grafana
+  ansible.builtin.uri:
+    url: "{{ grafana_prometheus_url }}/-/healthy"
+    status_code: 200
+    timeout: 10
+  register: prometheus_health
+  until: prometheus_health.status == 200
+  retries: 5
+  delay: 5
+
+- name: Создаем папку для источников Grafana
+  ansible.builtin.file:
+    path: "{{ grafana_provisioning_path }}/datasources"
+    state: directory
+    owner: root
+    group: grafana
+    mode: "0755"
+
+- name: Создаем папку для провайдеров дашбордов Grafana
+  ansible.builtin.file:
+    path: "{{ grafana_provisioning_path }}/dashboards"
+    state: directory
+    owner: root
+    group: grafana
+    mode: "0755"
+
+- name: Создаем папку для хранения дашбордов Grafana
+  ansible.builtin.file:
+    path: "{{ grafana_dashboards_path }}"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0755"
+
+- name: Создаем файл с источником Prometheus
+  ansible.builtin.copy:
+    dest: "{{ grafana_provisioning_path }}/datasources/prometheus.yml"
+    owner: root
+    group: grafana
+    mode: "0640"
+    content: |
+      apiVersion: 1
+
+      datasources:
+        - name: {{ grafana_datasource_name }}
+          uid: {{ grafana_datasource_uid }}
+          type: prometheus
+          access: proxy
+          url: {{ grafana_prometheus_url }}   # Переменная тянется из host.ini
+          isDefault: true
+          editable: false
+          jsonData:
+            timeInterval: 15s
+            httpMethod: POST
+  notify: Restart Grafana
+
+- name: Создаем файл с конфигурацией провайдера дашбордов Grafana
+  ansible.builtin.copy:
+    dest: "{{ grafana_provisioning_path }}/dashboards/ansible-dashboards.yml"
+    owner: root
+    group: grafana
+    mode: "0640"
+    content: |
+      apiVersion: 1
+
+      providers:
+        - name: ansible-managed-dashboards
+          orgId: 1
+          folder: Ansible
+          type: file
+          disableDeletion: false
+          updateIntervalSeconds: 30
+          allowUiUpdates: true
+          options:
+            path: "{{ grafana_dashboards_path }}"
+            foldersFromFilesStructure: false
+  notify: Restart Grafana
+
+- name: Копируем дашборды для node exporter и nginx_exporter_log
+  ansible.builtin.copy:
+    src: dashboards/node-nginx.json
+    dest: "{{ grafana_dashboards_path }}/node-nginx.json"
+    owner: grafana
+    group: grafana
+    mode: "0644"
+
+- name: Применяем изменения источников (вызываем handler)
+  ansible.builtin.meta: flush_handlers
+
+- name: Проверяем, живая ли Grafana
+  ansible.builtin.uri:
+    url: "{{ grafana_base_url }}/api/health"
+    status_code: 200
+  register: grafana_health
+  until: grafana_health.status == 200
+  retries: 10
+  delay: 3

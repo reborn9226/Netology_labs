@@ -1,0 +1,9 @@
+---
+grafana_service_name: grafana-server
+grafana_base_url: "http://localhost:3000"
+
+grafana_datasource_name: Prometheus
+grafana_datasource_uid: prometheus
+
+grafana_provisioning_path: /etc/grafana/provisioning
+grafana_dashboards_path: /var/lib/grafana/dashboards
