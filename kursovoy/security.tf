@@ -78,3 +78,18 @@ resource "yandex_vpc_security_group" "grafana" {
 
 
 }
+
+# Доступ из вне к kibana
+resource "yandex_vpc_security_group" "kibana" {
+  name       = "kibana"
+  network_id = yandex_vpc_network.develop.id
+
+  ingress {
+    description    = "Allow HTTP"
+    protocol       = "TCP"
+    port           = 5601
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+
+
+}
