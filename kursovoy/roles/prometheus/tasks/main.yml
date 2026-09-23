@@ -96,7 +96,7 @@
     mode: '0644'
     owner: root
     group: root
-  notify: reload systemd
+  notify: restart systemd
 
 - name: Включить и запусить службу prometheus.service
   systemd:
