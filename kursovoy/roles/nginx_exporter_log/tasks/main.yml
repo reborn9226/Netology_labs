@@ -21,7 +21,7 @@
 - name: Загрузить конфигурационный файл nginxlog-exporter
   ansible.builtin.template:
     src: prometheus-nginxlog-exporter.yml.j2
-    dest: /etc/prometheus-nginxlog-exporter.yml
+    dest: /etc/prometheus-nginxlog-exporter.hcl
     owner: root
     group: root
     mode: '0644'

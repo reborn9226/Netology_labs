@@ -29,8 +29,6 @@ scrape_configs:
     static_configs:
       - targets: [{% for host in groups['webservers'] %}'{{ hostvars[host]['ansible_host'] }}:9100'{% if not loop.last %}, {% endif %}{% endfor %}]
 
-  - job_name: 'nginx_exporter_log webservers'
+  - job_name: 'nginx_exporter_log'
     static_configs:
       - targets: [{% for host in groups['webservers'] %}'{{ hostvars[host]['ansible_host'] }}:9113'{% if not loop.last %}, {% endif %}{% endfor %}]
-
-  

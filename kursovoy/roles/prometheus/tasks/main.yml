@@ -112,4 +112,4 @@
     mode: '0644'
     owner: prometheus
     group: prometheus
-  notify: reload systemd
+  notify: restart prometheus
