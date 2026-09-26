@@ -9,18 +9,19 @@
     name: prometheus-nginxlog-exporter
     groups: adm,www-data
     append: yes
+  notify: restart nginxlog-exporter
 
-- name: Выставить права на файл access.log для чтения
-  ansible.builtin.file:
-    path: /var/log/nginx/access.log
-    state: touch
-    owner: www-data
-    group: adm
-    mode: '0644'
+# - name: Выставить права на файл access.log для чтения
+#   ansible.builtin.file:
+#     path: /var/log/nginx/access.log
+#     #state: touch
+#     owner: www-data
+#     group: adm
+#     mode: '0644'
 
 - name: Загрузить конфигурационный файл nginxlog-exporter
   ansible.builtin.template:
-    src: prometheus-nginxlog-exporter.yml.j2
+    src: prometheus-nginxlog-exporter.hcl.j2
     dest: /etc/prometheus-nginxlog-exporter.hcl
     owner: root
     group: root
