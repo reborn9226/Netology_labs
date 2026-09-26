@@ -305,7 +305,7 @@
             },
             "targets": [
                 {
-                    "expr": "sum(rate(nginxlog_http_response_count_total[5m]))",
+                    "expr": "sum(rate(nginx_http_response_count_total[5m]))",
                     "legendFormat": "Total RPS",
                     "refId": "A"
                 }
@@ -349,7 +349,7 @@
             },
             "targets": [
                 {
-                    "expr": "sum(rate(nginxlog_http_response_count_total{status=~\"4..|5..\"}[5m]))",
+                    "expr": "sum(rate(nginx_http_response_count_total{status=~\"4..|5..\"}[5m]))",
                     "legendFormat": "Error Rate",
                     "refId": "A"
                 }
@@ -376,7 +376,7 @@
             },
             "targets": [
                 {
-                    "expr": "sum(rate(nginxlog_http_response_size_bytes[5m]))",
+                    "expr": "sum(rate(nginx_http_response_size_bytes[5m]))",
                     "legendFormat": "Bandwidth",
                     "refId": "A"
                 }
