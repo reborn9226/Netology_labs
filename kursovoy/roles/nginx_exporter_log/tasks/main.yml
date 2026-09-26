@@ -28,8 +28,26 @@
     mode: '0644'
   notify: restart nginxlog-exporter
 
-- name: Запуск и включение службы prometheus-nginxlog-exporter
+- name: Создать каталог systemd drop-in для nginxlog-exporter
+  ansible.builtin.file:
+    path: /etc/systemd/system/prometheus-nginxlog-exporter.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Настроить запуск nginxlog-exporter от служебного пользователя
+  ansible.builtin.template:
+    src: override.conf.j2
+    dest: /etc/systemd/system/prometheus-nginxlog-exporter.service.d/override.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart nginxlog-exporter
+
+- name: Запустить и включить службу prometheus-nginxlog-exporter
   ansible.builtin.systemd:
     name: prometheus-nginxlog-exporter
     enabled: true
     state: started
+    daemon_reload: true
