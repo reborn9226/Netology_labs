@@ -1,0 +1,33 @@
+---
+- name: Установить Elasticsearch
+  ansible.builtin.apt:
+    name: elasticsearch
+    state: present
+  register: elasticsearch_install_result           # переменная для хранения вывода
+  no_log: true                                     # Скрываем вывод логов
+
+- name: Найти первоначальный пароль в выводе установки
+  ansible.builtin.set_fact:
+                                                   # Список найденых паролей
+    elasticsearch_password_matches: >-
+      {{
+        elasticsearch_install_result.stdout | default('')
+        | ansible.builtin.regex_findall(
+            '^The generated password for the elastic built-in superuser is :[ \t]+(\S+)[ \t]*$',
+            multiline=True
+          )
+      }}
+
+  no_log: true                                      # Скрываем вывод логов
+                                                    # ansible.builtin.regex_findall возвращает список совпадений
+                                                    # multiline=True Позволяет искать строку внутри многостроничного вывода
+
+
+
+- name: Сохранить найденный пароль в переменную текущего запуска
+  ansible.builtin.set_fact:
+    elasticsearch_initial_password: "{{ elasticsearch_password_matches[0] }}"
+  when: elasticsearch_password_matches | length == 1
+  no_log: true                                      # Скрываем вывод логов
+                                                    # elasticsearch_password_matches[0] Обращаемся только если найден один пароль. Иначе задача пропускается.
+                                                    

@@ -1,0 +1,94 @@
+---
+- name: Установить необходимые пакеты
+  ansible.builtin.apt:
+    name:
+      - gnupg
+      - ca-certificates
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Убедиться, что каталог для ключей существует
+  ansible.builtin.file:
+    path: /usr/share/keyrings
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+
+- name: Скачать открытый ключ Elasticsearch
+  ansible.builtin.get_url:
+    url: "{{ elastic_key_url }}"
+    dest: "{{ elastic_key_asc }}"
+    owner: root
+    group: root
+    mode: "0644"
+    timeout: 30
+
+
+- name: Преобразовать ASCII-ключ в бинарный keyring
+  ansible.builtin.command:
+    argv:
+      - gpg
+      - --batch
+      - --yes
+      - --dearmor
+      - -o
+      - "{{ elastic_keyring }}"
+      - "{{ elastic_key_asc }}"
+    creates: "{{ elastic_keyring }}"
+
+
+- name: Настроить владельца и права keyring
+  ansible.builtin.file:
+    path: "{{ elastic_keyring }}"
+    state: file
+    owner: root
+    group: root
+    mode: "0644"
+
+
+- name: Прочитать отпечаток ключа
+  ansible.builtin.command:
+    argv:
+      - gpg
+      - --show-keys
+      - --fingerprint
+      - "{{ elastic_keyring }}"
+  register: elastic_key_info
+  changed_when: false
+
+- name: Показать информацию о ключе
+  ansible.builtin.debug:
+    var: elastic_key_info.stdout_lines
+
+- name: Проверить ожидаемый отпечаток Elasticsearch
+  ansible.builtin.assert:
+    that:
+      - >-
+        '46095ACC8548582C1A2699A9D27D666CD88E42B4'
+        in (elastic_key_info.stdout | replace(' ', ''))
+    fail_msg: "Отпечаток ключа не совпадает. Репозиторий не добавлен."
+    success_msg: "Отпечаток ключа Elasticsearch совпадает."
+
+
+- name: Записать репозиторий Elasticsearch 8
+  ansible.builtin.copy:
+    dest: "{{ elastic_repo_file }}"
+    content: |
+      deb [signed-by={{ elastic_keyring }}] {{ elastic_repo_url }} stable main
+    owner: root
+    group: root
+    mode: "0644"
+
+
+- name: Прочитать файл репозитория
+  ansible.builtin.slurp:
+    src: "{{ elastic_repo_file }}"
+  register: elastic_repo_content
+
+- name: Показать содержимое файла репозитория
+  ansible.builtin.debug:
+    msg: "{{ elastic_repo_content.content | b64decode }}"
+
