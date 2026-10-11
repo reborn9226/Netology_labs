@@ -1,0 +1,15 @@
+- name: Установить kibana
+  ansible.builtin.apt:
+    name: kibana
+    state: present
+    update_cache: true
+  async: 3600                          # Разрешаем задаче выполнятся до 3600 секунд
+  poll: 15                             # проверять задачу каждые 15 секунд
+  no_log: true
+
+- name: Включить автозапуск и запустить kibana
+  ansible.builtin.systemd_service:
+    name: kibana.service
+    daemon_reload: true
+    enabled: true
+    state: started

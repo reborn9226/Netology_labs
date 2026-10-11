@@ -1,0 +1,15 @@
+- name: Установить filebeat
+  ansible.builtin.apt:
+    name: filebeat
+    state: present
+    update_cache: true
+  async: 3600                          # Разрешаем задаче выполнятся до 3600 секунд
+  poll: 15                             # проверять задачу каждые 15 секунд
+  no_log: true
+
+- name: Включить автозапуск и запустить filebeat
+  ansible.builtin.systemd_service:
+    name: filebeat.service
+    daemon_reload: true
+    enabled: true
+    state: started
