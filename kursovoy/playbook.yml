@@ -19,3 +19,31 @@
   roles:
     - grafana
     - grafana_config
+
+
+- name: Установить Elasticsearch ключи
+  hosts: all
+  become: true
+  roles:
+    - elasticsearch_keys
+
+
+- name: Установка filebeat
+  hosts: webservers
+  become: true
+  roles:
+    - filebeat
+
+
+- name: Установить Elasticsearch
+  hosts: elasticsearch
+  become: true
+  roles:
+    - elasticsearch
+
+- name: Установка kibana
+  hosts: kibana
+  become: true
+  roles:
+    - kibana
+
