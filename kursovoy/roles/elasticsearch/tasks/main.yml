@@ -1,33 +1,70 @@
 ---
+- name: Загрузить зашифрованные переменные Elasticsearch
+  ansible.builtin.include_vars:
+    file: vars-vault.yml
+  no_log: true
+
+
+
 - name: Установить Elasticsearch
   ansible.builtin.apt:
     name: elasticsearch
     state: present
+    update_cache: true
   register: elasticsearch_install_result           # переменная для хранения вывода
   no_log: true                                     # Скрываем вывод логов
 
-- name: Найти первоначальный пароль в выводе установки
-  ansible.builtin.set_fact:
-                                                   # Список найденых паролей
-    elasticsearch_password_matches: >-
-      {{
-        elasticsearch_install_result.stdout | default('')
-        | ansible.builtin.regex_findall(
-            '^The generated password for the elastic built-in superuser is :[ \t]+(\S+)[ \t]*$',
-            multiline=True
-          )
-      }}
+- name: Включить автозапуск и запустить Elasticsearch
+  ansible.builtin.systemd_service:
+    name: elasticsearch.service
+    daemon_reload: true
+    enabled: true
+    state: started
 
-  no_log: true                                      # Скрываем вывод логов
-                                                    # ansible.builtin.regex_findall возвращает список совпадений
-                                                    # multiline=True Позволяет искать строку внутри многостроничного вывода
+- name: Проверка готовности  готовности защищённого API Elasticsearch
+  ansible.builtin.uri:
+    url: "https://localhost:9200"
+    ca_path: /etc/elasticsearch/certs/http_ca.crt
+    validate_certs: true
+    status_code: 401
+    timeout: 10
+  register: elastic_api_ready
+  until: (elastic_api_ready.status | default(-1)) == 401
+  retries: 30
+  delay: 5
+  changed_when: false
 
 
 
-- name: Сохранить найденный пароль в переменную текущего запуска
-  ansible.builtin.set_fact:
-    elasticsearch_initial_password: "{{ elasticsearch_password_matches[0] }}"
-  when: elasticsearch_password_matches | length == 1
-  no_log: true                                      # Скрываем вывод логов
-                                                    # elasticsearch_password_matches[0] Обращаемся только если найден один пароль. Иначе задача пропускается.
-                                                    
+
+
+- name: Назначить пользователю elastic пароль из Vault
+  ansible.builtin.command:
+    argv:                                           # Программа и ее аргументы  отдельными элементами списка
+      - /usr/share/elasticsearch/bin/elasticsearch-reset-password
+      - --username                                  # Запрос логина
+      - elastic                                     # Сам логин
+      - --interactive                               # Назначить введнный пароль, без генерации случайного
+      - --batch                                     # Убрать дополнительный вопрос о подтверждении операции
+    stdin: "{{ pass_elastic }}\n{{ pass_elastic }}\n"    # подставляем пароль дважды
+    stdin_add_newline: false                        # Не добавлять лишний перевод строки
+  no_log: true
+  when: elastic_password_reset | default(false) | bool # Если запустить playbook с параметром elastic_password_reset=true то выполняется смена пароля, если без него то смена пароля пропускается
+
+
+- name: Проверить вход с паролем из Vault
+  ansible.builtin.uri:
+    url: "https://localhost:9200"
+    url_username: elastic
+    url_password: "{{ pass_elastic }}"              # Защенная переменная
+    force_basic_auth: true                          # Передает параметры авторизации
+    ca_path: /etc/elasticsearch/certs/http_ca.crt   # Путь к сертифкату
+    validate_certs: true                            # Проверка сертификата
+    status_code: 200
+    timeout: 10
+  register: elastic_check
+  until: (elastic_check.status | default(-1)) == 200
+  retries: 6
+  delay: 5
+  changed_when: false
+  no_log: true
