@@ -8,11 +8,12 @@
 
 - name: Установить Elasticsearch
   ansible.builtin.apt:
-    name: elasticsearch
+    name: "elasticsearch={{ elastic_stack_version }}"
     state: present
     update_cache: true
-  register: elasticsearch_install_result           # переменная для хранения вывода
-  no_log: true                                     # Скрываем вывод логов
+  async: 3600                          # Разрешаем задаче выполнятся до 3600 секунд
+  poll: 15                             # проверять задачу каждые 15 секунд
+  no_log: true
 
 - name: Включить автозапуск и запустить Elasticsearch
   ansible.builtin.systemd_service:

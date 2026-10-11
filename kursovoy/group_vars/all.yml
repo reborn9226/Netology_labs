@@ -1,0 +1,3 @@
+---
+# Общая версия Elasticsearch, Kibana и Filebeat.
+elastic_stack_version: "8.19.23"

@@ -1,6 +1,6 @@
 - name: Установить filebeat
   ansible.builtin.apt:
-    name: filebeat
+    name: "filebeat={{ elastic_stack_version }}"
     state: present
     update_cache: true
   async: 3600                          # Разрешаем задаче выполнятся до 3600 секунд
