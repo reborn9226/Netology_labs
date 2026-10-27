@@ -13,3 +13,20 @@
     daemon_reload: true
     enabled: true
     state: started
+
+- name: Создать каталог доверенных сертификатов Filebeat
+  ansible.builtin.file:
+    path: /etc/filebeat/certs
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Разместить доверенный CA Elasticsearch для Filebeat
+  ansible.builtin.copy:
+    src: "{{ elastic_cert_dir }}/http_ca.crt"
+    dest: /etc/filebeat/certs/http_ca.crt
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart filebeat

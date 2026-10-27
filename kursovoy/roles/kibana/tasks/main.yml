@@ -13,3 +13,14 @@
     daemon_reload: true
     enabled: true
     state: started
+
+- name: Разместить доверенный CA Elasticsearch для Kibana
+  ansible.builtin.copy:
+    src: "{{ elastic_cert_dir }}/http_ca.crt"
+    dest: /etc/kibana/http_ca.crt
+    owner: root
+    group: kibana
+    mode: "0640"
+  notify: restart Kibana
+
+

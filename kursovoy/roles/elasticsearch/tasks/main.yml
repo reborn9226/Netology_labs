@@ -69,3 +69,11 @@
   delay: 5
   changed_when: false
   no_log: true
+
+
+- name: Сохранить публичный CA Elasticsearch на управляющей машине
+  become: true
+  ansible.builtin.fetch:
+    src: /etc/elasticsearch/certs/http_ca.crt
+    dest: "{{ elastic_cert_dir }}/http_ca.crt"
+    flat: true                                   # Не добавлять к пути имя хоста и исходную структуру каталогов
