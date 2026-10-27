@@ -1,3 +1,7 @@
 ---
 # Общая версия Elasticsearch, Kibana и Filebeat.
-elastic_stack_version: "8.19.23"
+elastic_stack_version: "8.19.23"              # Версия ELK
+elastic_cert_dir: "{{ playbook_dir }}/cert"   # В корне папка для хранения сертификатов
+# Адрес elasticsearch
+elasticsearch_url: >-
+  https://{{ hostvars['elasticsearch']['ansible_host'] }}:9200
