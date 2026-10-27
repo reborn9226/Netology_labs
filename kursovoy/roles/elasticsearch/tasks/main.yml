@@ -35,10 +35,6 @@
   delay: 5
   changed_when: false
 
-
-
-
-
 - name: Назначить пользователю elastic пароль из Vault
   ansible.builtin.command:
     argv:                                           # Программа и ее аргументы  отдельными элементами списка
@@ -53,7 +49,7 @@
   when: elastic_password_reset | default(false) | bool # Если запустить playbook с параметром elastic_password_reset=true то выполняется смена пароля, если без него то смена пароля пропускается
 
 
-- name: Проверить вход с паролем из Vault
+- name: Проверить вход с паролем из Vault для пользователя elastic
   ansible.builtin.uri:
     url: "https://localhost:9200"
     url_username: elastic
@@ -77,3 +73,33 @@
     src: /etc/elasticsearch/certs/http_ca.crt
     dest: "{{ elastic_cert_dir }}/http_ca.crt"
     flat: true                                   # Не добавлять к пути имя хоста и исходную структуру каталогов
+
+- name: Назначить пользователю kibana_system пароль из Vault
+  ansible.builtin.command:
+    argv:                                           # Программа и ее аргументы  отдельными элементами списка
+      - /usr/share/elasticsearch/bin/elasticsearch-reset-password
+      - --username                                  # Запрос логина
+      - kibana_system                               # Сам логин
+      - --interactive                               # Назначить введнный пароль, без генерации случайного
+      - --batch                                     # Убрать дополнительный вопрос о подтверждении операции
+    stdin: "{{ pass_kibana_system }}\n{{ pass_kibana_system }}\n"    # подставляем пароль дважды
+    stdin_add_newline: false                        # Не добавлять лишний перевод строки
+  no_log: true
+  when: kibana_system_password_reset | default(false) | bool # Если запустить playbook с параметром kibana_system_password_reset=true то выполняется смена пароля, если без него то смена пароля пропускается
+
+- name: Проверить вход с паролем из Vault для пользователя kibana_system
+  ansible.builtin.uri:
+    url: "https://localhost:9200"
+    url_username: kibana_system
+    url_password: "{{ pass_kibana_system }}"        # Защенная переменная
+    force_basic_auth: true                          # Передает параметры авторизации
+    ca_path: /etc/elasticsearch/certs/http_ca.crt   # Путь к сертифкату
+    validate_certs: true                            # Проверка сертификата
+    status_code: 200
+    timeout: 10
+  register: kibana_system_check
+  until: (kibana_system_check.status | default(-1)) == 200
+  retries: 6
+  delay: 5
+  changed_when: false
+  no_log: true
