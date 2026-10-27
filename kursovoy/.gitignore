@@ -8,3 +8,4 @@ terraform.tfvars
 hosts.ini
 *Zone.Identifier
 roles/grafana/install/grafana_*.deb
+cert/*
