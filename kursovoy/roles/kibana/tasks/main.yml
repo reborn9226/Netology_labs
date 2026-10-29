@@ -1,3 +1,11 @@
+---
+- name: Загрузить зашифрованные переменные kibana
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/secrets/vars-vault.yml"  # Общий файл зашифрованых переменных 
+  no_log: true
+
+
+
 - name: Установить kibana
   ansible.builtin.apt:
     name: "kibana={{ elastic_stack_version }}"
@@ -6,6 +14,9 @@
   async: 3600                          # Разрешаем задаче выполнятся до 3600 секунд
   poll: 15                             # проверять задачу каждые 15 секунд
   no_log: true
+
+
+
 
 - name: Включить автозапуск и запустить kibana
   ansible.builtin.systemd_service:
@@ -24,3 +35,11 @@
   notify: restart Kibana
 
 
+- name: Скопировать файл kibana.yml
+  ansible.builtin.template:
+    src: kibana.yml.j2
+    dest: /etc/kibana//kibana.yml
+    owner: root
+    group: root
+    mode: '0660'
+  notify: restart Kibana

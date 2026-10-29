@@ -1,7 +1,7 @@
 ---
 - name: Загрузить зашифрованные переменные Elasticsearch
   ansible.builtin.include_vars:
-    file: vars-vault.yml
+    file: "{{ playbook_dir }}/secrets/vars-vault.yml" # Общий файл зашифрованых переменных 
   no_log: true
 
 
