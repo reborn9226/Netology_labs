@@ -92,7 +92,7 @@ elasticsearch.password: "{{ pass_kibana_system }}"
 elasticsearch.ssl.certificateAuthorities: [ "/etc/kibana/http_ca.crt" ]
 
 # To disregard the validity of SSL certificates, change this setting's value to 'none'.
-#elasticsearch.ssl.verificationMode: full
+elasticsearch.ssl.verificationMode: full
 
 # =================== System: Logging ===================
 # Set the value of this setting to off to suppress all logging output, or to debug to log everything. Defaults to 'info'

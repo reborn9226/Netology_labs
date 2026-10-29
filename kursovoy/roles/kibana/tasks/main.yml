@@ -1,7 +1,7 @@
 ---
 - name: Загрузить зашифрованные переменные kibana
   ansible.builtin.include_vars:
-    file: "{{ playbook_dir }}/secrets/vars-vault.yml"  # Общий файл зашифрованых переменных 
+    file: "{{ playbook_dir }}/secrets/vars-vault.yml"  # Общий файл зашифрованых переменных
   no_log: true
 
 
@@ -35,11 +35,30 @@
   notify: restart Kibana
 
 
+- name: Проверить вход с паролем из Vault для пользователя kibana_system из сервера kibana
+  ansible.builtin.uri:
+    url: "{{ elasticsearch_url }}"
+    url_username: kibana_system
+    url_password: "{{ pass_kibana_system }}"        # Защенная переменная
+    force_basic_auth: true                          # Передает параметры авторизации
+    ca_path: /etc/kibana/http_ca.crt                # Путь к сертифкату
+    validate_certs: true                            # Проверка сертификата
+    status_code: 200
+    timeout: 10
+  register: kibana_system_check
+  until: (kibana_system_check.status | default(-1)) == 200
+  retries: 6
+  delay: 5
+  changed_when: false
+  no_log: true
+
+
+
 - name: Скопировать файл kibana.yml
   ansible.builtin.template:
     src: kibana.yml.j2
-    dest: /etc/kibana//kibana.yml
+    dest: /etc/kibana/kibana.yml
     owner: root
-    group: root
-    mode: '0660'
+    group: kibana
+    mode: '0640'
   notify: restart Kibana
