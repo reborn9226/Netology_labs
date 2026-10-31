@@ -161,8 +161,8 @@ resource "yandex_compute_instance" "vm-elasticsearch" {
   zone        = "ru-central1-a"
 
   resources {
-    cores         = 2
-    memory        = 1
+    cores         = 4
+    memory        = 8
     core_fraction = 20
   }
 
@@ -239,7 +239,7 @@ resource "yandex_compute_instance" "vm-kibana" {
 
   resources {
     cores         = 2
-    memory        = 1
+    memory        = 2
     core_fraction = 20
   }
 
