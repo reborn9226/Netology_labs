@@ -5,3 +5,6 @@ elastic_cert_dir: "{{ playbook_dir }}/cert"   # В корне папка для 
 # Адрес elasticsearch
 elasticsearch_url: >-
   https://{{ hostvars['elasticsearch']['ansible_host'] }}:9200
+# Адрес kibana
+kibana_url: >-
+  http://{{ hostvars['kibana']['ansible_host'] }}:5601
