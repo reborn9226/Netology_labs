@@ -4,12 +4,12 @@ data "yandex_compute_image" "ubuntu_2204_lts" {
 }
 
 
-# Бастион зона А
+# Бастион зона D
 resource "yandex_compute_instance" "bastion" {
   name        = "bastion" #Имя ВМ в облачной консоли
   hostname    = "bastion" #формирует FDQN имя хоста, без hostname будет сгенрировано случаное имя.
   platform_id = "standard-v3"
-  zone        = "ru-central1-a" #зона ВМ должна совпадать с зоной subnet!!!
+  zone        = "ru-central1-d" #зона ВМ должна совпадать с зоной subnet!!!
 
   resources {
     cores         = 2
@@ -33,7 +33,7 @@ resource "yandex_compute_instance" "bastion" {
   scheduling_policy { preemptible = true } # Прерываемая виртуальная машина (preemptible) — это виртуальная машина, которая может быть остановлена в любой момент без предупреждения. Такие машины стоят дешевле, чем обычные, но их нельзя использовать для задач, требующих высокой доступности.
 
   network_interface {
-    subnet_id          = yandex_vpc_subnet.public-develop.id #зона ВМ должна совпадать с зоной subnet!!!
+    subnet_id          = yandex_vpc_subnet.public-develop-d.id #зона ВМ должна совпадать с зоной subnet!!!
     nat                = true
     security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.bastion.id]
   }
@@ -55,7 +55,7 @@ resource "yandex_compute_instance" "vm-web-a" {
   boot_disk {
     initialize_params {
       image_id = data.yandex_compute_image.ubuntu_2204_lts.image_id
-      type     = "network-hdd"
+      type     = "network-ssd"
       size     = 10
     }
   }
@@ -82,7 +82,7 @@ resource "yandex_compute_instance" "vm-web-b" {
   name        = "web-b" # Добавляет номер к имени ВМ
   hostname    = "web-b"  # Добавляет номер к имени хоста
   platform_id = "standard-v3"
-  zone        = "ru-central1-b"
+  zone        = "ru-central1-e"
 
   resources {
     cores         = 2
@@ -120,7 +120,7 @@ resource "yandex_compute_instance" "vm-prometheus" {
   name        = "prometheus-b" # Добавляет номер к имени ВМ
   hostname    = "prometheus-b"  # Добавляет номер к имени хоста
   platform_id = "standard-v3"
-  zone        = "ru-central1-b"
+  zone        = "ru-central1-e"
 
   resources {
     cores         = 2
@@ -158,11 +158,11 @@ resource "yandex_compute_instance" "vm-elasticsearch" {
   name        = "elasticsearch-a" # Добавляет номер к имени ВМ
   hostname    = "elasticsearch-a"  # Добавляет номер к имени хоста
   platform_id = "standard-v3"
-  zone        = "ru-central1-a"
+  zone        = "ru-central1-d"
 
   resources {
-    cores         = 4
-    memory        = 8
+    cores         = 2
+    memory        = 4
     core_fraction = 20
   }
 
@@ -184,7 +184,7 @@ resource "yandex_compute_instance" "vm-elasticsearch" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.private-develop-a.id
+    subnet_id = yandex_vpc_subnet.private-develop-d.id
     nat       = false
     security_group_ids = [yandex_vpc_security_group.LAN.id]
   }

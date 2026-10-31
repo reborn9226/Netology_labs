@@ -77,7 +77,7 @@ resource "yandex_alb_load_balancer" "web_balancer" {
     }
 
     location {
-      zone_id   = "ru-central1-b"
+      zone_id   = "ru-central1-e"
       subnet_id = yandex_vpc_subnet.public-develop-b.id
     }
   }

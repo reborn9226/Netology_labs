@@ -17,12 +17,24 @@ resource "yandex_vpc_subnet" "private-develop-a" {
 # Создаём приватную подсеть в зоне B
 resource "yandex_vpc_subnet" "private-develop-b" {
   name           = "private-develop-fops-ru-central1-b"
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-e"
   network_id     = yandex_vpc_network.develop.id
   v4_cidr_blocks = ["10.0.2.0/24"]  # добавлена точка в CIDR
   route_table_id = yandex_vpc_route_table.private_rt.id # Приватная под сеть
 
 }
+
+# Создаём приватную подсеть в зоне D
+resource "yandex_vpc_subnet" "private-develop-d" {
+  name           = "private-develop-fops-ru-central1-d"
+  zone           = "ru-central1-d"
+  network_id     = yandex_vpc_network.develop.id
+  v4_cidr_blocks = ["10.0.5.0/24"]  # добавлена точка в CIDR
+  route_table_id = yandex_vpc_route_table.private_rt.id  # Прватная подсеть
+
+
+}
+
 
 # Создаем публичную подсеть в зоне А (без таблицы маршрутизации и NAT)
 resource "yandex_vpc_subnet" "public-develop" {
@@ -34,9 +46,17 @@ resource "yandex_vpc_subnet" "public-develop" {
 # Создаем публичную сеть в зоне B (без таблицы маршрутизации и NAT)
 resource "yandex_vpc_subnet" "public-develop-b" {
   name           = "public-develop-fops-ru-central1-b"
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-e"
   network_id     = yandex_vpc_network.develop.id
   v4_cidr_blocks = ["10.0.4.0/24"]
+}
+
+# Создаем публичную сеть в зоне B (без таблицы маршрутизации и NAT)
+resource "yandex_vpc_subnet" "public-develop-d" {
+  name           = "public-develop-fops-ru-central1-d"
+  zone           = "ru-central1-d"
+  network_id     = yandex_vpc_network.develop.id
+  v4_cidr_blocks = ["10.0.6.0/24"]
 }
 
 # Создаём NAT для выхода приватных сетей  в интернет
