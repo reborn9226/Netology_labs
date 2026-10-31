@@ -1,3 +1,10 @@
+---
+- name: Загрузить зашифрованные переменные Elasticsearch
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/secrets/vars-vault.yml" # Общий файл зашифрованых переменных
+  no_log: true
+
+
 - name: Установить filebeat
   ansible.builtin.apt:
     name: "filebeat={{ elastic_stack_version }}"
