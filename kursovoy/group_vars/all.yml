@@ -4,7 +4,7 @@ elastic_stack_version: "8.19.23"              # Версия ELK
 elastic_cert_dir: "{{ playbook_dir }}/cert"   # В корне папка для хранения сертификатов
 # Адрес elasticsearch
 elasticsearch_url: >-
-  https://{{ hostvars['elasticsearch']['ansible_host'] }}:9200
+  https://{{ hostvars[groups['elasticsearch'][0]]['ansible_host'] }}:9200
 # Адрес kibana
 kibana_url: >-
-  http://{{ hostvars['kibana']['ansible_host'] }}:5601
+  http://{{ hostvars[groups['kibana'][0]]['ansible_host'] }}:5601
