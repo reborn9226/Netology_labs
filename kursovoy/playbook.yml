@@ -27,19 +27,23 @@
   roles:
     - elasticsearch_keys
 
+- name: Установить Elasticsearch
+  hosts: elasticsearch
+  become: true
+  roles:
+    - elasticsearch
+
+- name: Установка kibana
+  hosts: kibana
+  become: true
+  roles:
+    - kibana
 
 - name: Установка filebeat
   hosts: webservers
   become: true
   roles:
     - filebeat
-
-
-- name: Установить Elasticsearch
-  hosts: elasticsearch
-  become: true
-  roles:
-    - elasticsearch
 
 - name: Установка kibana
   hosts: kibana
