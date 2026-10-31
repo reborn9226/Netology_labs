@@ -7,12 +7,28 @@
   poll: 15                             # проверять задачу каждые 15 секунд
   no_log: true
 
-- name: Включить автозапуск и запустить filebeat
-  ansible.builtin.systemd_service:
-    name: filebeat.service
-    daemon_reload: true
-    enabled: true
-    state: started
+
+
+
+- name: Скопировать основную конфигурацию filebeat.yml
+  ansible.builtin.template:
+    src: filebeat.yml.j2
+    dest: /etc/filebeat/filebeat.yml
+    owner: root
+    group: root
+    mode: '0600'
+  notify: restart filebeat
+
+
+- name: Настроить модуль nginx для Filebeat
+  ansible.builtin.template:
+    src: nginx.yml.j2
+    dest: /etc/filebeat/modules.d/nginx.yml
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart filebeat
+
 
 - name: Создать каталог доверенных сертификатов Filebeat
   ansible.builtin.file:
@@ -30,3 +46,20 @@
     group: root
     mode: "0644"
   notify: restart filebeat
+
+
+- name: Проверить конфигурацию Filebeat
+  ansible.builtin.command:
+    argv:
+      - filebeat
+      - test
+      - config
+      - -e
+  changed_when: false      # Проверка конфигурации перед запуском, если ошибка то остановить выполнение для этой ВМ
+
+- name: Включить автозапуск и запустить filebeat
+  ansible.builtin.systemd_service:
+    name: filebeat.service
+    daemon_reload: true
+    enabled: true
+    state: started
