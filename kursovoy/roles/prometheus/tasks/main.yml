@@ -78,12 +78,16 @@
   loop:
     - consoles
     - console_libraries
-    - prometheus.yml
   register: etc_prometheus
 
 - name: Посмотреть содержимое каталога с правами через ls
-  shell: ls -Fla /etc/prometheus
+  command:
+    argv:
+      - ls
+      - -Fla
+      - /etc/prometheus
   register: ls_output
+  changed_when: false
 
 - name: Вывести результат
   debug:
