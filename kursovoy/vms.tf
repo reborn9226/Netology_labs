@@ -9,7 +9,7 @@ resource "yandex_compute_instance" "bastion" {
   name        = "bastion" #Имя ВМ в облачной консоли
   hostname    = "bastion" #формирует FDQN имя хоста, без hostname будет сгенрировано случаное имя.
   platform_id = "standard-v3"
-  zone        = "ru-central1-d" #зона ВМ должна совпадать с зоной subnet!!!
+  zone        = "ru-central1-e" #зона ВМ должна совпадать с зоной subnet!!!
 
   resources {
     cores         = 2
@@ -20,7 +20,7 @@ resource "yandex_compute_instance" "bastion" {
   boot_disk {
     initialize_params {
       image_id = data.yandex_compute_image.ubuntu_2204_lts.image_id
-      type     = "network-hdd"
+      type     = "network-ssd"
       size     = 10
     }
   }
@@ -33,7 +33,7 @@ resource "yandex_compute_instance" "bastion" {
   scheduling_policy { preemptible = true } # Прерываемая виртуальная машина (preemptible) — это виртуальная машина, которая может быть остановлена в любой момент без предупреждения. Такие машины стоят дешевле, чем обычные, но их нельзя использовать для задач, требующих высокой доступности.
 
   network_interface {
-    subnet_id          = yandex_vpc_subnet.public-develop-d.id #зона ВМ должна совпадать с зоной subnet!!!
+    subnet_id          = yandex_vpc_subnet.public-develop-b.id #зона ВМ должна совпадать с зоной subnet!!!
     nat                = true
     security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.bastion.id]
   }
