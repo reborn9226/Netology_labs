@@ -184,10 +184,11 @@ resource "yandex_compute_instance" "vm-elasticsearch" {
   }
 
   network_interface {
-    subnet_id          = yandex_vpc_subnet.private-develop-d.id
-    nat                = false
-    security_group_ids = [yandex_vpc_security_group.LAN.id]
-  }
+  subnet_id = yandex_vpc_subnet.private-develop-d.id
+  nat       = false
+
+  security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.elasticsearch.id]
+}
 }
 
 
