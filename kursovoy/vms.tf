@@ -42,7 +42,7 @@ resource "yandex_compute_instance" "bastion" {
 # Веб сервер web1 зона А, приватная сеть
 resource "yandex_compute_instance" "vm-web-a" {
   name        = "web-a" # Добавляет номер к имени ВМ
-  hostname    = "web-a"  # Добавляет номер к имени хоста
+  hostname    = "web-a" # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-a"
 
@@ -59,19 +59,19 @@ resource "yandex_compute_instance" "vm-web-a" {
       size     = 10
     }
   }
-# Указываем данные авторизации и настройки
+  # Указываем данные авторизации и настройки
   metadata = {
     user-data          = file("./cloud-init.yml")
     serial-port-enable = 1
   }
- # Прерываемая виртуальная машина (preemptible) — это виртуальная машина, которая может быть остановлена в любой момент без предупреждения. Такие машины стоят дешевле, чем обычные, но их нельзя использовать для задач, требующих высокой доступности.
+  # Прерываемая виртуальная машина (preemptible) — это виртуальная машина, которая может быть остановлена в любой момент без предупреждения. Такие машины стоят дешевле, чем обычные, но их нельзя использовать для задач, требующих высокой доступности.
   scheduling_policy {
     preemptible = true
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.private-develop-a.id
-    nat       = false
+    subnet_id          = yandex_vpc_subnet.private-develop-a.id
+    nat                = false
     security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.web_sg.id]
   }
 }
@@ -80,7 +80,7 @@ resource "yandex_compute_instance" "vm-web-a" {
 # Веб сервер web2 зона B, приватная сеть
 resource "yandex_compute_instance" "vm-web-b" {
   name        = "web-b" # Добавляет номер к имени ВМ
-  hostname    = "web-b"  # Добавляет номер к имени хоста
+  hostname    = "web-b" # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-e"
 
@@ -97,7 +97,7 @@ resource "yandex_compute_instance" "vm-web-b" {
       size     = 10
     }
   }
-# Указываем данные авторизации и настройки
+  # Указываем данные авторизации и настройки
   metadata = {
     user-data          = file("./cloud-init.yml")
     serial-port-enable = 1
@@ -108,8 +108,8 @@ resource "yandex_compute_instance" "vm-web-b" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.private-develop-b.id
-    nat       = false
+    subnet_id          = yandex_vpc_subnet.private-develop-b.id
+    nat                = false
     security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.web_sg.id]
   }
 }
@@ -118,7 +118,7 @@ resource "yandex_compute_instance" "vm-web-b" {
 # Prometheus зона B, приватная сеть
 resource "yandex_compute_instance" "vm-prometheus" {
   name        = "prometheus-b" # Добавляет номер к имени ВМ
-  hostname    = "prometheus-b"  # Добавляет номер к имени хоста
+  hostname    = "prometheus-b" # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-e"
 
@@ -135,7 +135,7 @@ resource "yandex_compute_instance" "vm-prometheus" {
       size     = 10
     }
   }
-# Указываем данные авторизации и настройки
+  # Указываем данные авторизации и настройки
   metadata = {
     user-data          = file("./cloud-init.yml")
     serial-port-enable = 1
@@ -146,9 +146,9 @@ resource "yandex_compute_instance" "vm-prometheus" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.private-develop-b.id
-    nat       = false
-    security_group_ids = [yandex_vpc_security_group.LAN.id]
+    subnet_id          = yandex_vpc_subnet.private-develop-b.id
+    nat                = false
+    security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.prometheus.id]
   }
 }
 
@@ -156,7 +156,7 @@ resource "yandex_compute_instance" "vm-prometheus" {
 # Elasticsearch  зона A, приватная сеть
 resource "yandex_compute_instance" "vm-elasticsearch" {
   name        = "elasticsearch-a" # Добавляет номер к имени ВМ
-  hostname    = "elasticsearch-a"  # Добавляет номер к имени хоста
+  hostname    = "elasticsearch-a" # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-d"
 
@@ -173,7 +173,7 @@ resource "yandex_compute_instance" "vm-elasticsearch" {
       size     = 10
     }
   }
-# Указываем данные авторизации и настройки
+  # Указываем данные авторизации и настройки
   metadata = {
     user-data          = file("./cloud-init.yml")
     serial-port-enable = 1
@@ -184,8 +184,8 @@ resource "yandex_compute_instance" "vm-elasticsearch" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.private-develop-d.id
-    nat       = false
+    subnet_id          = yandex_vpc_subnet.private-develop-d.id
+    nat                = false
     security_group_ids = [yandex_vpc_security_group.LAN.id]
   }
 }
@@ -195,7 +195,7 @@ resource "yandex_compute_instance" "vm-elasticsearch" {
 # Grafana  зона A, публичная сеть
 resource "yandex_compute_instance" "vm-grafana" {
   name        = "grafana-a" # Добавляет номер к имени ВМ
-  hostname    = "grafana-a"  # Добавляет номер к имени хоста
+  hostname    = "grafana-a" # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-a"
 
@@ -212,7 +212,7 @@ resource "yandex_compute_instance" "vm-grafana" {
       size     = 10
     }
   }
-# Указываем данные авторизации и настройки
+  # Указываем данные авторизации и настройки
   metadata = {
     user-data          = file("./cloud-init.yml")
     serial-port-enable = 1
@@ -223,8 +223,8 @@ resource "yandex_compute_instance" "vm-grafana" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.public-develop.id
-    nat       = true
+    subnet_id          = yandex_vpc_subnet.public-develop.id
+    nat                = true
     security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.grafana.id]
   }
 }
@@ -233,7 +233,7 @@ resource "yandex_compute_instance" "vm-grafana" {
 # Kibana  зона A, публичная сеть
 resource "yandex_compute_instance" "vm-kibana" {
   name        = "kibana-a" # Добавляет номер к имени ВМ
-  hostname    = "kibana-a"  # Добавляет номер к имени хоста
+  hostname    = "kibana-a" # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-a"
 
@@ -250,7 +250,7 @@ resource "yandex_compute_instance" "vm-kibana" {
       size     = 10
     }
   }
-# Указываем данные авторизации и настройки
+  # Указываем данные авторизации и настройки
   metadata = {
     user-data          = file("./cloud-init.yml")
     serial-port-enable = 1
@@ -261,8 +261,8 @@ resource "yandex_compute_instance" "vm-kibana" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.public-develop.id
-    nat       = true
+    subnet_id          = yandex_vpc_subnet.public-develop.id
+    nat                = true
     security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.kibana.id]
   }
 }
