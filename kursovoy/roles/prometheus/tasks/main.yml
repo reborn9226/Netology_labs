@@ -20,11 +20,14 @@
     path: /tmp/install/
     state: directory
 
-- name: Скачиваем репозиторий
-  get_url:
+- name: Скачать архив Prometheus
+  ansible.builtin.get_url:
     url: https://github.com/prometheus/prometheus/releases/download/v2.53.5/prometheus-2.53.5.linux-amd64.tar.gz
-    dest: /tmp/install/
-    force: no # Повторно не скачивать если есть
+    dest: /tmp/install/prometheus-2.53.5.linux-amd64.tar.gz
+    owner: root
+    group: root
+    mode: "0644"
+    force: false
 
 - name: Распаковка Prometheus
   unarchive:
