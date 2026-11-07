@@ -96,6 +96,15 @@
   debug:
     var: ls_output
 
+- name: Добавляем прослушку Node Exporter
+  template:
+    src: templates/prometheus.yml.j2
+    dest: /etc/prometheus/prometheus.yml
+    mode: '0644'
+    owner: prometheus
+    group: prometheus
+  notify: restart prometheus
+
 - name: Создаем сервис prometheus.service
   template:
     src: templates/prometheus.service.j2
@@ -111,12 +120,3 @@
     enabled: yes
     state: started
     daemon_reload: yes
-
-- name: Добавляем прослушку Node Exporter
-  template:
-    src: templates/prometheus.yml.j2
-    dest: /etc/prometheus/prometheus.yml
-    mode: '0644'
-    owner: prometheus
-    group: prometheus
-  notify: restart prometheus

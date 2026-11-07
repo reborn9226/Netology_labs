@@ -45,9 +45,3 @@
   roles:
     - filebeat
 
-- name: Установка kibana
-  hosts: kibana
-  become: true
-  roles:
-    - kibana
-
