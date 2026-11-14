@@ -20,7 +20,7 @@ resource "yandex_compute_instance" "bastion" {
   boot_disk {
     initialize_params {
       image_id = data.yandex_compute_image.ubuntu_2204_lts.image_id
-      type     = "network-ssd"
+      type     = "network-hdd"
       size     = 10
     }
   }
@@ -55,7 +55,7 @@ resource "yandex_compute_instance" "vm-web-a" {
   boot_disk {
     initialize_params {
       image_id = data.yandex_compute_image.ubuntu_2204_lts.image_id
-      type     = "network-ssd"
+      type     = "network-hdd"
       size     = 10
     }
   }
@@ -77,12 +77,12 @@ resource "yandex_compute_instance" "vm-web-a" {
 }
 
 
-# Веб сервер web2 зона B, приватная сеть
+# Веб сервер web2 зона Е, приватная сеть
 resource "yandex_compute_instance" "vm-web-b" {
   name        = "web-b" # Добавляет номер к имени ВМ
   hostname    = "web-b" # Добавляет номер к имени хоста
   platform_id = "standard-v3"
-  zone        = "ru-central1-e"
+  zone        = "ru-central1-d"
 
   resources {
     cores         = 2
@@ -108,7 +108,7 @@ resource "yandex_compute_instance" "vm-web-b" {
   }
 
   network_interface {
-    subnet_id          = yandex_vpc_subnet.private-develop-b.id
+    subnet_id          = yandex_vpc_subnet.private-develop-d.id
     nat                = false
     security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.web_sg.id]
   }
@@ -117,8 +117,8 @@ resource "yandex_compute_instance" "vm-web-b" {
 
 # Prometheus зона B, приватная сеть
 resource "yandex_compute_instance" "vm-prometheus" {
-  name        = "prometheus-b" # Добавляет номер к имени ВМ
-  hostname    = "prometheus-b" # Добавляет номер к имени хоста
+  name        = "prometheus" # Добавляет номер к имени ВМ
+  hostname    = "prometheus" # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-e"
 
@@ -155,8 +155,8 @@ resource "yandex_compute_instance" "vm-prometheus" {
 
 # Elasticsearch  зона A, приватная сеть
 resource "yandex_compute_instance" "vm-elasticsearch" {
-  name        = "elasticsearch-a" # Добавляет номер к имени ВМ
-  hostname    = "elasticsearch-a" # Добавляет номер к имени хоста
+  name        = "elasticsearch" # Добавляет номер к имени ВМ
+  hostname    = "elasticsearch" # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-d"
 
@@ -184,19 +184,19 @@ resource "yandex_compute_instance" "vm-elasticsearch" {
   }
 
   network_interface {
-  subnet_id = yandex_vpc_subnet.private-develop-d.id
-  nat       = false
+    subnet_id = yandex_vpc_subnet.private-develop-d.id
+    nat       = false
 
-  security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.elasticsearch.id]
-}
+    security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.elasticsearch.id]
+  }
 }
 
 
 
 # Grafana  зона A, публичная сеть
 resource "yandex_compute_instance" "vm-grafana" {
-  name        = "grafana-a" # Добавляет номер к имени ВМ
-  hostname    = "grafana-a" # Добавляет номер к имени хоста
+  name        = "grafana" # Добавляет номер к имени ВМ
+  hostname    = "grafana" # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-a"
 
@@ -233,8 +233,8 @@ resource "yandex_compute_instance" "vm-grafana" {
 
 # Kibana  зона A, публичная сеть
 resource "yandex_compute_instance" "vm-kibana" {
-  name        = "kibana-a" # Добавляет номер к имени ВМ
-  hostname    = "kibana-a" # Добавляет номер к имени хоста
+  name        = "kibana" # Добавляет номер к имени ВМ
+  hostname    = "kibana" # Добавляет номер к имени хоста
   platform_id = "standard-v3"
   zone        = "ru-central1-a"
 
