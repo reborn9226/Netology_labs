@@ -9,34 +9,19 @@
   ],
   "timezone": "browser",
   "schemaVersion": 39,
-  "version": 2,
+  "version": 4,
   "editable": true,
   "time": {
-    "from": "now-1h",
+    "from": "now-30m",
     "to": "now"
   },
-  "refresh": "30s",
+  "refresh": "15s",
   "panels": [
     {
-      "id": 10,
-      "type": "text",
-      "title": "Как читать этот дашборд",
-      "options": {
-        "mode": "markdown",
-        "content": "**U** - занятость ресурса; **S** - давление/очереди; **E** - ошибки.\n\nВыбор IP применяется к обоим экспортерам: Node Exporter `:9100`, Nginx Log Exporter `:9113`. Источник - `prometheus`, jobs - `node_exporter` и `nginx_exporter_log`.\n\n**No data не означает 0 ошибок.** Если PSI, OOM, скорость интерфейса или файловая статистика не экспортируются, надо проверить `/metrics` и доступность соответствующего collector. Не подменять отсутствующие данные нулями. Rates используют окно **5 минут**; после установки нужно накопить несколько scrape.\n\nПороги пробные, зависят от нагрузки. Потери сетевых пакетов - симптом, но не доказательство насыщения. Аппаратные ошибки CPU/RAM и физического диска облачный гипервизор может не отдавать. Нулевые OOM/ошибки ФС не доказывают исправность всей аппаратуры."
-      },
-      "gridPos": {
-        "x": 0,
-        "y": 0,
-        "w": 24,
-        "h": 6
-      }
-    },
-    {
-      "id": 11,
+      "id": 100,
       "type": "stat",
-      "title": "Доступность экспортёров (1 = UP, 0 = DOWN)",
-      "description": "Последний результат scrape. Исчезнувший из конфигурации target не создает серию up=0: сверяй число источников с ожидаемым. При выборе All ожидаются четыре серии - два экспортёра на двух web-ВМ.",
+      "title": "Статус экспортеров (Node Exporter :9100 и Nginx Log Exporter :9113)",
+      "description": "Текущий успешный scrape: 1 UP, 0 DOWN.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -44,10 +29,8 @@
       "targets": [
         {
           "expr": "up{job=~\"node_exporter|nginx_exporter_log\",instance=~\"${host:regex}:[0-9]+\"}",
-          "legendFormat": "{{job}} / {{instance}}",
+          "legendFormat": "{{job}} ({{instance}})",
           "refId": "A",
-          "range": false,
-          "editorMode": "code",
           "instant": true
         }
       ],
@@ -83,7 +66,8 @@
                 }
               }
             }
-          ]
+          ],
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
@@ -101,16 +85,148 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 6,
-        "w": 24,
-        "h": 4
+        "y": 0,
+        "w": 12,
+        "h": 3
+      }
+    },
+    {
+      "id": 101,
+      "type": "stat",
+      "title": "Сбор MCE: состояние коллектора perf",
+      "description": "1 = perf успешно опрошен, 0 = сбор неуспешен/нет данных коллектора. Отсутствующий ряд - No data, не здоровый ноль. Проверять вместе с доступностью экспортера.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "node_scrape_collector_success{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",collector=\"perf\"}",
+          "legendFormat": "{{instance}} perf",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "FAIL / NO DATA",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "OK",
+                  "color": "green"
+                }
+              }
+            }
+          ],
+          "noValue": "Нет данных"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 3
+      }
+    },
+    {
+      "id": 102,
+      "type": "stat",
+      "title": "MCE - накопленный счетчик",
+      "description": "Текущая сумма MCE по vCPU. Сбрасывается при перезапуске Node Exporter, это не счетчик за все время жизни ВМ. При отказе perf или scrape не подставляется ноль.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (instance) (node_perf_mce_mce_record{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\"}) and on(instance) (node_scrape_collector_success{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",collector=\"perf\"} == 1) and on(instance) (up{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\"} == 1)",
+          "legendFormat": "{{instance}} MCE total",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1e-06
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "Нет данных",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 0,
+        "w": 6,
+        "h": 3
       }
     },
     {
       "id": 1,
       "type": "timeseries",
-      "title": "CPU · U - использование (%)",
-      "description": "Доля времени не в idle, усредненная по vCPU. Это не аппаратные ошибки CPU.",
+      "title": "CPU · U - Утилизация процессора (%)",
+      "description": "Не-idle время vCPU: формула включает iowait и steal. Для интерпретации сравнивать с PSI и отдельным steal. Пороги 70/85 % - учебные ориентиры, не универсальная норма.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -119,6 +235,7 @@
         "defaults": {
           "unit": "percent",
           "min": 0,
+          "max": 100,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -132,7 +249,7 @@
               },
               {
                 "color": "red",
-                "value": 90
+                "value": 85
               }
             ]
           },
@@ -142,25 +259,23 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
+            "lineWidth": 2,
+            "fillOpacity": 10,
             "showPoints": "never",
-            "spanNulls": false,
             "thresholdsStyle": {
               "mode": "line"
-            }
+            },
+            "spanNulls": false
           },
-          "max": 100
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
       "targets": [
         {
-          "expr": "100 - 100 * avg by (instance) (rate(node_cpu_seconds_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",mode=\"idle\"}[5m]))",
+          "expr": "100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",mode=\"idle\"}[5m])))",
           "legendFormat": "{{instance}}",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
+          "refId": "A"
         }
       ],
       "options": {
@@ -180,16 +295,16 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 10,
-        "w": 12,
+        "y": 3,
+        "w": 8,
         "h": 8
       }
     },
     {
       "id": 2,
       "type": "timeseries",
-      "title": "CPU · S - Load1 на vCPU (приближение)",
-      "description": "Load включает задачи, ожидающие CPU, и непрерываемое ожидание I/O. Это не чистая длина CPU run queue. Пороги 1/2 ориентировочные.",
+      "title": "CPU · S - Load1 на vCPU (косвенный показатель)",
+      "description": "Load1 / число vCPU. Linux Load включает выполняющиеся/готовые задачи и непрерываемое ожидание, часто I/O. Это не чистая длина очереди CPU. Сопоставлять с CPU PSI.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -207,11 +322,11 @@
               },
               {
                 "color": "yellow",
-                "value": 1
+                "value": 0.8
               },
               {
                 "color": "red",
-                "value": 2
+                "value": 1.5
               }
             ]
           },
@@ -221,24 +336,23 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
+            "lineWidth": 2,
+            "fillOpacity": 10,
             "showPoints": "never",
-            "spanNulls": false,
             "thresholdsStyle": {
               "mode": "line"
-            }
-          }
+            },
+            "spanNulls": false
+          },
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
       "targets": [
         {
           "expr": "node_load1{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\"} / on(instance) count by (instance) (node_cpu_seconds_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",mode=\"idle\"})",
-          "legendFormat": "{{instance}}",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
+          "legendFormat": "{{instance}} (Load1/vCPU)",
+          "refId": "A"
         }
       ],
       "options": {
@@ -257,17 +371,169 @@
         }
       },
       "gridPos": {
-        "x": 12,
-        "y": 10,
-        "w": 12,
+        "x": 8,
+        "y": 3,
+        "w": 8,
         "h": 8
       }
     },
     {
-      "id": 12,
+      "id": 3,
+      "type": "timeseries",
+      "title": "CPU · E - события Machine Check за 5 минут",
+      "description": "События mce:mce_record, доступные гостевой ОС, сумма по vCPU. Это не CPU Steal и не полный контроль аппаратуры гипервизора. MCE может относиться также к кэшу/памяти. increase учитывает сброс счетчика и может давать дробное значение из-за экстраполяции. При отказе perf или scrape график не подменяется нулем.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1e-06
+              }
+            ]
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "thresholdsStyle": {
+              "mode": "line"
+            },
+            "spanNulls": false
+          },
+          "decimals": 2,
+          "noValue": "Нет данных"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum by (instance) (increase(node_perf_mce_mce_record{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\"}[5m])) and on(instance) (node_scrape_collector_success{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",collector=\"perf\"} == 1) and on(instance) (up{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\"} == 1)",
+          "legendFormat": "{{instance}} MCE / 5 мин",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 3,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
+      "id": 16,
+      "type": "timeseries",
+      "title": "CPU - Steal: ожидание гипервизора (%)",
+      "description": "Доля времени steal. Полезный показатель недополученного процессорного времени, но не аппаратные ошибки CPU. Пороги 5/15 % - ориентиры, core_fraction=20 не означает автоматический отказ.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 15
+              }
+            ]
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "thresholdsStyle": {
+              "mode": "line"
+            },
+            "spanNulls": false
+          },
+          "max": 100,
+          "noValue": "Нет данных"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "100 * avg by (instance) (rate(node_cpu_seconds_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",mode=\"steal\"}[5m]))",
+          "legendFormat": "{{instance}} steal",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 11,
+        "w": 12,
+        "h": 7
+      }
+    },
+    {
+      "id": 17,
       "type": "timeseries",
       "title": "CPU · S - PSI: ожидание CPU (%)",
-      "description": "Доля времени, когда хотя бы одна задача ожидала CPU. Требуются /proc/pressure/cpu и collector pressure. No data означает отсутствие наблюдения, не отсутствие ожидания.",
+      "description": "Доля времени CPU some stall, если поддерживаются PSI ядра и pressure collector. Отсутствующие метрики не подменяются нулем.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -299,25 +565,24 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
+            "lineWidth": 2,
+            "fillOpacity": 10,
             "showPoints": "never",
-            "spanNulls": false,
             "thresholdsStyle": {
               "mode": "line"
-            }
+            },
+            "spanNulls": false
           },
-          "max": 100
+          "max": 100,
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
       "targets": [
         {
           "expr": "100 * rate(node_pressure_cpu_waiting_seconds_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\"}[5m])",
-          "legendFormat": "{{instance}}",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
+          "legendFormat": "{{instance}} CPU PSI",
+          "refId": "A"
         }
       ],
       "options": {
@@ -336,32 +601,17 @@
         }
       },
       "gridPos": {
-        "x": 0,
-        "y": 18,
-        "w": 12,
-        "h": 8
-      }
-    },
-    {
-      "id": 22,
-      "type": "text",
-      "title": "CPU · E - аппаратные ошибки: ограничение ВМ",
-      "options": {
-        "mode": "markdown",
-        "content": "Стандартный Node Exporter на этой облачной ВМ не гарантирует счетчик аппаратных ошибок CPU.\n\n**N/A ≠ 0.** PSI, Load и CPU steal - не аппаратные ошибки. Для полноценного E нужны доступные платформенные RAS/MCE/EDAC-данные или журнал ядра."
-      },
-      "gridPos": {
         "x": 12,
-        "y": 18,
+        "y": 11,
         "w": 12,
-        "h": 8
+        "h": 7
       }
     },
     {
-      "id": 3,
+      "id": 4,
       "type": "timeseries",
-      "title": "RAM · U - использование (%)",
-      "description": "Используется MemAvailable, чтобы не считать весь файловый кеш безвозвратно занятой памятью.",
+      "title": "RAM · U - Использование памяти (%)",
+      "description": "Расчет через MemAvailable (учитывает освобождаемый страничный кэш ОС). Пороги: 75% (Warning), 90% (Critical).",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -370,6 +620,7 @@
         "defaults": {
           "unit": "percent",
           "min": 0,
+          "max": 100,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -379,7 +630,7 @@
               },
               {
                 "color": "yellow",
-                "value": 70
+                "value": 75
               },
               {
                 "color": "red",
@@ -393,15 +644,15 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
+            "lineWidth": 2,
+            "fillOpacity": 10,
             "showPoints": "never",
-            "spanNulls": false,
             "thresholdsStyle": {
               "mode": "line"
-            }
+            },
+            "spanNulls": false
           },
-          "max": 100
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
@@ -409,9 +660,7 @@
         {
           "expr": "100 * (1 - node_memory_MemAvailable_bytes{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\"} / node_memory_MemTotal_bytes{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\"})",
           "legendFormat": "{{instance}}",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
+          "refId": "A"
         }
       ],
       "options": {
@@ -431,16 +680,16 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 26,
-        "w": 12,
+        "y": 18,
+        "w": 8,
         "h": 8
       }
     },
     {
-      "id": 13,
+      "id": 5,
       "type": "timeseries",
       "title": "RAM · S - PSI: ожидание памяти (%)",
-      "description": "Доля времени, когда хотя бы одна задача задерживалась из-за давления на память. Требуются kernel PSI и collector pressure.",
+      "description": "Доля времени memory some stall по PSI. Только проценты, swap вынесен в отдельную панель. Пороги 5/20 % - ориентиры.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -472,25 +721,23 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
+            "lineWidth": 2,
+            "fillOpacity": 10,
             "showPoints": "never",
-            "spanNulls": false,
             "thresholdsStyle": {
               "mode": "line"
-            }
+            },
+            "spanNulls": false
           },
-          "max": 100
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
       "targets": [
         {
           "expr": "100 * rate(node_pressure_memory_waiting_seconds_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\"}[5m])",
-          "legendFormat": "{{instance}}",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
+          "legendFormat": "{{instance}} PSI wait (%)",
+          "refId": "A"
         }
       ],
       "options": {
@@ -509,17 +756,17 @@
         }
       },
       "gridPos": {
-        "x": 12,
-        "y": 26,
-        "w": 12,
+        "x": 8,
+        "y": 18,
+        "w": 8,
         "h": 8
       }
     },
     {
-      "id": 14,
+      "id": 6,
       "type": "timeseries",
-      "title": "RAM · S — swap in/out (страниц/с)",
-      "description": "Активность swap - дополнительный симптом давления, не точная длина очереди. При отсутствии swap нулевые значения нормальны; отсутствие серии не равно нулю.",
+      "title": "RAM · E - Срабатывания OOM Killer (за 5 мин)",
+      "description": "Число OOM kills за 5 минут: ошибка нехватки памяти на уровне ОС, не аппаратная ошибка RAM/ECC. increase может быть дробным. Положительное значение выделяется красным.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -527,6 +774,79 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1e-06
+              }
+            ]
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "thresholdsStyle": {
+              "mode": "line"
+            },
+            "spanNulls": false
+          },
+          "noValue": "Нет данных"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "increase(node_vmstat_oom_kill{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\"}[5m])",
+          "legendFormat": "{{instance}} OOM kills",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 18,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
+      "id": 19,
+      "type": "timeseries",
+      "title": "RAM · S - swap in/out (страниц/с)",
+      "description": "Две линии подкачки страниц: pswpin и pswpout. Это страницы/с, не проценты PSI и не байты/с. Ненулевой swap сам по себе не равен аварии.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix: страниц/с",
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -543,14 +863,15 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
+            "lineWidth": 2,
+            "fillOpacity": 10,
             "showPoints": "never",
-            "spanNulls": false,
             "thresholdsStyle": {
               "mode": "line"
-            }
-          }
+            },
+            "spanNulls": false
+          },
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
@@ -558,16 +879,12 @@
         {
           "expr": "rate(node_vmstat_pswpin{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\"}[5m])",
           "legendFormat": "{{instance}} swap in",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
+          "refId": "A"
         },
         {
           "expr": "rate(node_vmstat_pswpout{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\"}[5m])",
           "legendFormat": "{{instance}} swap out",
-          "refId": "B",
-          "range": true,
-          "editorMode": "code"
+          "refId": "B"
         }
       ],
       "options": {
@@ -587,94 +904,16 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 34,
-        "w": 12,
-        "h": 8
+        "y": 26,
+        "w": 24,
+        "h": 6
       }
     },
     {
-      "id": 15,
+      "id": 7,
       "type": "timeseries",
-      "title": "RAM · E - OOM kills за 5 минут",
-      "description": "Убийства процессов OOM killer. Это ошибки нехватки памяти на уровне ОС. Доступность node_vmstat_oom_kill зависит от ядра/collector; increase может давать дробное значение из-за экстраполяции.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 1
-              },
-              {
-                "color": "red",
-                "value": 5
-              }
-            ]
-          },
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
-            "showPoints": "never",
-            "spanNulls": false,
-            "thresholdsStyle": {
-              "mode": "line"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "expr": "increase(node_vmstat_oom_kill{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\"}[5m])",
-          "legendFormat": "{{instance}}",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
-        }
-      ],
-      "options": {
-        "legend": {
-          "showLegend": true,
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "lastNotNull",
-            "max"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "gridPos": {
-        "x": 12,
-        "y": 34,
-        "w": 12,
-        "h": 8
-      }
-    },
-    {
-      "id": 4,
-      "type": "timeseries",
-      "title": "Диски · U - заполнение корневой ФС (%)",
-      "description": "Заполнение файловой системы - емкость, не занятость диска I/O. Отдельная панель ниже показывает I/O utilization.",
+      "title": "Диски · U - Заполнение ФС (%) и занятость I/O (%)",
+      "description": "Утилизация емкости корневого раздела (/) и доля времени активности дисковой подсистемы. Пороги: 70% (Warning), 85% (Critical).",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -683,6 +922,7 @@
         "defaults": {
           "unit": "percent",
           "min": 0,
+          "max": 100,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -696,7 +936,7 @@
               },
               {
                 "color": "red",
-                "value": 90
+                "value": 85
               }
             ]
           },
@@ -706,25 +946,28 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
+            "lineWidth": 2,
+            "fillOpacity": 10,
             "showPoints": "never",
-            "spanNulls": false,
             "thresholdsStyle": {
               "mode": "line"
-            }
+            },
+            "spanNulls": false
           },
-          "max": 100
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
       "targets": [
         {
           "expr": "100 * (1 - node_filesystem_avail_bytes{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",mountpoint=\"/\",fstype!~\"tmpfs|overlay|squashfs\"} / node_filesystem_size_bytes{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",mountpoint=\"/\",fstype!~\"tmpfs|overlay|squashfs\"})",
-          "legendFormat": "{{instance}} {{device}}",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
+          "legendFormat": "{{instance}} FS / used (%)",
+          "refId": "A"
+        },
+        {
+          "expr": "100 * rate(node_disk_io_time_seconds_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"loop.*|ram.*|fd.*|sr.*\"}[5m])",
+          "legendFormat": "{{instance}} ({{device}}) I/O busy (%)",
+          "refId": "B"
         }
       ],
       "options": {
@@ -744,95 +987,16 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 42,
-        "w": 12,
+        "y": 32,
+        "w": 8,
         "h": 8
       }
     },
     {
-      "id": 5,
+      "id": 8,
       "type": "timeseries",
-      "title": "Диски · U - занятость I/O (%)",
-      "description": "Время занятости I/O не равно очереди; 100% на параллельном устройстве не обязательно означает исчерпание производительности.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 90
-              }
-            ]
-          },
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
-            "showPoints": "never",
-            "spanNulls": false,
-            "thresholdsStyle": {
-              "mode": "line"
-            }
-          },
-          "max": 100
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "expr": "100 * rate(node_disk_io_time_seconds_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"loop.*|ram.*|fd.*|sr.*\"}[5m])",
-          "legendFormat": "{{instance}} {{device}}",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
-        }
-      ],
-      "options": {
-        "legend": {
-          "showLegend": true,
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "lastNotNull",
-            "max"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "gridPos": {
-        "x": 12,
-        "y": 42,
-        "w": 12,
-        "h": 8
-      }
-    },
-    {
-      "id": 16,
-      "type": "timeseries",
-      "title": "Диски · S - среднее число I/O в работе и очереди",
-      "description": "rate(weighted I/O time) оценивает среднее число незавершённых операций, включая обслуживаемые и ожидающие. Это НЕ время ожидания в секундах и НЕ чистая длина очереди. Ориентиры 1/5 не универсальны для SSD и многоканальных устройств.",
+      "title": "Диски · S - I/O в работе и очереди",
+      "description": "rate взвешенного времени I/O: среднее число незавершенных операций, включая обслуживание и ожидание. Это не исключительно длина очереди. Пороги 1/5 зависят от устройства и нагрузки.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -864,24 +1028,23 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
+            "lineWidth": 2,
+            "fillOpacity": 10,
             "showPoints": "never",
-            "spanNulls": false,
             "thresholdsStyle": {
               "mode": "line"
-            }
-          }
+            },
+            "spanNulls": false
+          },
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
       "targets": [
         {
           "expr": "rate(node_disk_io_time_weighted_seconds_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"loop.*|ram.*|fd.*|sr.*\"}[5m])",
-          "legendFormat": "{{instance}} {{device}}",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
+          "legendFormat": "{{instance}} ({{device}})",
+          "refId": "A"
         }
       ],
       "options": {
@@ -900,17 +1063,17 @@
         }
       },
       "gridPos": {
-        "x": 0,
-        "y": 50,
-        "w": 12,
+        "x": 8,
+        "y": 32,
+        "w": 8,
         "h": 8
       }
     },
     {
-      "id": 17,
+      "id": 9,
       "type": "timeseries",
-      "title": "Диски · E - ошибка получения статистики ФС",
-      "description": "node_filesystem_device_error: 1 - collector не смог получить статистику. Это НЕ полный счетчик аппаратных ошибок диска. Надо проверять журналы ядра отдельно.",
+      "title": "Диски · E - статистика ФС и режим read-only",
+      "description": "device_error - ошибка получения статистики ФС экспортером, не счетчик ошибок дискового I/O. readonly - текущее состояние, которое может быть задано намеренно, не доказательство аварийного перемонтирования.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -919,6 +1082,7 @@
         "defaults": {
           "unit": "short",
           "min": 0,
+          "max": 1,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -937,101 +1101,29 @@
           },
           "custom": {
             "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 10,
             "showPoints": "never",
-            "spanNulls": false,
             "thresholdsStyle": {
               "mode": "line"
-            }
+            },
+            "spanNulls": false
           },
-          "max": 1
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
       "targets": [
         {
           "expr": "node_filesystem_device_error{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",mountpoint=\"/\"}",
-          "legendFormat": "{{instance}} {{device}} {{device_error}}",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
-        }
-      ],
-      "options": {
-        "legend": {
-          "showLegend": true,
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "lastNotNull",
-            "max"
-          ]
+          "legendFormat": "{{instance}} device_error",
+          "refId": "A"
         },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "gridPos": {
-        "x": 12,
-        "y": 50,
-        "w": 12,
-        "h": 8
-      }
-    },
-    {
-      "id": 18,
-      "type": "timeseries",
-      "title": "Диски · E - корневая ФС только для чтения",
-      "description": "1 - корневая ФС read-only, 0 — read-write. Read-only может быть намеренным, а не следствием ошибки: проверь настройки и журнал ядра.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          },
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
-            "showPoints": "never",
-            "spanNulls": false,
-            "thresholdsStyle": {
-              "mode": "line"
-            }
-          },
-          "max": 1
-        },
-        "overrides": []
-      },
-      "targets": [
         {
           "expr": "node_filesystem_readonly{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",mountpoint=\"/\",fstype!~\"tmpfs|overlay|squashfs\"}",
-          "legendFormat": "{{instance}} {{device}}",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
+          "legendFormat": "{{instance}} read_only",
+          "refId": "B"
         }
       ],
       "options": {
@@ -1050,17 +1142,17 @@
         }
       },
       "gridPos": {
-        "x": 0,
-        "y": 58,
-        "w": 12,
+        "x": 16,
+        "y": 32,
+        "w": 8,
         "h": 8
       }
     },
     {
-      "id": 19,
+      "id": 10,
       "type": "timeseries",
-      "title": "Сеть · U - прием/передача (байт/с)",
-      "description": "Пропускная активность каждого интерфейса, отдельно RX/TX. Без достоверной скорости интерфейса это не процент использования канала.",
+      "title": "Сеть · U - интенсивность RX/TX (байт/с)",
+      "description": "Входящий/исходящий трафик отдельно по интерфейсам. Это интенсивность, а не процент занятой полосы. Неизвестная скорость виртуальной NIC не заменяется выдуманным лимитом. Порогов без подтвержденной емкости нет.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1084,14 +1176,15 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
+            "lineWidth": 2,
+            "fillOpacity": 10,
             "showPoints": "never",
-            "spanNulls": false,
             "thresholdsStyle": {
               "mode": "line"
-            }
-          }
+            },
+            "spanNulls": false
+          },
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
@@ -1099,101 +1192,12 @@
         {
           "expr": "rate(node_network_receive_bytes_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"lo|veth.*|docker.*|br-.*\"}[5m])",
           "legendFormat": "{{instance}} {{device}} RX",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
+          "refId": "A"
         },
         {
           "expr": "rate(node_network_transmit_bytes_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"lo|veth.*|docker.*|br-.*\"}[5m])",
           "legendFormat": "{{instance}} {{device}} TX",
-          "refId": "B",
-          "range": true,
-          "editorMode": "code"
-        }
-      ],
-      "options": {
-        "legend": {
-          "showLegend": true,
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "lastNotNull",
-            "max"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "gridPos": {
-        "x": 12,
-        "y": 58,
-        "w": 12,
-        "h": 8
-      }
-    },
-    {
-      "id": 20,
-      "type": "timeseries",
-      "title": "Сеть · U - RX/TX от заявленной скорости (%)",
-      "description": "RX/TX делятся отдельно на node_network_speed_bytes. Интерфейсы с неизвестной или нулевой скоростью исключены. Виртуальная NIC может сообщать скорость, не совпадающую с квотой Yandex Cloud; тогда ориентируйтесь на байт/с и документированную квоту, не на этот процент.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 90
-              }
-            ]
-          },
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
-            "showPoints": "never",
-            "spanNulls": false,
-            "thresholdsStyle": {
-              "mode": "line"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "expr": "100 * rate(node_network_receive_bytes_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"lo|veth.*|docker.*|br-.*\"}[5m]) / (node_network_speed_bytes{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"lo|veth.*|docker.*|br-.*\"} > 0)",
-          "legendFormat": "{{instance}} {{device}} RX",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
-        },
-        {
-          "expr": "100 * rate(node_network_transmit_bytes_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"lo|veth.*|docker.*|br-.*\"}[5m]) / (node_network_speed_bytes{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"lo|veth.*|docker.*|br-.*\"} > 0)",
-          "legendFormat": "{{instance}} {{device}} TX",
-          "refId": "B",
-          "range": true,
-          "editorMode": "code"
+          "refId": "B"
         }
       ],
       "options": {
@@ -1213,23 +1217,23 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 66,
-        "w": 12,
+        "y": 40,
+        "w": 8,
         "h": 8
       }
     },
     {
-      "id": 6,
+      "id": 11,
       "type": "timeseries",
-      "title": "Сеть · E - ошибки RX/TX (в секунду)",
-      "description": "Ошибки интерфейса отделены от drops. Порог - ориентир, а не допустимый бюджет ошибок.",
+      "title": "Сеть - отброшенные пакеты RX/TX (пакетов/с)",
+      "description": "Счетчики отброшенных пакетов интерфейса. Причины бывают разные, это не доказательство переполнения конкретной очереди. Для дополнительного наблюдения за сетевым стеком есть отдельная панель softnet.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "pps",
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -1239,8 +1243,12 @@
                 "value": null
               },
               {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
                 "color": "red",
-                "value": 0.01
+                "value": 5
               }
             ]
           },
@@ -1250,31 +1258,28 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
+            "lineWidth": 2,
+            "fillOpacity": 10,
             "showPoints": "never",
-            "spanNulls": false,
             "thresholdsStyle": {
               "mode": "line"
-            }
-          }
+            },
+            "spanNulls": false
+          },
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
       "targets": [
         {
-          "expr": "rate(node_network_receive_errs_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"lo|veth.*|docker.*|br-.*\"}[5m])",
-          "legendFormat": "{{instance}} {{device}} RX errors",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
+          "expr": "rate(node_network_receive_drop_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"lo|veth.*|docker.*|br-.*\"}[5m])",
+          "legendFormat": "{{instance}} {{device}} RX drops",
+          "refId": "A"
         },
         {
-          "expr": "rate(node_network_transmit_errs_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"lo|veth.*|docker.*|br-.*\"}[5m])",
-          "legendFormat": "{{instance}} {{device}} TX errors",
-          "refId": "B",
-          "range": true,
-          "editorMode": "code"
+          "expr": "rate(node_network_transmit_drop_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"lo|veth.*|docker.*|br-.*\"}[5m])",
+          "legendFormat": "{{instance}} {{device}} TX drops",
+          "refId": "B"
         }
       ],
       "options": {
@@ -1293,17 +1298,17 @@
         }
       },
       "gridPos": {
-        "x": 12,
-        "y": 66,
-        "w": 12,
+        "x": 8,
+        "y": 40,
+        "w": 8,
         "h": 8
       }
     },
     {
-      "id": 21,
+      "id": 12,
       "type": "timeseries",
-      "title": "Сеть · S/E - потери RX/TX (пакетов/с)",
-      "description": "Drops могут сопровождать перегрузку/переполнение очередей, но имеют и другие причины. Эта панель не измеряет напрямую длину сетевой очереди и не доказывает насыщение канала.",
+      "title": "Сеть · E - Ошибки интерфейсов RX/TX (errors/s)",
+      "description": "Ошибки приема и передачи кадров на сетевых интерфейсах. Пороги: 0.1 ош/с (Warning), 1 ош/с (Critical).",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1335,31 +1340,102 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
+            "lineWidth": 2,
+            "fillOpacity": 10,
             "showPoints": "never",
-            "spanNulls": false,
             "thresholdsStyle": {
               "mode": "line"
-            }
-          }
+            },
+            "spanNulls": false
+          },
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
       "targets": [
         {
-          "expr": "rate(node_network_receive_drop_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"lo|veth.*|docker.*|br-.*\"}[5m])",
-          "legendFormat": "{{instance}} {{device}} RX drops",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
+          "expr": "rate(node_network_receive_errs_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"lo|veth.*|docker.*|br-.*\"}[5m])",
+          "legendFormat": "{{instance}} {{device}} RX errs",
+          "refId": "A"
         },
         {
-          "expr": "rate(node_network_transmit_drop_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"lo|veth.*|docker.*|br-.*\"}[5m])",
-          "legendFormat": "{{instance}} {{device}} TX drops",
-          "refId": "B",
-          "range": true,
-          "editorMode": "code"
+          "expr": "rate(node_network_transmit_errs_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\",device!~\"lo|veth.*|docker.*|br-.*\"}[5m])",
+          "legendFormat": "{{instance}} {{device}} TX errs",
+          "refId": "B"
+        }
+      ],
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 40,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
+      "id": 20,
+      "type": "timeseries",
+      "title": "Сеть · S - softnet: drops и исчерпание бюджета (событий/с)",
+      "description": "softnet dropped - потери при обработке входящих пакетов, times_squeezed - случаи исчерпания бюджета/времени обработки. Сумма по CPU. Это признаки давления на сетевой стек, не универсальная длина очереди и не измерение внешнего канала. При недоступном softnet будет No data.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix: событий/с",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "thresholdsStyle": {
+              "mode": "line"
+            },
+            "spanNulls": false
+          },
+          "noValue": "Нет данных"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum by (instance) (rate(node_softnet_dropped_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\"}[5m]))",
+          "legendFormat": "{{instance}} softnet drops",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by (instance) (rate(node_softnet_times_squeezed_total{job=\"node_exporter\",instance=~\"${host:regex}:[0-9]+\"}[5m]))",
+          "legendFormat": "{{instance}} budget/time squeeze",
+          "refId": "B"
         }
       ],
       "options": {
@@ -1379,16 +1455,16 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 74,
-        "w": 12,
-        "h": 8
+        "y": 48,
+        "w": 24,
+        "h": 7
       }
     },
     {
-      "id": 7,
+      "id": 13,
       "type": "timeseries",
-      "title": "Nginx - запросы в секунду по серверам",
-      "description": "Сохранен счетчик response_count_total, но агрегация теперь по instance: видно оба web-сервера, а не только общую сумму.",
+      "title": "Nginx - http_response_count_total (Запросы/с)",
+      "description": "Частота HTTP-ответов по серверам и статусам. Для namespace nginx используется точное имя nginx_http_response_count_total. Высокий RPS сам по себе не ошибка: произвольные пороги убраны.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1412,24 +1488,23 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
+            "lineWidth": 2,
+            "fillOpacity": 10,
             "showPoints": "never",
-            "spanNulls": false,
             "thresholdsStyle": {
               "mode": "line"
-            }
-          }
+            },
+            "spanNulls": false
+          },
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
       "targets": [
         {
-          "expr": "sum by (instance) (rate(nginx_http_response_count_total{job=\"nginx_exporter_log\",instance=~\"${host:regex}:[0-9]+\"}[5m]))",
-          "legendFormat": "{{instance}}",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
+          "expr": "sum by (instance, status) (rate(nginx_http_response_count_total{job=\"nginx_exporter_log\",instance=~\"${host:regex}:[0-9]+\"}[5m]))",
+          "legendFormat": "{{instance}} [HTTP {{status}}]",
+          "refId": "A"
         }
       ],
       "options": {
@@ -1448,17 +1523,17 @@
         }
       },
       "gridPos": {
-        "x": 12,
-        "y": 74,
-        "w": 12,
+        "x": 0,
+        "y": 55,
+        "w": 8,
         "h": 8
       }
     },
     {
-      "id": 8,
+      "id": 14,
       "type": "timeseries",
-      "title": "Nginx - ответы 4xx/5xx (в секунду)",
-      "description": "HTTP 404 учитывается здесь как ответ 4xx, но это не доказывает попадание события в Nginx error.log или Kibana. Группировка по серверу и HTTP-коду.",
+      "title": "Nginx - Ошибки 4xx/5xx (http_response_count_total)",
+      "description": "Частота клиентских (4xx) и серверных (5xx) ошибок HTTP. Пороги: 1 req/s (Warning), 5 req/s (Critical).",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1480,7 +1555,7 @@
               },
               {
                 "color": "red",
-                "value": 10
+                "value": 5
               }
             ]
           },
@@ -1490,14 +1565,15 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
+            "lineWidth": 2,
+            "fillOpacity": 10,
             "showPoints": "never",
-            "spanNulls": false,
             "thresholdsStyle": {
               "mode": "line"
-            }
-          }
+            },
+            "spanNulls": false
+          },
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
@@ -1505,9 +1581,7 @@
         {
           "expr": "sum by (instance, status) (rate(nginx_http_response_count_total{job=\"nginx_exporter_log\",instance=~\"${host:regex}:[0-9]+\",status=~\"4..|5..\"}[5m]))",
           "legendFormat": "{{instance}} HTTP {{status}}",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
+          "refId": "A"
         }
       ],
       "options": {
@@ -1526,17 +1600,17 @@
         }
       },
       "gridPos": {
-        "x": 0,
-        "y": 82,
-        "w": 12,
+        "x": 8,
+        "y": 55,
+        "w": 8,
         "h": 8
       }
     },
     {
-      "id": 9,
+      "id": 15,
       "type": "timeseries",
-      "title": "Nginx - передано клиентам (байт/с)",
-      "description": "В prometheus-nginxlog-exporter 1.9.2 http_response_size_bytes - Counter, не Summary. Имя сохранено без _sum; rate показывает байт/с. Значение основано на body_bytes_sent в access.log.",
+      "title": "Nginx - http_response_size_bytes (Отдано байт/с)",
+      "description": "Скорость суммарного body_bytes_sent из Nginx access.log. nginx_http_response_size_bytes - counter, поэтому применяется rate без выдуманных суффиксов _sum/_count. Порогов без профиля нагрузки нет.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1560,14 +1634,15 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "fillOpacity": 8,
+            "lineWidth": 2,
+            "fillOpacity": 10,
             "showPoints": "never",
-            "spanNulls": false,
             "thresholdsStyle": {
               "mode": "line"
-            }
-          }
+            },
+            "spanNulls": false
+          },
+          "noValue": "Нет данных"
         },
         "overrides": []
       },
@@ -1575,9 +1650,7 @@
         {
           "expr": "sum by (instance) (rate(nginx_http_response_size_bytes{job=\"nginx_exporter_log\",instance=~\"${host:regex}:[0-9]+\"}[5m]))",
           "legendFormat": "{{instance}}",
-          "refId": "A",
-          "range": true,
-          "editorMode": "code"
+          "refId": "A"
         }
       ],
       "options": {
@@ -1596,14 +1669,28 @@
         }
       },
       "gridPos": {
-        "x": 12,
-        "y": 82,
-        "w": 12,
+        "x": 16,
+        "y": 55,
+        "w": 8,
         "h": 8
+      }
+    },
+    {
+      "id": 18,
+      "type": "text",
+      "title": "Как читать результаты и ограничения",
+      "options": {
+        "mode": "markdown",
+        "content": "**Ноль не равен No data.** Отсутствующие метрики не заменяются нулем. MCE - наблюдаемые события гостевой ОС, а не полный контроль физического хоста. Счетчик начинается заново при рестарте экспортера, increase учитывает видимые сбросы. История до старта сбора не восстанавливается.\n\nUSE-показатели имеют границы: Load включает I/O-ожидание, OOM не является ECC, device_error не является ошибкой дискового I/O, read-only может быть намеренным. Сетевой трафик без подтвержденного лимита показан в байтах/с, softnet - давление на сетевой стек. Пороги служат примереными ориентирами.\n\n Выбор хоста рассчитан на IPv4 inventory и одинаковые IP в instance у портов 9100 и 9113."
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 63,
+        "w": 24,
+        "h": 7
       }
     }
   ],
-  "description": "USE-дашборд: два web-сервера, Node Exporter и Nginx Log Exporter. Недоступные метрики не заменяются нулями. Пороги ориентировочные.",
   "templating": {
     "list": [
       {
@@ -1630,10 +1717,9 @@
           "text": "All",
           "value": "$__all"
         },
-        "options": [],
-        "hide": 0,
-        "skipUrlSync": false
+        "hide": 0
       }
     ]
-  }
+  },
+  "description": "USE-метрики web-серверов, реальные MCE guest tracepoint counters, Nginx log metrics."
 }

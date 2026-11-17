@@ -9,7 +9,7 @@ resource "yandex_alb_target_group" "web_target_group" {
   }
 
   target {
-    subnet_id  = yandex_vpc_subnet.private-develop-b.id
+    subnet_id  = yandex_vpc_subnet.private-develop-d.id
     ip_address = yandex_compute_instance.vm-web-b.network_interface[0].ip_address
   }
 }

@@ -23,6 +23,7 @@
   get_url:
     url: https://github.com/prometheus/node_exporter/releases/download/v1.10.2/node_exporter-1.10.2.linux-amd64.tar.gz
     dest: /tmp/install/node_exporter-1.10.2.linux-amd64.tar.gz
+    checksum: sha256:c46e5b6f53948477ff3a19d97c58307394a29fe64a01905646f026ddc32cb65b
     force: no
 
 - name: Распаковка Prometheus
@@ -37,23 +38,32 @@
   debug:
     var: archive_result
 
+- name: Защитить родительский каталог исполняемого файла
+  ansible.builtin.file:
+    path: /etc/prometheus
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Создаем папку для Node Exporter
   file:
     path: /etc/prometheus/node-exporter/
     state: directory
-    owner: prometheus
-    group: prometheus
+    owner: root
+    group: root
     mode: '0755'
 
 - name: Копируем бинарный файл node-exporter
   copy:
     src: /tmp/install/node_exporter-1.10.2.linux-amd64/node_exporter
     dest: /etc/prometheus/node-exporter/
-    owner: prometheus
-    group: prometheus
+    owner: root
+    group: root
     mode: '0755'
     remote_src: yes
   register: etc_prometheus
+  notify: reload systemd
 
 - name: Посмотреть содержимое каталога с правами через ls
   command:
@@ -80,3 +90,28 @@
     enabled: yes
     state: started
     daemon_reload: yes
+
+- name: Применить изменения Node Exporter перед проверкой
+  ansible.builtin.meta: flush_handlers
+
+- name: Проверить штатные метрики и MCE на постоянном порту
+  ansible.builtin.uri:
+    url: http://127.0.0.1:9100/metrics
+    return_content: true               # Сохранить вывод, и в ответе искать
+    status_code: 200                   # Считаем успешними с кодом 200
+    timeout: 10
+  register: node_exporter_metrics      # Сохраянем все в переменную
+  changed_when: false                  # Не отмечать задачу как изменения
+  # Повторять запрос, пока все перечисленные условия не будут true
+  until:
+      # Ищет статус 200, если тсатуса нет, подствляет -1 тогда условие не выполнится
+    - (node_exporter_metrics.status | default(-1)) == 200
+      # Ищет строку, начинающуюся с node_perf_mce_mce_record{, если в content нет то искать в пустой строке
+    - (node_exporter_metrics.content | default('')) is search('(?m)^node_perf_mce_mce_record[{]')
+      # Ищет точную строку успешного выполнения коллектора perf. Значение 1 означает, что сбор метрик этим коллектором прошёл успешно
+    - (node_exporter_metrics.content | default('')) is search('(?m)^node_scrape_collector_success[{]collector="perf"[}] 1$')
+      # Так же для cpu
+    - (node_exporter_metrics.content | default('')) is search('(?m)^node_scrape_collector_success[{]collector="cpu"[}] 1$')
+  retries: 6                           # Максимум 6 повторных попыток после первого запуска
+  delay: 5                             # Между неудачной попыткой и следующим запросом ждать 5 секунд
+

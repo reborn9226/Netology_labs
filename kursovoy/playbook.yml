@@ -44,4 +44,3 @@
   become: true
   roles:
     - filebeat
-

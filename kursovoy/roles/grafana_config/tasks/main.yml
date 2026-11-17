@@ -10,11 +10,11 @@
 
 - name: Проверка, что Prometheus доступен с Grafana
   ansible.builtin.uri:
-    url: "{{ grafana_prometheus_url }}/-/healthy"
+    url: "{{ grafana_prometheus_url }}/-/ready"
     status_code: 200
     timeout: 10
   register: prometheus_health
-  until: prometheus_health.status == 200
+  until: (prometheus_health.status | default(-1)) == 200
   retries: 5
   delay: 5
 
@@ -102,6 +102,6 @@
     url: "{{ grafana_base_url }}/api/health"
     status_code: 200
   register: grafana_health
-  until: grafana_health.status == 200
+  until: (grafana_health.status | default(-1)) == 200
   retries: 10
   delay: 3

@@ -6,7 +6,14 @@ After=network.target
 User=prometheus
 Group=prometheus
 Type=simple
-ExecStart=/etc/prometheus/node-exporter/node_exporter
+AmbientCapabilities=CAP_PERFMON CAP_DAC_READ_SEARCH
+CapabilityBoundingSet=CAP_PERFMON CAP_DAC_READ_SEARCH
+ExecStart=/etc/prometheus/node-exporter/node_exporter \
+    --collector.perf \
+    --collector.perf.disable-hardware-profilers \
+    --collector.perf.disable-software-profilers \
+    --collector.perf.disable-cache-profilers \
+    --collector.perf.tracepoint=mce:mce_record
 
 [Install]
 WantedBy=multi-user.target
