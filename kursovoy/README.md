@@ -243,16 +243,16 @@ Cоздайте ВМ, разверните на ней Elasticsearch. Устан
 
 ```mermaid
 flowchart TB
-    browser[Пользователь] -->|HTTP :80| alb[Application Load Balancer\nзоны a и e]
-    admin[Управляющая машина: WSL Ansible/Terraform] -->|SSH :22| bastion[Bastion\nпубличная подсеть, зона e]
-    alb --> weba[web-a: Nginx\nприватная подсеть, зона a]
-    alb --> webb[web-b: Nginx\nприватная подсеть, зона d]
+    browser["Пользователь"] -->|HTTP :80| alb["Application Load Balancer<br/>зоны a и e"]
+    admin["Управляющая машина: WSL Ansible/Terraform"] -->|SSH :22| bastion["Bastion<br/>публичная подсеть, зона e"]
+    alb --> weba["web-a: Nginx<br/>приватная подсеть, зона a"]
+    alb --> webb["web-b: Nginx<br/>приватная подсеть, зона d"]
     bastion -. SSH / ProxyJump .-> weba
     bastion -. SSH / ProxyJump .-> webb
-    bastion -. SSH / ProxyJump .-> prom[Prometheus\nприватная подсеть, зона e]
-    bastion -. SSH / ProxyJump .-> es[Elasticsearch\nприватная подсеть, зона d]
-    bastion -. SSH / ProxyJump .-> grafana[Grafana\nпубличная подсеть, зона a]
-    bastion -. SSH / ProxyJump .-> kibana[Kibana\nпубличная подсеть, зона a]
+    bastion -. SSH / ProxyJump .-> prom["Prometheus<br/>приватная подсеть, зона e"]
+    bastion -. SSH / ProxyJump .-> es["Elasticsearch<br/>приватная подсеть, зона d"]
+    bastion -. SSH / ProxyJump .-> grafana["Grafana<br/>публичная подсеть, зона a"]
+    bastion -. SSH / ProxyJump .-> kibana["Kibana<br/>публичная подсеть, зона a"]
     prom -->|Сбор метрик :9100 / :9113| weba
     prom -->|Сбор метрик :9100 / :9113| webb
     grafana -->|Запросы :9090| prom
@@ -305,7 +305,7 @@ Target Group → Backend Group → HTTP Router → Application Load Balancer
 
 ![Страница через тот же балансировщик: web-b, приватный IP 10.0.5.22](docs/images/02-site-web-b.png)
 
-Эти скриншоты показывают ответы обоих backend через общий адрес. 
+Эти скриншоты показывают ответы обоих backend через общий адрес.
 ### Сеть и доступ
 
 В [network.tf](network.tf) создал одну VPC с публичными и приватными подсетями. У веб-серверов, Prometheus и Elasticsearch нет публичных IP. Для скачивания пакетов и архивов из приватных подсетей настроен маршрут через NAT-шлюз.
@@ -513,4 +513,3 @@ terraform output vms_info
 ALB_IP=$(terraform output -raw web_balancer)
 curl -v "http://${ALB_IP}:80/"
 ```
-
