@@ -4,7 +4,7 @@ data "yandex_compute_image" "ubuntu_2204_lts" {
 }
 
 
-# Бастион зона D
+# Бастион зона Е
 resource "yandex_compute_instance" "bastion" {
   name        = "bastion" #Имя ВМ в облачной консоли
   hostname    = "bastion" #формирует FDQN имя хоста, без hostname будет сгенрировано случаное имя.
@@ -77,7 +77,7 @@ resource "yandex_compute_instance" "vm-web-a" {
 }
 
 
-# Веб сервер web2 зона Е, приватная сеть
+# Веб сервер web2 зона d, приватная сеть
 resource "yandex_compute_instance" "vm-web-b" {
   name        = "web-b" # Добавляет номер к имени ВМ
   hostname    = "web-b" # Добавляет номер к имени хоста
@@ -115,7 +115,7 @@ resource "yandex_compute_instance" "vm-web-b" {
 }
 
 
-# Prometheus зона B, приватная сеть
+# Prometheus зона e, приватная сеть
 resource "yandex_compute_instance" "vm-prometheus" {
   name        = "prometheus" # Добавляет номер к имени ВМ
   hostname    = "prometheus" # Добавляет номер к имени хоста
@@ -153,7 +153,7 @@ resource "yandex_compute_instance" "vm-prometheus" {
 }
 
 
-# Elasticsearch  зона A, приватная сеть
+# Elasticsearch  зона d, приватная сеть
 resource "yandex_compute_instance" "vm-elasticsearch" {
   name        = "elasticsearch" # Добавляет номер к имени ВМ
   hostname    = "elasticsearch" # Добавляет номер к имени хоста
