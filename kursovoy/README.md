@@ -214,8 +214,6 @@ Cоздайте ВМ, разверните на ней Elasticsearch. Устан
 │   └── vars-vault.yml
 ├── security.tf
 ├── snapshots.tf
-├── terraform.tfstate
-├── terraform.tfstate.backup
 ├── variables.tf
 └── vms.tf
 ```
